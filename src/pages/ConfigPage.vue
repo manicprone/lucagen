@@ -1,18 +1,14 @@
 <template>
-  <div class="home-page page">
-    <h1>lucagen</h1>
-    <div class="version">{{ webVersion }}</div>
+  <div class="config-page page">
+    <h2>Configuration</h2>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HomePage',
+  name: 'ConfigPage',
 
   computed: {
-    webVersion() {
-      return this.$store.getters.webVersion;
-    },
   },
 
   mounted() {
