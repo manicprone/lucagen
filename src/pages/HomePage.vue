@@ -13,6 +13,13 @@ export default {
     webVersion() {
       return this.$store.getters.webVersion;
     },
+    taxaRoot() {
+      return this.$store.getters.taxaRoot;
+    },
+  },
+
+  beforeMount() {
+    this.$store.dispatch('LOAD_TAXA_ROOT');
   },
 
   mounted() {
