@@ -43,11 +43,8 @@ const taxonData = {
     LOAD_TAXA_ROOT(context) {
       const { commit } = context;
 
-      // return [];
       return taxaActions.getRoot()
         .then((payload) => {
-          console.log('[STORE] payload =>', payload);
-
           // const collection = toModel(payload);
           const collection = payload.items;
           commit('SET_TAXA_ROOT', collection);

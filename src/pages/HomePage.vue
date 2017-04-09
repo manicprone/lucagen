@@ -6,7 +6,7 @@
     </div>
 
     <div class="page-body">
-      <div class="viz-canvas">
+      <div class="viz-canvas grid">
         <dot v-for="(node, index) in taxaRoot"
              v-bind:key="'n-' + node.id"
              v-bind:index="index" />
@@ -16,10 +16,17 @@
 </template>
 
 <script>
+import Masonry from 'masonry-layout';
 import Dot from '../components/Dot';
 
 export default {
   name: 'HomePage',
+
+  data: () => {
+    return {
+      canvas: null,
+    };
+  },
 
   computed: {
     webVersion() {
@@ -35,6 +42,11 @@ export default {
   },
 
   mounted() {
+    const vizCanvas = document.querySelector('.grid');
+    this.canvas = new Masonry(vizCanvas, {
+      itemSelector: '.grid-item',
+      columnWidth: 40,
+    });
   },
 
   components: {
