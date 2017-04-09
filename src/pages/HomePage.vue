@@ -1,11 +1,23 @@
 <template>
   <div class="home-page page">
-    <h1>lucagen</h1>
-    <div class="version">{{ webVersion }}</div>
+    <div class="page-header">
+      <h1>lucagen</h1>
+      <div class="version">{{ webVersion }}</div>
+    </div>
+
+    <div class="page-body">
+      <div class="viz-canvas">
+        <dot v-for="(node, index) in taxaRoot"
+             v-bind:key="'n-' + node.id"
+             v-bind:index="index" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import Dot from '../components/Dot';
+
 export default {
   name: 'HomePage',
 
@@ -24,9 +36,15 @@ export default {
 
   mounted() {
   },
+
+  components: {
+    Dot,
+  },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  .viz-canvas {
+    
+  }
 </style>

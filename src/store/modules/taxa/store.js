@@ -1,4 +1,4 @@
-// import taxaActions from '../../actions/lucafeed';
+import taxaActions from '../../actions/lucafeed';
 
 // -------------------------------------------------------
 // Exposes the API actions for taxon nodes (from lucafeed)
@@ -40,24 +40,24 @@ const taxonData = {
   // ---------------------------------------------------------------------------
   actions: {
 
-    LOAD_TAXA_ROOT(/* context */) {
-      // const { commit } = context;
+    LOAD_TAXA_ROOT(context) {
+      const { commit } = context;
 
-      return [];
-      // return taxaActions.getRoot()
-      //   .then((payload) => {
-      //     // console.log('[STORE] payload =>', payload);
-      //
-      //     // const collection = toModel(payload);
-      //     const collection = payload.items;
-      //     commit('SET_TAXA_ROOT', collection);
-      //
-      //     return collection;
-      //   })
-      //   .catch((error) => {
-      //     console.error('[STORE] error =>', error);
-      //     return [];
-      //   });
+      // return [];
+      return taxaActions.getRoot()
+        .then((payload) => {
+          console.log('[STORE] payload =>', payload);
+
+          // const collection = toModel(payload);
+          const collection = payload.items;
+          commit('SET_TAXA_ROOT', collection);
+
+          return collection;
+        })
+        .catch((error) => {
+          console.error('[STORE] error =>', error);
+          return [];
+        });
     },
 
   },
