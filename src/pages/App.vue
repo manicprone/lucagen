@@ -15,6 +15,7 @@
 <style>
   body {
     background-color: #e9e9e9;
+    margin: 0;
   }
 
   h1, h2 {
@@ -44,15 +45,22 @@
     margin-top: 60px;
   }
 
-  .page {
-
-  }
-
   .page h1 {
-    margin: 8px 0;
+    margin: 0;
+  }
+  .page-header {
+    background-color: #ededed;
+    padding: 7px 0;
+    border-top: 1px solid #e2e2e2;
+    border-bottom: 1px solid #e2e2e2;
+  }
+  .page-body {
+    margin: 30px;
   }
 
   .version {
+    display: none;
     color: #727272;
+    font-size: 10px;
   }
 </style>
