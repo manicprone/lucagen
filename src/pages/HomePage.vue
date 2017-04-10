@@ -8,6 +8,7 @@
     <div class="page-body">
       <div class="viz-canvas grid">
         <dot v-for="(node, index) in taxaRoot"
+             v-bind:type="'grid'"
              v-bind:key="'n-' + node.id"
              v-bind:index="index" />
       </div>
@@ -56,7 +57,4 @@ export default {
 </script>
 
 <style scoped>
-  .viz-canvas {
-    
-  }
 </style>

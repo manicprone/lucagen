@@ -7,13 +7,16 @@
 
     <div class="page-body">
       <div class="viz-canvas">
+        <dot v-bind:type="'life'"
+             v-bind:index="'0'"
+             v-bind:id="'lonely'" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-// import Dot from '../components/Dot';
+import Dot from '../components/Dot';
 
 export default {
   name: 'RealityPage',
@@ -25,13 +28,13 @@ export default {
   },
 
   beforeMount() {
-
   },
 
   mounted() {
   },
 
   components: {
+    Dot,
   },
 };
 </script>
