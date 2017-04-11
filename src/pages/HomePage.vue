@@ -10,7 +10,8 @@
         <dot v-for="(node, index) in taxaRoot"
              v-bind:type="'grid'"
              v-bind:key="'n-' + node.id"
-             v-bind:index="index" />
+             v-bind:index="index"
+             v-bind:id="'dot-' + node.id" />
       </div>
     </div>
   </div>

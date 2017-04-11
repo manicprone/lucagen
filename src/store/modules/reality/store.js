@@ -1,3 +1,7 @@
+import objectUtils from '../../../helpers/object-utils';
+import World from '../../../models/World';
+import Dot from '../../../models/Dot';
+
 // -----------------------------------------------
 // Exposes the API actions and data of a Dot world
 // -----------------------------------------------
@@ -5,17 +9,7 @@ const realityData = {
   state: {
 
     // The active dot world...
-    world: {
-      info: {
-        dots: [],
-      },
-      dotRegistry: {
-        lonely: {
-          top: 0,
-          left: 0,
-        },
-      },
-    },
+    world: null,
 
   }, // END - state
 
@@ -26,11 +20,29 @@ const realityData = {
     },
 
     dotWorldInfo(state) {
-      return state.world.info;
+      if (state.world && state.world.info) {
+        return state.world.info;
+      }
+      return {};
     },
 
     dotWorldRegistry(state) {
-      return state.world.dotRegistry;
+      if (state.world && state.world.dotRegistry) {
+        const registry = {};
+
+        // Hydrate dot data into Dot models...
+        const dots = Object.keys(state.world.dotRegistry);
+        dots.forEach((dotID) => {
+          const dotData = state.world.dotRegistry[dotID];
+          const dot = new Dot(dotData);
+          registry[dotID] = dot;
+
+          console.log('[STORE] hydrated Dot =>', dot);
+        });
+
+        return registry;
+      }
+      return {};
     },
 
   }, // END - getters
@@ -56,31 +68,55 @@ const realityData = {
   // ---------------------------------------------------------------------------
   actions: {
 
-    // LOAD_TAXA_ROOT(context) {
-    //   const { commit } = context;
-    //
-    //   return taxaActions.getRoot()
-    //     .then((payload) => {
-    //       // const collection = toModel(payload);
-    //       const collection = payload.items;
-    //       commit('SET_TAXA_ROOT', collection);
-    //
-    //       return collection;
-    //     })
-    //     .catch((error) => {
-    //       console.error('[STORE] error =>', error);
-    //       return [];
-    //     });
-    // },
+    CREATE_WORLD(context, options) {
+      const { commit } = context;
+
+      // Handle options...
+      const name = objectUtils.get(options, 'name', null);
+      const width = objectUtils.get(options, 'width', 400);
+      const height = objectUtils.get(options, 'height', 200);
+      const dots = objectUtils.get(options, 'dots', []);
+
+      // Configure world...
+      const world = new World({
+        width,
+        height,
+      });
+      if (name) world.name = name;
+
+      // Populate with pioneers...
+      dots.forEach((dotData) => {
+        dotData.new = true; // eslint-disable-line no-param-reassign
+        const dot = new Dot(dotData);
+        world.addDot(dot);
+      });
+
+      commit('SET_WORLD', world);
+    },
+
+    NOTIFY_DOT_UPDATE(context, update) {
+      const { commit } = context;
+      commit('SET_DOT_UPDATE', update);
+    },
 
   },
 
   /* eslint-disable no-param-reassign */
   mutations: {
 
-    // SET_TAXA_ROOT(state, collection) {
-    //   state.root = collection;
-    // },
+    SET_WORLD(state, world) {
+      console.log('[STORE] WORLD ===>', world);
+
+      state.world = world;
+    },
+
+    SET_DOT_UPDATE(state, update) {
+      console.log('[STORE] DOT UPDATE ===>', update);
+
+      const dotID = update.id;
+      const dotData = update.dotData;
+      state.world.dotRegistry[dotID] = dotData;
+    },
 
   }, // END - mutations
   /* eslint-enable no-param-reassign */

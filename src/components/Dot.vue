@@ -1,10 +1,12 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-on:click="describe">
+  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-on:click="toggle">
     <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
   </div>
 </template>
 
 <script>
+import Velocity from 'velocity-animate';
+
 export default {
   name: 'Dot',
 
@@ -13,6 +15,12 @@ export default {
     'index',
     'id',
   ],
+
+  data: () => {
+    return {
+      isPaused: true,
+    };
+  },
 
   computed: {
     dotSpaceClasses() {
@@ -40,13 +48,20 @@ export default {
     },
   },
 
+  watch: {
+    self(/* value */) {
+      // console.log(`Dot ${this.self.name} updated =>`, value);
+      if (!this.isPaused) this.move();
+    },
+  },
+
   beforeMount() {
     // Calculate birthplace...
   },
 
   mounted() {
     // If first to act, move...
-    this.move();
+    // this.move();
   },
 
   beforeUpdate() {
@@ -55,7 +70,8 @@ export default {
 
   updated() {
     // React, move...
-    this.move();
+    console.log(`Dot "${this.self.name}" Vue updated !!!`);
+    // this.move();
   },
 
   destroyed() {
@@ -63,27 +79,59 @@ export default {
   },
 
   methods: {
+    toggle() {
+      if (this.isPaused) {
+        console.log(`Dot "${this.self.name}" awoken`);
+        this.resume();
+      } else {
+        console.log(`Dot "${this.self.name}" sleeping`);
+        this.pause();
+      }
+    },
+    resume() {
+      this.isPaused = false;
+      this.move();
+    },
+    pause() {
+      this.isPaused = true;
+    },
     pulse() {
-      console.log('(( . ))');
+      // console.log('(( . ))');
     },
-    describe() {
-      console.log('!!!');
+    notify(moveInfo) {
+      // Apply move info...
+      this.self.applyMove(moveInfo);
+
+      // Notify store...
+      const update = { id: this.self.id, dotData: this.self };
+      this.$store.dispatch('NOTIFY_DOT_UPDATE', update);
     },
-    // -------------------------- Life Actions
-    getInfo() {
-    },
+    // -------------------------- Moves
     move() {
+      console.log('[DOT] moving dot =>', this.self);
+
+      const nextMove = this.self.getNextMove();
+      console.log('[DOT] nextMove =>', nextMove);
+
+      const currSpeed = Number(this.self.speed);
+
+      // TODO: Perform this on the Model !!!
+      const currX1 = Number(this.self.x1);
+      const newX1 = currX1 + 10;
+
+      // console.log(`[DOT] ${currX1} => ${newX1}`);
+      const moveInfo = { x1: newX1 };
+
+      // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
-      console.log('[DOT] obj =>', obj);
 
-      const currLeft = this.$refs.dotSpace.style.left;
-      console.log(`[DOT] ${this.id} style:`, this.$refs.dotSpace.style);
-      const newLeft = currLeft + 1;
+      // Execute move on DOM element...
+      Velocity(obj, nextMove, {
+        duration: currSpeed,
+        complete: () => { this.notify(moveInfo); },
+      });
+    },
 
-      console.log(`[DOT] ${this.id} moving ${currLeft}=>${newLeft}`);
-    },
-    moveE() {
-    },
   },
 };
 </script>
@@ -105,12 +153,12 @@ export default {
   }
   .dot-space.life {
     position: relative;
-    top: 0px;
     left: 0px;
+    bottom: -191px;
   }
 
   .dot {
-    margin: 3px auto 0 auto;
+    margin: 0 auto;
     height: 1px;
     width: 1px;
     background-color: #e9e9e9;
