@@ -45,7 +45,7 @@ export default {
       height: 9,
       x: 0,
       y: 0,
-      speed: 2000,
+      speed: 1000,
     };
     const world = {
       // name: 'Lonely World',

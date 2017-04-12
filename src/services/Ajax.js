@@ -1,5 +1,5 @@
 import requestPromise from 'request-promise';
-import objectUtils from '../helpers/object-utils';
+import objectUtils from '../utils/object-utils';
 
 export default class Ajax {
   constructor(options) {

@@ -1,4 +1,4 @@
-import objectUtils from '../../../helpers/object-utils';
+import objectUtils from '../../../utils/object-utils';
 import World from '../../../models/World';
 import Dot from '../../../models/Dot';
 
@@ -16,12 +16,10 @@ const realityData = {
   getters: {
 
     dotWorld(state) {
-      return state.world;
-    },
-
-    dotWorldInfo(state) {
-      if (state.world && state.world.info) {
-        return state.world.info;
+      // Hydrate World into World model...
+      if (state.world) {
+        const world = World.hydrate(state.world);
+        return world;
       }
       return {};
     },
@@ -30,11 +28,11 @@ const realityData = {
       if (state.world && state.world.dotRegistry) {
         const registry = {};
 
-        // Hydrate dot data into Dot models...
+        // Hydrate Dot data into Dot models...
         const dots = Object.keys(state.world.dotRegistry);
         dots.forEach((dotID) => {
           const dotData = state.world.dotRegistry[dotID];
-          const dot = new Dot(dotData);
+          const dot = Dot.hydrate(dotData);
           registry[dotID] = dot;
 
           console.log('[STORE] hydrated Dot =>', dot);
@@ -86,7 +84,6 @@ const realityData = {
 
       // Populate with pioneers...
       dots.forEach((dotData) => {
-        dotData.new = true; // eslint-disable-line no-param-reassign
         const dot = new Dot(dotData);
         world.addDot(dot);
       });

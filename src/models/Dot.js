@@ -1,17 +1,23 @@
-import objectUtils from '../helpers/object-utils';
+import objectUtils from '../utils/object-utils';
+import * as dotWorldUtils from '../utils/dot-world-utils';
+
+const debug = true;
+const verbose = false;
 
 export default class Dot {
   constructor(data = {}) {
     this.type = this.constructor.name;
 
-    const isNew = objectUtils.get(data, 'new', false);
+    const isNew = objectUtils.get(data, 'new', true);
     this.id = objectUtils.get(data, 'id', `dot-${new Date().getTime()}`);
     this.name = objectUtils.get(data, 'name', 'Anon');
     this.index = objectUtils.get(data, 'index', -1);
 
-    if (isNew) console.log(`[MODEL] Dot is born: ${this.name}`);
-    else console.log(`[MODEL] Dot is hydrating: ${this.name}`);
-    console.log('[MODEL] with data =>', data);
+    if (debug) {
+      if (isNew) console.log(`[MODEL] A Dot is born: ${this.id}`);
+      else console.log(`[MODEL] A Dot is hydrating: ${this.id}`);
+      if (verbose) console.log('[MODEL] with data =>', data);
+    }
 
     // Birth requirements...
     this.width = objectUtils.get(data, 'width', 9);
@@ -31,6 +37,7 @@ export default class Dot {
     if (isNew) {
       // Calculate birthplace in world...
       this.birthLeft = this.birthX;
+      // TODO: this is supposed to be the world.height !!!
       this.birthBottom = -1 * (this.birthY - this.height);
 
       // Calculate location (by vertices)...
@@ -54,14 +61,43 @@ export default class Dot {
 
 
   // ----------------------------------------------- Movement
-  getNextMove() {
-    const newX1 = Number(this.x1) + 10;
-    const move = {
-      translateX: `${newX1}px`,
-    };
+  getNextMove(world) {
+    const nextMove = {};
 
-    return move;
+    const moves = dotWorldUtils.determineAvailableMoves(this, world);
+    if (debug) console.log(`[MODEL][${this.id}] available moves =>`, moves);
+
+    // For now, choose the first available...
+    if (moves.length > 0) {
+      const direction = moves[0];
+      const endState = dotWorldUtils.generateMoveEndState(this, direction);
+      const target = endState.x1 || endState.y1;
+      const instruction = dotWorldUtils.generateMoveInstruction({ direction, target });
+
+      // Add endState and instruction data to return package...
+      nextMove.endState = endState;
+      nextMove.instruction = instruction;
+
+      if (debug) {
+        console.log(`[MODEL][${this.id}] nextMove package for "${direction}" =>`, nextMove);
+      }
+    }
+
+    return nextMove;
   }
+
+  // getNextMove(world) {
+  //   if (world && world.type === 'DotWorld') {
+  //     const newX1 = Number(this.x1) + 10;
+  //     const move = {
+  //       translateX: `${newX1}px`,
+  //     };
+  //
+  //     return move;
+  //   }
+  //
+  //   return {};
+  // }
 
   applyMove(newLocation) {
     if (newLocation.x1) this.x1 = newLocation.x1;
@@ -71,5 +107,10 @@ export default class Dot {
   }
 
   // ----------------------------------------------- Serialize
-  // (Converts the dot info into a flat object)
+
+  // ----------------------------------------------- Hydrate
+  static hydrate(dotData) {
+    dotData.new = false; // eslint-disable-line no-param-reassign
+    return new Dot(dotData);
+  }
 }
