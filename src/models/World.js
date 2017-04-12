@@ -39,6 +39,20 @@ export default class DotWorld {
     }
   }
 
+  pauseDots() {
+    this.dots.forEach((dotID) => {
+      const dot = this.dotRegistry[dotID];
+      if (dot && !dot.isAsleep) dot.sleep();
+    });
+  }
+
+  resumeDots() {
+    this.dots.forEach((dotID) => {
+      const dot = this.dotRegistry[dotID];
+      if (dot && dot.isAsleep) dot.wake();
+    });
+  }
+
   // ----------------------------------------------- Serialize
 
   // ----------------------------------------------- Hydrate

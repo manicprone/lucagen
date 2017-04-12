@@ -8,6 +8,9 @@ export default class Dot {
   constructor(data = {}) {
     this.type = this.constructor.name;
 
+    // --------------
+    // Identification
+    // --------------
     const isNew = objectUtils.get(data, 'new', true);
     this.id = objectUtils.get(data, 'id', `dot-${new Date().getTime()}`);
     this.name = objectUtils.get(data, 'name', 'Anon');
@@ -19,14 +22,18 @@ export default class Dot {
       if (verbose) console.log('[MODEL] with data =>', data);
     }
 
-    // Birth requirements...
+    // ------------------
+    // Birth requirements
+    // ------------------
     this.width = objectUtils.get(data, 'width', 9);
     this.height = objectUtils.get(data, 'height', 9);
-    this.birthX = objectUtils.get(data, 'birthX', 0); // x
-    this.birthY = objectUtils.get(data, 'birthY', 0); // y
+    this.birthX = objectUtils.get(data, 'birthX', 0);
+    this.birthY = objectUtils.get(data, 'birthY', 0);
     this.speed = objectUtils.get(data, 'speed', 3000);
 
-    // Previosuly hydrated values...
+    // -------------------
+    // Location Management
+    // -------------------
     if (objectUtils.has(data, 'birthLeft')) this.birthLeft = data.birthLeft;
     if (objectUtils.has(data, 'birthBottom')) this.birthBottom = data.birthBottom;
     if (objectUtils.has(data, 'x1')) this.x1 = data.x1;
@@ -46,6 +53,13 @@ export default class Dot {
       this.y1 = this.birthY;
       this.y2 = this.birthY + this.height;
     }
+
+    // -------------------
+    // Movement Attributes
+    // -------------------
+    this.isAsleep = objectUtils.get(data, 'isAsleep', true);
+    this.lastMoveDirection = objectUtils.get(data, 'lastMoveDirection', null);
+    this.lastMoveShift = objectUtils.get(data, 'lastMoveShift', null);
   }
 
   // ----------------------------------------------- Size
@@ -61,15 +75,35 @@ export default class Dot {
 
 
   // ----------------------------------------------- Movement
+  sleep() {
+    this.isAsleep = true;
+    if (debug) console.log(`[MODEL][${this.id}] has been put to sleep`);
+  }
+
+  wake() {
+    this.isAsleep = false;
+    if (debug) console.log(`[MODEL][${this.id}] has awoken`);
+  }
+
   getNextMove(world) {
     const nextMove = {};
 
     const moves = dotWorldUtils.determineAvailableMoves(this, world);
     if (debug) console.log(`[MODEL][${this.id}] available moves =>`, moves);
 
-    // For now, choose the first available...
     if (moves.length > 0) {
       const direction = moves[0];
+
+      if (!this.lastMoveShift) this.lastMoveShift = direction; // set initial
+      if (!this.lastMoveDirection) this.lastMoveDirection = direction; // set initial
+
+      if (this.lastMoveDirection !== direction) {
+        // TODO: Ensure a new shift is chosen !!!
+        this.lastMoveShift = direction; // set new shift
+      }
+      this.lastMoveDirection = direction; // set current direction
+
+      // Generate move data...
       const endState = dotWorldUtils.generateMoveEndState(this, direction);
       const target = endState.x1 || endState.y1;
       const instruction = dotWorldUtils.generateMoveInstruction({ direction, target });

@@ -40,19 +40,19 @@ export function determineAvailableMoves(dot, world) {
     }
     if (nextDotEast <= worldEast) moves.push('e');
 
-    // West...
-    if (debug) {
-      console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
-      console.log(`[UTILS] ${nextDotWest} >= ${worldWest}`, (nextDotWest >= worldWest));
-    }
-    if (nextDotWest >= worldWest) moves.push('w');
-
     // South...
     if (debug) {
       console.log(`[UTILS] is dotSouth ${dot.y1} - ${step} >= worldSouth ${worldSouth}?`);
       console.log(`[UTILS] ${nextDotSouth} >= ${worldSouth}`, (nextDotSouth >= worldSouth));
     }
     if (nextDotSouth >= worldSouth) moves.push('s');
+
+    // West...
+    if (debug) {
+      console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
+      console.log(`[UTILS] ${nextDotWest} >= ${worldWest}`, (nextDotWest >= worldWest));
+    }
+    if (nextDotWest >= worldWest) moves.push('w');
   }
 
   return moves;
@@ -128,7 +128,7 @@ export function generateMoveInstruction(moveInfo) {
       }
       case 'w':
       case 'west': {
-        moveInstruction.translateX = `${-1 * target}px`;
+        moveInstruction.translateX = `${target}px`;
         return moveInstruction;
       }
       default: {

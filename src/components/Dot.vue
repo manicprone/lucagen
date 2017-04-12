@@ -16,12 +16,6 @@ export default {
     'id',
   ],
 
-  data: () => {
-    return {
-      isPaused: true,
-    };
-  },
-
   computed: {
     dotSpaceClasses() {
       const base = 'dot-space';
@@ -50,8 +44,7 @@ export default {
 
   watch: {
     self(/* value */) {
-      // console.log(`Dot ${this.self.name} updated =>`, value);
-      if (!this.isPaused) this.move();
+      if (!this.self.isAsleep) this.move();
     },
   },
 
@@ -70,21 +63,15 @@ export default {
 
   methods: {
     toggle() {
-      if (this.isPaused) {
-        console.log(`[DOT] "${this.self.id}" has awoken`);
-        this.resume();
-      } else {
-        console.log(`[DOT] "${this.self.id}" is sleeping`);
-        this.pause();
-      }
+      // this.self.isAsleep = !this.self.isAsleep;
     },
-    resume() {
-      this.isPaused = false;
-      this.move();
-    },
-    pause() {
-      this.isPaused = true;
-    },
+    // resume() {
+    //   this.isPaused = false;
+    //   this.move();
+    // },
+    // pause() {
+    //   this.isPaused = true;
+    // },
     pulse() {
       // console.log('(( . ))');
     },

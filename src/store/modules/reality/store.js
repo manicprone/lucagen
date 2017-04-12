@@ -102,16 +102,16 @@ const realityData = {
   mutations: {
 
     SET_WORLD(state, world) {
-      console.log('[STORE] WORLD ===>', world);
+      console.log(`[STORE] World "${world.name}" created =>`, world);
 
       state.world = world;
     },
 
     SET_DOT_UPDATE(state, update) {
-      console.log('[STORE] DOT UPDATE ===>', update);
-
       const dotID = update.id;
       const dotData = update.dotData;
+      console.log(`[STORE] Dot "${dotID}" updated =>`, update);
+
       state.world.dotRegistry[dotID] = dotData;
     },
 
