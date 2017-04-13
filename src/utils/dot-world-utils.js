@@ -5,7 +5,7 @@
 // -------------------------------------------------------------
 import objectUtils from './object-utils';
 
-const debug = true;
+const debug = false;
 const verbose = false;
 const step = 10; // TODO: Move this to World, Dot, or just a config !?!?!?
 
@@ -19,40 +19,28 @@ export function determineAvailableMoves(dot, world) {
   if (dot && dot.type === 'Dot' && world && world.type === 'DotWorld') {
     const nextDotEast = dot.x2 + step;
     const nextDotWest = dot.x1 - step;
-    const nextDotNorth = dot.y2 + step;
-    const nextDotSouth = dot.y1 - step;
+    const nextDotNorth = dot.y1 - step;
+    const nextDotSouth = dot.y2 + step;
 
     const worldEast = world.x2;
     const worldWest = world.x1;
-    const worldNorth = world.y2;
-    const worldSouth = world.y1;
+    const worldNorth = world.y1;
+    const worldSouth = world.y2;
 
     // North...
-    if (debug && verbose) {
-      console.log(`[UTILS] is dotNorth ${dot.y2} + ${step} <= worldNorth ${worldNorth}?`);
-      console.log(`[UTILS] ${nextDotNorth} <= ${worldNorth}`, (nextDotNorth <= worldNorth));
-    }
-    if (nextDotNorth <= worldNorth) moves.push('n');
+    if (debug && verbose) console.log(`[UTILS] is dotNorth ${dot.y1} - ${step} >= worldNorth ${worldNorth}?`);
+    if (nextDotNorth >= worldNorth) moves.push('n');
 
     // East...
-    if (debug && verbose) {
-      console.log(`[UTILS] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
-      console.log(`[UTILS] ${nextDotEast} <= ${worldEast}`, (nextDotEast <= worldEast));
-    }
+    if (debug && verbose) console.log(`[UTILS] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
     if (nextDotEast <= worldEast) moves.push('e');
 
     // South...
-    if (debug && verbose) {
-      console.log(`[UTILS] is dotSouth ${dot.y1} - ${step} >= worldSouth ${worldSouth}?`);
-      console.log(`[UTILS] ${nextDotSouth} >= ${worldSouth}`, (nextDotSouth >= worldSouth));
-    }
-    if (nextDotSouth >= worldSouth) moves.push('s');
+    if (debug && verbose) console.log(`[UTILS] is dotSouth ${dot.y2} + ${step} <= worldSouth ${worldSouth}?`);
+    if (nextDotSouth <= worldSouth) moves.push('s');
 
     // West...
-    if (debug && verbose) {
-      console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
-      console.log(`[UTILS] ${nextDotWest} >= ${worldWest}`, (nextDotWest >= worldWest));
-    }
+    if (debug && verbose) console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
     if (nextDotWest >= worldWest) moves.push('w');
   }
 
@@ -64,27 +52,31 @@ export function generateMoveEndState(dot, direction) {
     switch (direction) {
       case 'n':
       case 'north': {
-        const newY1 = dot.y1 + step;
-        const newY2 = dot.y2 + step;
-        return { y1: newY1, y2: newY2 };
+        const newY1 = dot.y1 - step;
+        const newY2 = dot.y2 - step;
+        const newFromY = dot.fromY - step;
+        return { y1: newY1, y2: newY2, fromY: newFromY };
       }
       case 's':
       case 'south': {
-        const newY1 = dot.y1 - step;
-        const newY2 = dot.y2 - step;
-        return { y1: newY1, y2: newY2 };
+        const newY1 = dot.y1 + step;
+        const newY2 = dot.y2 + step;
+        const newFromY = dot.fromY + step;
+        return { y1: newY1, y2: newY2, fromY: newFromY };
       }
       case 'e':
       case 'east': {
         const newX1 = dot.x1 + step;
         const newX2 = dot.x2 + step;
-        return { x1: newX1, x2: newX2 };
+        const newFromX = dot.fromX + step;
+        return { x1: newX1, x2: newX2, fromX: newFromX };
       }
       case 'w':
       case 'west': {
         const newX1 = dot.x1 - step;
         const newX2 = dot.x2 - step;
-        return { x1: newX1, x2: newX2 };
+        const newFromX = dot.fromX - step;
+        return { x1: newX1, x2: newX2, fromX: newFromX };
       }
       default: return {};
     } // end-switch
@@ -94,7 +86,7 @@ export function generateMoveEndState(dot, direction) {
 }
 
 // -----------------------------------------------------------
-// Generates a Velocity-compatible spec for transformations
+// Generates a CSS3-compatible spec for transformations
 // -----------------------------------------------------------
 // The "moveInfo" object:
 //
@@ -102,7 +94,7 @@ export function generateMoveEndState(dot, direction) {
 //                         (supported: 'n', 'e', 's', 'w')
 //
 // target: <Number>     => The pixel value for the desired
-//                         transformation target location.
+//                         transformation distance.
 // -----------------------------------------------------------
 export function generateMoveInstruction(moveInfo) {
   const direction = objectUtils.get(moveInfo, 'direction', 'noop');
@@ -114,7 +106,7 @@ export function generateMoveInstruction(moveInfo) {
     switch (direction) {
       case 'n':
       case 'north': {
-        moveInstruction.translateY = `${-1 * target}px`;
+        moveInstruction.translateY = `${target}px`;
         return moveInstruction;
       }
       case 's':

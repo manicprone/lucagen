@@ -50,7 +50,7 @@ export default {
       width: 9,
       height: 9,
       birthX: 0,
-      birthY: 0,
+      birthY: 191,
       speed: 800,
     };
     const world = {

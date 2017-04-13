@@ -85,7 +85,7 @@ export default {
     },
     // -------------------------- Moves
     move() {
-      console.log(`[DOT] "${this.self.id}" is moving =>`, this.self);
+      // console.log(`[DOT] "${this.self.id}" is moving =>`, this.self);
       const nextMove = this.self.getNextMove(this.world);
       const currSpeed = Number(this.self.speed);
 
@@ -120,7 +120,7 @@ export default {
   .dot-space.life {
     position: relative;
     left: 0px;
-    bottom: -191px;
+    top: 191px;
   }
 
   .dot {

@@ -34,8 +34,6 @@ const realityData = {
           const dotData = state.world.dotRegistry[dotID];
           const dot = Dot.hydrate(dotData);
           registry[dotID] = dot;
-
-          console.log('[STORE] hydrated Dot =>', dot);
         });
 
         return registry;
@@ -103,7 +101,6 @@ const realityData = {
 
     SET_WORLD(state, world) {
       console.log(`[STORE] World "${world.name}" created =>`, world);
-
       state.world = world;
     },
 

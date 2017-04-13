@@ -72,10 +72,10 @@ export default class DotWorld {
 
          N
 
-    y2 _____ 5
+    y1 _____ 5
       |     |          (height)
       |_____|
-    y1       0
+    y2       0
 
          S
 */
