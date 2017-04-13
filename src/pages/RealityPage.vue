@@ -1,21 +1,21 @@
 <template>
   <div class="reality-page page">
-    <transition name="fade" appear>
-      <div class="page-header">
-        <h1>lucagen</h1>
-        <div class="version">reality</div>
-      </div>
-    </transition>
-
     <div class="page-body">
+
       <transition name="fade">
-        <div v-if="dotWorld" class="world-container">
+        <div v-if="world" class="world-container">
           <dot v-bind:type="'life'"
                v-bind:index="'0'"
-               v-bind:id="'lonely'"
-               v-bind:name="'Lonely'" />
+               v-bind:id="'lonely'" />
         </div>
       </transition>
+
+      <div v-if="world" class="world-controls-container">
+        <div class="world-controls">
+          <span><a v-on:click="toggleLife">{{ lifeToggleLabel }}</a></span>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -26,12 +26,18 @@ import Dot from '../components/Dot';
 export default {
   name: 'RealityPage',
 
+  data: () => {
+    return {
+      isPaused: true,
+    };
+  },
+
   computed: {
-    webVersion() {
-      return this.$store.getters.webVersion;
-    },
-    dotWorld() {
+    world() {
       return this.$store.getters.dotWorld;
+    },
+    lifeToggleLabel() {
+      return (this.isPaused) ? 'Wake' : 'Sleep';
     },
   },
 
@@ -43,12 +49,12 @@ export default {
       index: 0,
       width: 9,
       height: 9,
-      x: 0,
-      y: 0,
-      speed: 2000,
+      birthX: 0,
+      birthY: 191,
+      speed: 800,
     };
     const world = {
-      // name: 'Lonely World',
+      name: 'Lonely World',
       width: 400,
       height: 200,
       dots: [lonely],
@@ -59,6 +65,24 @@ export default {
   mounted() {
   },
 
+  methods: {
+    toggleLife() {
+      if (this.isPaused) {
+        this.resumeLife();
+      } else {
+        this.pauseLife();
+      }
+    },
+    resumeLife() {
+      this.world.resumeDots();
+      this.isPaused = false;
+    },
+    pauseLife() {
+      this.world.pauseDots();
+      this.isPaused = true;
+    },
+  },
+
   components: {
     Dot,
   },
@@ -66,17 +90,19 @@ export default {
 </script>
 
 <style scoped>
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 2s;
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
-
   .world-container {
     width: 400px;
     height: 200px;
     border: 1px solid #ff9977;
+    margin: 0 auto;
+  }
+
+  .world-controls-container {
+    margin: 20px 0 0 0;
+  }
+
+  .world-controls {
+    width: 100px;
     margin: 0 auto;
   }
 </style>

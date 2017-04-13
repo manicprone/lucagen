@@ -1,27 +1,34 @@
-import objectUtils from '../helpers/object-utils';
+import objectUtils from '../utils/object-utils';
 
 export default class DotWorld {
   constructor(data = {}) {
-    // const now = new Date().getTime();
     this.type = this.constructor.name;
+
+    const isNew = objectUtils.get(data, 'new', true);
     this.name = objectUtils.get(data, 'name', `Lucagen-${new Date().getTime()}`);
+    this.width = objectUtils.get(data, 'width', 400);
+    this.height = objectUtils.get(data, 'height', 200);
 
-    this.info = {};
-    this.info.name = this.name;
-    this.info.width = objectUtils.get(data, 'x', 400);
-    this.info.height = objectUtils.get(data, 'y', 200);
+    // Previosuly hydrated values...
+    if (objectUtils.has(data, 'x1')) this.x1 = data.x1;
+    if (objectUtils.has(data, 'x2')) this.x2 = data.x2;
+    if (objectUtils.has(data, 'y1')) this.y1 = data.y1;
+    if (objectUtils.has(data, 'y2')) this.y2 = data.y2;
 
+    if (isNew) {
+      // Generate vertices...
+      this.x1 = 0;
+      this.x2 = this.width;
+      this.y1 = 0;
+      this.y2 = this.height;
+    }
+
+    // Manage dots...
     this.dots = objectUtils.get(data, 'dots', []);
-    this.dotRegistry = {};
+    this.dotRegistry = objectUtils.get(data, 'dotRegistry', {});
   }
 
   // ----------------------------------------------- Size
-  get height() {
-    return this.info.height;
-  }
-  get width() {
-    return this.info.width;
-  }
 
   // ----------------------------------------------- Dot management
   addDot(dot) {
@@ -32,9 +39,43 @@ export default class DotWorld {
     }
   }
 
+  pauseDots() {
+    this.dots.forEach((dotID) => {
+      const dot = this.dotRegistry[dotID];
+      if (dot && !dot.isAsleep) dot.sleep();
+    });
+  }
+
+  resumeDots() {
+    this.dots.forEach((dotID) => {
+      const dot = this.dotRegistry[dotID];
+      if (dot && dot.isAsleep) dot.wake();
+    });
+  }
+
   // ----------------------------------------------- Serialize
-  // (Converts the world info into a flat object)
-  getInfo() {
-    return this.info;
+
+  // ----------------------------------------------- Hydrate
+  static hydrate(worldData) {
+    worldData.new = false; // eslint-disable-line no-param-reassign
+    return new DotWorld(worldData);
   }
 }
+
+/*
+
+     x1_____x2
+  W   |     |   E      (width)
+      |_____|
+      0     5
+
+
+         N
+
+    y1 _____ 5
+      |     |          (height)
+      |_____|
+    y2       0
+
+         S
+*/

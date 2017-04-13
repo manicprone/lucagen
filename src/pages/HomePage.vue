@@ -1,10 +1,5 @@
 <template>
   <div class="home-page page">
-    <div class="page-header">
-      <h1>lucagen</h1>
-      <div class="version">{{ webVersion }}</div>
-    </div>
-
     <div class="page-body">
       <div class="viz-canvas grid">
         <dot v-for="(node, index) in taxaRoot"
@@ -31,9 +26,6 @@ export default {
   },
 
   computed: {
-    webVersion() {
-      return this.$store.getters.webVersion;
-    },
     taxaRoot() {
       return this.$store.getters.taxaRoot;
     },

@@ -16,12 +16,6 @@ export default {
     'id',
   ],
 
-  data: () => {
-    return {
-      isPaused: true,
-    };
-  },
-
   computed: {
     dotSpaceClasses() {
       const base = 'dot-space';
@@ -37,21 +31,20 @@ export default {
         default: return base;
       }
     },
-    dotWorld() {
+    world() {
       return this.$store.getters.dotWorld;
     },
-    dotWorldRegistry() {
+    worldRegistry() {
       return this.$store.getters.dotWorldRegistry;
     },
     self() {
-      return this.dotWorldRegistry[this.id];
+      return this.worldRegistry[this.id];
     },
   },
 
   watch: {
     self(/* value */) {
-      // console.log(`Dot ${this.self.name} updated =>`, value);
-      if (!this.isPaused) this.move();
+      if (!this.self.isAsleep) this.move();
     },
   },
 
@@ -64,37 +57,21 @@ export default {
     // this.move();
   },
 
-  beforeUpdate() {
-    // Evaluate, evolve...
-  },
-
-  updated() {
-    // React, move...
-    console.log(`Dot "${this.self.name}" Vue updated !!!`);
-    // this.move();
-  },
-
   destroyed() {
-    console.log('[DOT] destroyed.');
+    console.log(`[DOT] "${this.self.id}" was destroyed.`);
   },
 
   methods: {
     toggle() {
-      if (this.isPaused) {
-        console.log(`Dot "${this.self.name}" awoken`);
-        this.resume();
-      } else {
-        console.log(`Dot "${this.self.name}" sleeping`);
-        this.pause();
-      }
+      // this.self.isAsleep = !this.self.isAsleep;
     },
-    resume() {
-      this.isPaused = false;
-      this.move();
-    },
-    pause() {
-      this.isPaused = true;
-    },
+    // resume() {
+    //   this.isPaused = false;
+    //   this.move();
+    // },
+    // pause() {
+    //   this.isPaused = true;
+    // },
     pulse() {
       // console.log('(( . ))');
     },
@@ -108,30 +85,19 @@ export default {
     },
     // -------------------------- Moves
     move() {
-      console.log('[DOT] moving dot =>', this.self);
-
-      const nextMove = this.self.getNextMove();
-      console.log('[DOT] nextMove =>', nextMove);
-
+      // console.log(`[DOT] "${this.self.id}" is moving =>`, this.self);
+      const nextMove = this.self.getNextMove(this.world);
       const currSpeed = Number(this.self.speed);
-
-      // TODO: Perform this on the Model !!!
-      const currX1 = Number(this.self.x1);
-      const newX1 = currX1 + 10;
-
-      // console.log(`[DOT] ${currX1} => ${newX1}`);
-      const moveInfo = { x1: newX1 };
 
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
 
       // Execute move on DOM element...
-      Velocity(obj, nextMove, {
+      Velocity(obj, nextMove.instruction, {
         duration: currSpeed,
-        complete: () => { this.notify(moveInfo); },
+        complete: () => { this.notify(nextMove.endState); },
       });
     },
-
   },
 };
 </script>
@@ -154,7 +120,7 @@ export default {
   .dot-space.life {
     position: relative;
     left: 0px;
-    bottom: -191px;
+    top: 191px;
   }
 
   .dot {

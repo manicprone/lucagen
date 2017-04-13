@@ -1,5 +1,12 @@
 <template>
   <div id="app">
+    <transition name="fade" appear>
+      <div class="page-header">
+        <h1>lucagen</h1>
+        <div class="version">{{ webVersion }}</div>
+      </div>
+    </transition>
+
     <transition name="fade" mode="out-in">
       <router-view id="page-content"></router-view>
     </transition>
@@ -8,7 +15,13 @@
 
 <script>
   export default {
-    name: 'app',
+    name: 'App',
+
+    computed: {
+      webVersion() {
+        return this.$store.getters.webVersion;
+      },
+    },
   };
 </script>
 
@@ -20,6 +33,7 @@
 
   h1, h2 {
     font-weight: normal;
+    margin: 0;
   }
 
   ul {
@@ -33,7 +47,11 @@
   }
 
   a {
-    color: #42b983;
+    color: #676767;
+    cursor: pointer;
+  }
+  a:hover {
+    color: #252525;
   }
 
   #app {
@@ -45,9 +63,13 @@
     margin-top: 60px;
   }
 
-  .page h1 {
-    margin: 0;
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 2s;
   }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
   .page-header {
     background-color: #ededed;
     padding: 7px 0;
