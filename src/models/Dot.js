@@ -92,16 +92,30 @@ export default class Dot {
     if (debug) console.log(`[MODEL][${this.id}] available moves =>`, moves);
 
     if (moves.length > 0) {
-      const direction = moves[0];
+      let direction = moves[0]; // pick first option
 
-      if (!this.lastMoveShift) this.lastMoveShift = direction; // set initial
-      if (!this.lastMoveDirection) this.lastMoveDirection = direction; // set initial
+      // -------------
+      // First move...
+      // -------------
+      if (!this.lastMoveDirection) {
+        this.lastMoveDirection = direction; // set initial
+      // -------------------
+      // Subsequent moves...
+      // -------------------
+      } else {
+        // When encountering a cardinal shift, try to choose a fresh path...
+        if (this.lastMoveDirection !== direction) {
+          // If this direction is not new, and we have other options, take one...
+          if (this.lastMoveShift && this.lastMoveShift === direction && moves.length > 1) {
+            direction = moves[1]; // pick second option
+          }
+          // Record shift...
+          this.lastMoveShift = this.lastMoveDirection;
+        }
 
-      if (this.lastMoveDirection !== direction) {
-        // TODO: Ensure a new shift is chosen !!!
-        this.lastMoveShift = direction; // set new shift
-      }
-      this.lastMoveDirection = direction; // set current direction
+        // Record direction...
+        this.lastMoveDirection = direction;
+      } // end-if-else (!this.lastMoveDirection)
 
       // Generate move data...
       const endState = dotWorldUtils.generateMoveEndState(this, direction);

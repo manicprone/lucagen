@@ -6,14 +6,13 @@
         <div v-if="world" class="world-container">
           <dot v-bind:type="'life'"
                v-bind:index="'0'"
-               v-bind:id="'lonely'"
-               v-bind:name="'Lonely'" />
+               v-bind:id="'lonely'" />
         </div>
       </transition>
 
       <div v-if="world" class="world-controls-container">
         <div class="world-controls">
-          <a v-on:click="toggleLife">{{ lifeToggleLabel }}</a>
+          <span><a v-on:click="toggleLife">{{ lifeToggleLabel }}</a></span>
         </div>
       </div>
 

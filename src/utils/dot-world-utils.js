@@ -6,6 +6,7 @@
 import objectUtils from './object-utils';
 
 const debug = true;
+const verbose = false;
 const step = 10; // TODO: Move this to World, Dot, or just a config !?!?!?
 
 // Basically, just ensure the Dot will not hit a wall.
@@ -27,28 +28,28 @@ export function determineAvailableMoves(dot, world) {
     const worldSouth = world.y1;
 
     // North...
-    if (debug) {
+    if (debug && verbose) {
       console.log(`[UTILS] is dotNorth ${dot.y2} + ${step} <= worldNorth ${worldNorth}?`);
       console.log(`[UTILS] ${nextDotNorth} <= ${worldNorth}`, (nextDotNorth <= worldNorth));
     }
     if (nextDotNorth <= worldNorth) moves.push('n');
 
     // East...
-    if (debug) {
+    if (debug && verbose) {
       console.log(`[UTILS] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
       console.log(`[UTILS] ${nextDotEast} <= ${worldEast}`, (nextDotEast <= worldEast));
     }
     if (nextDotEast <= worldEast) moves.push('e');
 
     // South...
-    if (debug) {
+    if (debug && verbose) {
       console.log(`[UTILS] is dotSouth ${dot.y1} - ${step} >= worldSouth ${worldSouth}?`);
       console.log(`[UTILS] ${nextDotSouth} >= ${worldSouth}`, (nextDotSouth >= worldSouth));
     }
     if (nextDotSouth >= worldSouth) moves.push('s');
 
     // West...
-    if (debug) {
+    if (debug && verbose) {
       console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
       console.log(`[UTILS] ${nextDotWest} >= ${worldWest}`, (nextDotWest >= worldWest));
     }
