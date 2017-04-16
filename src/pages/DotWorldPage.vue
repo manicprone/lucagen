@@ -112,6 +112,10 @@ export default {
 </script>
 
 <style scoped>
+  .dot-world-page {
+    margin: 30px;
+  }
+
   .world-container {
     width: 400px;
     height: 200px;
