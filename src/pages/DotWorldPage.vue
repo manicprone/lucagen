@@ -89,6 +89,7 @@ export default {
       birthX: 1,
       birthY: 262,
       speed: 200,
+      memoryDepth: 5,
     };
     const world = {
       name: 'Lonely World',

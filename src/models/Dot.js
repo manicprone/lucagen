@@ -44,7 +44,7 @@ export default class Dot {
     // memoryDepth => The max size of the moveShiftHistory
     //                array.
     // ---------------------------------------------------------
-    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 3);
+    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 4);
 
     // -------------------
     // Location Management
@@ -126,27 +126,35 @@ export default class Dot {
       // Otherwise try to choose a fresh path...
       } else {
         if (lastDirection !== null) {
-          if (debug) {
+          const firstOption = direction;
+
+          if (debug && verbose) {
             console.log('---------------------------------------------------------------------');
-            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${direction}`);
+            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${firstOption}`);
             console.log('        history:', shiftMemory);
             console.log('----------------------------------------------------------------------');
           }
 
-          // If we recall taking this path, look for a new option...
+          // If we recall taking this path, look for the freshest option...
           if (objectUtils.includes(shiftMemory, direction) && moves.length > 1) {
-            for (let i = 0; i < moves.length; i++) {
-              if (!objectUtils.includes(shiftMemory, moves[i])) {
-                direction = moves[i];
-                if (debug) console.log(`[MODEL] "${this.id}" has selected ${direction} instead`);
-                break;
+            let freshest = shiftMemory.length - 1;
+            moves.forEach((move) => {
+              const index = shiftMemory.lastIndexOf(move);
+              if (index < freshest) {
+                freshest = index;
+                direction = move;
               }
-            }
+            });
+          }
+
+          if (debug && verbose && direction !== firstOption) {
+            console.log(`[MODEL] "${this.id}" has selected ${direction} instead`);
           }
         } // end-if (lastDirection !== null)
 
         // Record shift...
         shiftMemory.push(direction);
+        if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
         this.moveShiftHistory = shiftMemory;
       }
 
