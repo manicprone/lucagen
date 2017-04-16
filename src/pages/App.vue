@@ -8,7 +8,7 @@
     </transition>
 
     <transition name="fade" mode="out-in">
-      <router-view id="page-content"></router-view>
+      <router-view id="page-content" class="container"></router-view>
     </transition>
   </div>
 </template>
@@ -76,13 +76,19 @@
     border-top: 1px solid #e2e2e2;
     border-bottom: 1px solid #e2e2e2;
   }
-  .page-body {
-    margin: 30px;
-  }
 
   .version {
     display: none;
     color: #727272;
     font-size: 10px;
+  }
+
+  /* Grid System */
+  .container {
+  }
+
+  .container .col-md-4 {
+    float: left;
+    width: 33%;
   }
 </style>

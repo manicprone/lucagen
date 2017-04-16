@@ -6,6 +6,7 @@
 
 <script>
 import Velocity from 'velocity-animate';
+import objectUtils from '../utils/object-utils';
 
 export default {
   name: 'Dot',
@@ -92,11 +93,17 @@ export default {
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
 
+      // Parse move info...
+      const instruction = nextMove.instruction;
+      const endState = nextMove.endState;
+
       // Execute move on DOM element...
-      Velocity(obj, nextMove.instruction, {
-        duration: currSpeed,
-        complete: () => { this.notify(nextMove.endState); },
-      });
+      if (!objectUtils.isEmpty(instruction)) {
+        Velocity(obj, instruction, {
+          duration: currSpeed,
+          complete: () => { this.notify(endState); },
+        });
+      }
     },
   },
 };

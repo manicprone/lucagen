@@ -1,7 +1,13 @@
 <template>
-  <div class="reality-page page">
-    <div class="page-body">
+  <div class="dot-world-page page">
 
+    <div class="col-xs-12 col-md-4">
+      <div v-if="world" class="world-stats-container">
+        World Stats
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-md-4">
       <transition name="fade">
         <div v-if="world" class="world-container">
           <dot v-bind:type="'life'"
@@ -15,16 +21,24 @@
           <span><a v-on:click="toggleLife">{{ lifeToggleLabel }}</a></span>
         </div>
       </div>
-
     </div>
+
+    <div class="col-xs-12 col-md-4">
+      <div class="dot-inspect-container">
+        <dot-diag v-if="dotToInspect"
+          v-bind:dot="dotToInspect"/>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
 import Dot from '../components/Dot';
+import DotDiag from '../components/DotDiag';
 
 export default {
-  name: 'RealityPage',
+  name: 'DotWorldPage',
 
   data: () => {
     return {
@@ -39,6 +53,13 @@ export default {
     lifeToggleLabel() {
       return (this.isPaused) ? 'Wake' : 'Sleep';
     },
+    worldRegistry() {
+      return this.$store.getters.dotWorldRegistry;
+    },
+    dotToInspect() {
+      const dotID = 'lonely';
+      return this.worldRegistry[dotID];
+    },
   },
 
   beforeMount() {
@@ -51,7 +72,7 @@ export default {
       height: 9,
       birthX: 0,
       birthY: 191,
-      speed: 800,
+      speed: 200,
     };
     const world = {
       name: 'Lonely World',
@@ -85,6 +106,7 @@ export default {
 
   components: {
     Dot,
+    DotDiag,
   },
 };
 </script>

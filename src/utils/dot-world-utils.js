@@ -85,6 +85,7 @@ export function generateMoveEndState(dot, direction) {
   return {};
 }
 
+// TODO: Change param name "target" => "distance" !!!
 // -----------------------------------------------------------
 // Generates a CSS3-compatible spec for transformations
 // -----------------------------------------------------------
@@ -102,7 +103,7 @@ export function generateMoveInstruction(moveInfo) {
 
   const moveInstruction = {};
 
-  if (target && !isNaN(target)) {
+  if (target !== null && !isNaN(target)) {
     switch (direction) {
       case 'n':
       case 'north': {

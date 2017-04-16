@@ -1,14 +1,14 @@
 <template>
   <div class="home-page page">
-    <div class="page-body">
-      <div class="viz-canvas grid">
-        <dot v-for="(node, index) in taxaRoot"
-             v-bind:type="'grid'"
-             v-bind:key="'n-' + node.id"
-             v-bind:index="index"
-             v-bind:id="'dot-' + node.id" />
-      </div>
+
+    <div class="viz-canvas grid">
+      <dot v-for="(node, index) in taxaRoot"
+           v-bind:type="'grid'"
+           v-bind:key="'n-' + node.id"
+           v-bind:index="index"
+           v-bind:id="'dot-' + node.id" />
     </div>
+
   </div>
 </template>
 
