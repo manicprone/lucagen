@@ -8,7 +8,7 @@
     </transition>
 
     <transition name="fade" mode="out-in">
-      <router-view id="page-content"></router-view>
+      <router-view id="page-content" class="container"></router-view>
     </transition>
   </div>
 </template>
@@ -53,6 +53,10 @@
   a:hover {
     color: #252525;
   }
+  a.disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+  }
 
   #app {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -60,7 +64,7 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
+    margin-top: 30px;
   }
 
   .fade-enter-active, .fade-leave-active {
@@ -76,13 +80,18 @@
     border-top: 1px solid #e2e2e2;
     border-bottom: 1px solid #e2e2e2;
   }
-  .page-body {
-    margin: 30px;
-  }
 
   .version {
     display: none;
     color: #727272;
     font-size: 10px;
+  }
+
+  /* Grid System */
+  .container {
+  }
+
+  .container .col {
+    float: left;
   }
 </style>

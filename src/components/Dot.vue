@@ -6,6 +6,7 @@
 
 <script>
 import Velocity from 'velocity-animate';
+import objectUtils from '../utils/object-utils';
 
 export default {
   name: 'Dot',
@@ -44,17 +45,12 @@ export default {
 
   watch: {
     self(/* value */) {
-      if (!this.self.isAsleep) this.move();
+      if (!this.self.isAsleep && this.world.freedomMode) this.move();
     },
   },
 
   beforeMount() {
     // Calculate birthplace...
-  },
-
-  mounted() {
-    // If first to act, move...
-    // this.move();
   },
 
   destroyed() {
@@ -85,18 +81,24 @@ export default {
     },
     // -------------------------- Moves
     move() {
-      // console.log(`[DOT] "${this.self.id}" is moving =>`, this.self);
+      // Obtain next move and current speed...
       const nextMove = this.self.getNextMove(this.world);
-      const currSpeed = Number(this.self.speed);
+      const currSpeed = this.self.speed;
 
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
 
+      // Parse move info...
+      const instruction = nextMove.instruction;
+      const endState = nextMove.endState;
+
       // Execute move on DOM element...
-      Velocity(obj, nextMove.instruction, {
-        duration: currSpeed,
-        complete: () => { this.notify(nextMove.endState); },
-      });
+      if (!objectUtils.isEmpty(instruction)) {
+        Velocity(obj, instruction, {
+          duration: currSpeed,
+          complete: () => { this.notify(endState); },
+        });
+      }
     },
   },
 };
@@ -120,7 +122,7 @@ export default {
   .dot-space.life {
     position: relative;
     left: 0px;
-    top: 191px;
+    top: 261px;
   }
 
   .dot {

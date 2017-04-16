@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import HomePage from '../pages/HomePage';
-import RealityPage from '../pages/RealityPage';
+import DotWorldPage from '../pages/DotWorldPage';
 import ConfigPage from '../pages/ConfigPage';
 
 Vue.use(Router);
@@ -17,9 +17,9 @@ export default new Router({
       component: HomePage,
     },
     {
-      path: '/reality',
-      name: 'reality',
-      component: RealityPage,
+      path: '/world',
+      name: 'dot-world',
+      component: DotWorldPage,
     },
     {
       path: '/config',

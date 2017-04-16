@@ -5,9 +5,9 @@
 // -------------------------------------------------------------
 import objectUtils from './object-utils';
 
-const debug = false;
-const verbose = false;
-const step = 10; // TODO: Move this to World, Dot, or just a config !?!?!?
+const debug = true;
+const verbose = true;
+const step = 9; // TODO: Use dot width !?!?!?
 
 // Basically, just ensure the Dot will not hit a wall.
 // e.g. ['n', 'e', 's', 'w'] (ordered by priority)
@@ -85,6 +85,7 @@ export function generateMoveEndState(dot, direction) {
   return {};
 }
 
+// TODO: Change param name "target" => "distance" !!!
 // -----------------------------------------------------------
 // Generates a CSS3-compatible spec for transformations
 // -----------------------------------------------------------
@@ -102,7 +103,7 @@ export function generateMoveInstruction(moveInfo) {
 
   const moveInstruction = {};
 
-  if (target && !isNaN(target)) {
+  if (target !== null && !isNaN(target)) {
     switch (direction) {
       case 'n':
       case 'north': {

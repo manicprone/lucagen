@@ -21,14 +21,30 @@ export default class Dot {
       if (verbose) console.log('[MODEL] with data =>', data);
     }
 
-    // ------------------
-    // Birth requirements
-    // ------------------
+    // ----------
+    // Birthplace
+    // ----------
+    this.birthX = objectUtils.get(data, 'birthX', 1);
+    this.birthY = objectUtils.get(data, 'birthY', 1);
+
+    // ---------------
+    // Size attributes
+    // ---------------
     this.width = objectUtils.get(data, 'width', 9);
     this.height = objectUtils.get(data, 'height', 9);
-    this.birthX = objectUtils.get(data, 'birthX', 0);
-    this.birthY = objectUtils.get(data, 'birthY', 0);
+
+    // ----------------
+    // Speed attributes
+    // ----------------
     this.speed = objectUtils.get(data, 'speed', 2000);
+
+    // ---------------------------------------------------------
+    // Memory attributes
+    // ---------------------------------------------------------
+    // memoryDepth => The max size of the moveShiftHistory
+    //                array.
+    // ---------------------------------------------------------
+    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 3);
 
     // -------------------
     // Location Management
@@ -41,17 +57,16 @@ export default class Dot {
     if (objectUtils.has(data, 'y2')) this.y2 = data.y2;
     if (objectUtils.has(data, 'fromX')) this.fromX = data.fromX;
     if (objectUtils.has(data, 'fromY')) this.fromY = data.fromY;
-
     if (isNew) {
       // Calculate birthplace in world...
-      this.birthLeft = this.birthX;
-      this.birthTop = this.birthY;
+      this.birthLeft = this.birthX - 1;
+      this.birthTop = this.birthY - 1;
 
       // Calculate location (by vertices)...
       this.x1 = this.birthX;
-      this.x2 = this.birthX + this.width;
+      this.x2 = this.birthX + (this.width - 1);
       this.y1 = this.birthY;
-      this.y2 = this.birthY + this.height;
+      this.y2 = this.birthY + (this.height - 1);
 
       // Track transformations from origin...
       this.fromX = 0;
@@ -59,11 +74,12 @@ export default class Dot {
     }
 
     // -------------------
-    // Movement Attributes
+    // Movement Management
     // -------------------
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
     this.lastMoveDirection = objectUtils.get(data, 'lastMoveDirection', null);
     this.lastMoveShift = objectUtils.get(data, 'lastMoveShift', null);
+    this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
   }
 
   // ----------------------------------------------- Size
@@ -92,12 +108,18 @@ export default class Dot {
   getNextMove(world) {
     const nextMove = {};
 
+    // Access movement memory...
+    const shiftMemory = this.moveShiftHistory.slice(0);
+
+    // Determine all available moves at this moment in the world...
     const moves = dotWorldUtils.determineAvailableMoves(this, world);
     if (debug) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
     if (moves.length > 0) {
-      // TODO: Try to select the same direction as before, otherwise, pick first !!!
-      let direction = moves[0]; // pick first option
+      // Try to continue in the same direction, otherwise consider first option...
+      let direction = (objectUtils.includes(moves, this.lastMoveDirection))
+        ? this.lastMoveDirection
+        : moves[0];
 
       // -------------
       // First move...
@@ -111,9 +133,11 @@ export default class Dot {
         // When encountering a cardinal shift, try to choose a fresh path...
         if (this.lastMoveDirection !== direction) {
           if (debug) {
-            console.log('--------------------------------------------------------------');
-            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${direction} (last shift: ${this.lastMoveShift})`);
-            console.log('--------------------------------------------------------------');
+            console.log('---------------------------------------------------------------------');
+            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${direction}`);
+            console.log(`        last shift: ${this.lastMoveShift}`);
+            console.log('        history:', shiftMemory);
+            console.log('----------------------------------------------------------------------');
           }
           // If this direction is not new, and we have other options, take one...
           if (this.lastMoveShift && this.lastMoveShift === direction && moves.length > 1) {
@@ -122,6 +146,8 @@ export default class Dot {
           }
           // Record shift...
           this.lastMoveShift = this.lastMoveDirection;
+          shiftMemory.push(this.lastMoveDirection);
+          this.moveShiftHistory = shiftMemory;
         }
 
         // Record direction...
@@ -130,7 +156,7 @@ export default class Dot {
 
       // Generate move data...
       const endState = dotWorldUtils.generateMoveEndState(this, direction);
-      const target = endState.fromX || endState.fromY;
+      const target = (objectUtils.has(endState, 'fromX')) ? endState.fromX : endState.fromY;
       const instruction = dotWorldUtils.generateMoveInstruction({ direction, target });
 
       // Add endState and instruction data to return package...
