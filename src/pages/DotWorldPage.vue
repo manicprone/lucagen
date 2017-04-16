@@ -3,7 +3,6 @@
 
     <div class="world-stats-col col">
       <div v-if="world" class="world-stats-container">
-        World Stats
       </div>
     </div>
 
@@ -140,6 +139,7 @@ export default {
   }
   .world-stats-col {
     width: 340px;
+    height: 50px;
   }
   .world-col {
     width: 510px;

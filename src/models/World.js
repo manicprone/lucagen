@@ -17,9 +17,9 @@ export default class DotWorld {
 
     if (isNew) {
       // Generate vertices...
-      this.x1 = 0;
+      this.x1 = 1;
       this.x2 = this.width;
-      this.y1 = 0;
+      this.y1 = 1;
       this.y2 = this.height;
     }
 

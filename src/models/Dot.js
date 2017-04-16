@@ -156,8 +156,8 @@ export default class Dot {
 
       // Generate move data...
       const endState = dotWorldUtils.generateMoveEndState(this, direction);
-      const target = (objectUtils.has(endState, 'fromX')) ? endState.fromX : endState.fromY;
-      const instruction = dotWorldUtils.generateMoveInstruction({ direction, target });
+      const distance = (objectUtils.has(endState, 'fromX')) ? endState.fromX : endState.fromY;
+      const instruction = dotWorldUtils.generateMoveInstruction({ direction, distance });
 
       // Add endState and instruction data to return package...
       nextMove.endState = endState;
@@ -172,12 +172,12 @@ export default class Dot {
   }
 
   applyMove(endState) {
-    if (endState.x1) this.x1 = endState.x1;
-    if (endState.x2) this.x2 = endState.x2;
-    if (endState.y1) this.y1 = endState.y1;
-    if (endState.y2) this.y2 = endState.y2;
-    if (endState.fromX) this.fromX = endState.fromX;
-    if (endState.fromY) this.fromY = endState.fromY;
+    if (objectUtils.has(endState, 'x1')) this.x1 = endState.x1;
+    if (objectUtils.has(endState, 'x2')) this.x2 = endState.x2;
+    if (objectUtils.has(endState, 'y1')) this.y1 = endState.y1;
+    if (objectUtils.has(endState, 'y1')) this.y2 = endState.y2;
+    if (objectUtils.has(endState, 'fromX')) this.fromX = endState.fromX;
+    if (objectUtils.has(endState, 'fromY')) this.fromY = endState.fromY;
   }
 
   // ----------------------------------------------- Serialize

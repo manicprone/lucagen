@@ -5,9 +5,8 @@
 // -------------------------------------------------------------
 import objectUtils from './object-utils';
 
-const debug = true;
-const verbose = true;
-const step = 9; // TODO: Use dot width !?!?!?
+const debug = false;
+const verbose = false;
 
 // Basically, just ensure the Dot will not hit a wall.
 // e.g. ['n', 'e', 's', 'w'] (ordered by priority)
@@ -15,6 +14,7 @@ const step = 9; // TODO: Use dot width !?!?!?
 //      are considered.
 export function determineAvailableMoves(dot, world) {
   const moves = [];
+  const step = dot.width;
 
   if (dot && dot.type === 'Dot' && world && world.type === 'DotWorld') {
     const nextDotEast = dot.x2 + step;
@@ -49,6 +49,8 @@ export function determineAvailableMoves(dot, world) {
 
 export function generateMoveEndState(dot, direction) {
   if (dot && dot.type === 'Dot') {
+    const step = dot.width;
+
     switch (direction) {
       case 'n':
       case 'north': {
@@ -85,7 +87,6 @@ export function generateMoveEndState(dot, direction) {
   return {};
 }
 
-// TODO: Change param name "target" => "distance" !!!
 // -----------------------------------------------------------
 // Generates a CSS3-compatible spec for transformations
 // -----------------------------------------------------------
@@ -94,35 +95,35 @@ export function generateMoveEndState(dot, direction) {
 // direction: <String>  => The cardinal direction of the move.
 //                         (supported: 'n', 'e', 's', 'w')
 //
-// target: <Number>     => The pixel value for the desired
+// distance: <Number>   => The pixel value for the desired
 //                         transformation distance.
 // -----------------------------------------------------------
 export function generateMoveInstruction(moveInfo) {
   const direction = objectUtils.get(moveInfo, 'direction', 'noop');
-  const target = objectUtils.get(moveInfo, 'target', null);
+  const distance = objectUtils.get(moveInfo, 'distance', null);
 
   const moveInstruction = {};
 
-  if (target !== null && !isNaN(target)) {
+  if (distance !== null && !isNaN(distance)) {
     switch (direction) {
       case 'n':
       case 'north': {
-        moveInstruction.translateY = `${target}px`;
+        moveInstruction.translateY = `${distance}px`;
         return moveInstruction;
       }
       case 's':
       case 'south': {
-        moveInstruction.translateY = `${target}px`;
+        moveInstruction.translateY = `${distance}px`;
         return moveInstruction;
       }
       case 'e':
       case 'east': {
-        moveInstruction.translateX = `${target}px`;
+        moveInstruction.translateX = `${distance}px`;
         return moveInstruction;
       }
       case 'w':
       case 'west': {
-        moveInstruction.translateX = `${target}px`;
+        moveInstruction.translateX = `${distance}px`;
         return moveInstruction;
       }
       default: {
