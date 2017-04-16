@@ -82,7 +82,6 @@ export default {
   .diag-movement-ui {
     margin: 0 auto;
     height: 120px;
-    width: 220px;
   }
 
   /* x info */

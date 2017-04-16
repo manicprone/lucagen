@@ -26,6 +26,7 @@ export default class DotWorld {
     // Manage dots...
     this.dots = objectUtils.get(data, 'dots', []);
     this.dotRegistry = objectUtils.get(data, 'dotRegistry', {});
+    this.freedomMode = true;
   }
 
   // ----------------------------------------------- Size
@@ -51,6 +52,10 @@ export default class DotWorld {
       const dot = this.dotRegistry[dotID];
       if (dot && dot.isAsleep) dot.wake();
     });
+  }
+
+  setFreedom(value) {
+    this.freedomMode = (value === true);
   }
 
   // ----------------------------------------------- Serialize

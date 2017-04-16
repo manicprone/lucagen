@@ -24,8 +24,8 @@ export default class Dot {
     // ----------
     // Birthplace
     // ----------
-    this.birthX = objectUtils.get(data, 'birthX', 0);
-    this.birthY = objectUtils.get(data, 'birthY', 0);
+    this.birthX = objectUtils.get(data, 'birthX', 1);
+    this.birthY = objectUtils.get(data, 'birthY', 1);
 
     // ---------------
     // Size attributes
@@ -59,14 +59,14 @@ export default class Dot {
     if (objectUtils.has(data, 'fromY')) this.fromY = data.fromY;
     if (isNew) {
       // Calculate birthplace in world...
-      this.birthLeft = this.birthX;
-      this.birthTop = this.birthY;
+      this.birthLeft = this.birthX - 1;
+      this.birthTop = this.birthY - 1;
 
       // Calculate location (by vertices)...
       this.x1 = this.birthX;
-      this.x2 = this.birthX + this.width;
+      this.x2 = this.birthX + (this.width - 1);
       this.y1 = this.birthY;
-      this.y2 = this.birthY + this.height;
+      this.y2 = this.birthY + (this.height - 1);
 
       // Track transformations from origin...
       this.fromX = 0;

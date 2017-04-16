@@ -45,17 +45,12 @@ export default {
 
   watch: {
     self(/* value */) {
-      if (!this.self.isAsleep) this.move();
+      if (!this.self.isAsleep && this.world.freedomMode) this.move();
     },
   },
 
   beforeMount() {
     // Calculate birthplace...
-  },
-
-  mounted() {
-    // If first to act, move...
-    // this.move();
   },
 
   destroyed() {
@@ -86,9 +81,9 @@ export default {
     },
     // -------------------------- Moves
     move() {
-      // console.log(`[DOT] "${this.self.id}" is moving =>`, this.self);
+      // Obtain next move and current speed...
       const nextMove = this.self.getNextMove(this.world);
-      const currSpeed = Number(this.self.speed);
+      const currSpeed = this.self.speed;
 
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
@@ -127,7 +122,7 @@ export default {
   .dot-space.life {
     position: relative;
     left: 0px;
-    top: 191px;
+    top: 261px;
   }
 
   .dot {

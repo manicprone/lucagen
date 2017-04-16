@@ -1,16 +1,17 @@
 <template>
   <div class="dot-world-page page">
 
-    <div class="col-xs-12 col-md-4">
+    <div class="world-stats-col col">
       <div v-if="world" class="world-stats-container">
         World Stats
       </div>
     </div>
 
-    <div class="col-xs-12 col-md-4">
+    <div class="world-col col">
       <transition name="fade">
         <div v-if="world" class="world-container">
-          <dot v-bind:type="'life'"
+          <dot ref="dot-lonely"
+               v-bind:type="'life'"
                v-bind:index="'0'"
                v-bind:id="'lonely'" />
         </div>
@@ -19,14 +20,17 @@
       <div v-if="world" class="world-controls-container">
         <div class="world-controls">
           <span><a v-on:click="toggleLife">{{ lifeToggleLabel }}</a></span>
+          <span v-bind:class="stepActionClasses">
+            <a v-bind:class="stepActionLinkClasses" v-on:click="step">{{ stepLabel }}</a>
+          </span>
         </div>
       </div>
     </div>
 
-    <div class="col-xs-12 col-md-4">
+    <div class="dot-inspect-col col">
       <div class="dot-inspect-container">
         <dot-diag v-if="dotToInspect"
-          v-bind:dot="dotToInspect"/>
+                  v-bind:dot="dotToInspect"/>
       </div>
     </div>
 
@@ -53,6 +57,19 @@ export default {
     lifeToggleLabel() {
       return (this.isPaused) ? 'Wake' : 'Sleep';
     },
+    stepLabel() {
+      return 'Step';
+    },
+    stepActionClasses() {
+      return (this.isPaused)
+        ? 'step-action'
+        : 'step-action disabled';
+    },
+    stepActionLinkClasses() {
+      return (this.isPaused)
+        ? 'step-action-link'
+        : 'step-action-link disabled';
+    },
     worldRegistry() {
       return this.$store.getters.dotWorldRegistry;
     },
@@ -70,14 +87,14 @@ export default {
       index: 0,
       width: 9,
       height: 9,
-      birthX: 0,
-      birthY: 191,
+      birthX: 1,
+      birthY: 262,
       speed: 200,
     };
     const world = {
       name: 'Lonely World',
-      width: 400,
-      height: 200,
+      width: 450,
+      height: 270,
       dots: [lonely],
     };
     this.$store.dispatch('CREATE_WORLD', world);
@@ -95,12 +112,17 @@ export default {
       }
     },
     resumeLife() {
+      this.world.setFreedom(true);
       this.world.resumeDots();
       this.isPaused = false;
     },
     pauseLife() {
+      this.world.setFreedom(false);
       this.world.pauseDots();
       this.isPaused = true;
+    },
+    step() {
+      this.$refs['dot-lonely'].move();
     },
   },
 
@@ -112,13 +134,23 @@ export default {
 </script>
 
 <style scoped>
+  /* Page layout */
   .dot-world-page {
     margin: 30px;
   }
+  .world-stats-col {
+    width: 340px;
+  }
+  .world-col {
+    width: 510px;
+  }
+  .dot-inspect-col {
+
+  }
 
   .world-container {
-    width: 400px;
-    height: 200px;
+    width: 450px;
+    height: 270px;
     border: 1px solid #ff9977;
     margin: 0 auto;
   }
@@ -126,9 +158,16 @@ export default {
   .world-controls-container {
     margin: 20px 0 0 0;
   }
-
   .world-controls {
-    width: 100px;
     margin: 0 auto;
+  }
+  .step-action {
+    margin-left: 90px;
+  }
+  .step-action.disabled {
+    cursor: not-allowed;
+  }
+  .step-action-link.disabled {
+    color: #b9b9b9;
   }
 </style>
