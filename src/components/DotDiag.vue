@@ -63,7 +63,10 @@ export default {
 
 <style scoped>
   .header {
-    margin-bottom: 12px;
+    margin: 0 0 12px 45px;
+    padding-bottom: 10px;
+    text-align: right;
+    border-bottom: 1px solid #d9d9d9;
   }
 
   .diag-label {
@@ -131,6 +134,8 @@ export default {
   /* y info */
   .diag-movement-y-values {
     line-height: 15px;
+    width: 40px;
+    text-align: right;
   }
   .diag-value-y1 {
     margin-bottom: 21px;
@@ -150,7 +155,9 @@ export default {
 
   /* fromX info */
   .diag-movement-from-x {
-    margin: 0 0 0 7px;
+    margin: 8px 0 0 12px;
+    width: 40px;
+    text-align: center;
   }
   .diag-value-from-x {
     line-height: 16px;
@@ -161,7 +168,9 @@ export default {
 
   /* fromY info */
   .diag-movement-from-y {
-    margin: 0 0 0 12px;
+    margin: 8px 0 0 12px;
+    width: 40px;
+    text-align: center;
   }
   .diag-value-from-y {
     line-height: 16px;
