@@ -44,7 +44,7 @@ export default class Dot {
     // memoryDepth => The max size of the moveShiftHistory
     //                array.
     // ---------------------------------------------------------
-    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 3);
+    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 4);
 
     // -------------------
     // Location Management
@@ -77,8 +77,6 @@ export default class Dot {
     // Movement Management
     // -------------------
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
-    this.lastMoveDirection = objectUtils.get(data, 'lastMoveDirection', null);
-    this.lastMoveShift = objectUtils.get(data, 'lastMoveShift', null);
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
   }
 
@@ -116,43 +114,49 @@ export default class Dot {
     if (debug) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
     if (moves.length > 0) {
-      // Try to continue in the same direction, otherwise consider first option...
-      let direction = (objectUtils.includes(moves, this.lastMoveDirection))
-        ? this.lastMoveDirection
-        : moves[0];
+      let direction = moves[0];
+      const lastDirection = (shiftMemory.length > 0)
+          ? shiftMemory[shiftMemory.length - 1]
+          : null;
 
-      // -------------
-      // First move...
-      // -------------
-      if (!this.lastMoveDirection) {
-        this.lastMoveDirection = direction; // set initial
-      // -------------------
-      // Subsequent moves...
-      // -------------------
+      // Try to continue in the same direction...
+      if (objectUtils.includes(moves, lastDirection)) {
+        direction = lastDirection;
+
+      // Otherwise try to choose a fresh path...
       } else {
-        // When encountering a cardinal shift, try to choose a fresh path...
-        if (this.lastMoveDirection !== direction) {
-          if (debug) {
+        if (lastDirection !== null) {
+          const firstOption = direction;
+
+          if (debug && verbose) {
             console.log('---------------------------------------------------------------------');
-            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${direction}`);
-            console.log(`        last shift: ${this.lastMoveShift}`);
+            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${firstOption}`);
             console.log('        history:', shiftMemory);
             console.log('----------------------------------------------------------------------');
           }
-          // If this direction is not new, and we have other options, take one...
-          if (this.lastMoveShift && this.lastMoveShift === direction && moves.length > 1) {
-            direction = moves[1]; // pick second option
-            if (debug) console.log(`[MODEL] "${this.id}" has selected ${direction} instead from options =>`, moves);
-          }
-          // Record shift...
-          this.lastMoveShift = this.lastMoveDirection;
-          shiftMemory.push(this.lastMoveDirection);
-          this.moveShiftHistory = shiftMemory;
-        }
 
-        // Record direction...
-        this.lastMoveDirection = direction;
-      } // end-if-else (!this.lastMoveDirection)
+          // If we recall taking this path, look for the freshest option...
+          if (objectUtils.includes(shiftMemory, direction) && moves.length > 1) {
+            let freshest = shiftMemory.length - 1;
+            moves.forEach((move) => {
+              const index = shiftMemory.lastIndexOf(move);
+              if (index < freshest) {
+                freshest = index;
+                direction = move;
+              }
+            });
+          }
+
+          if (debug && verbose && direction !== firstOption) {
+            console.log(`[MODEL] "${this.id}" has selected ${direction} instead`);
+          }
+        } // end-if (lastDirection !== null)
+
+        // Record shift...
+        shiftMemory.push(direction);
+        if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
+        this.moveShiftHistory = shiftMemory;
+      }
 
       // Generate move data...
       const endState = dotWorldUtils.generateMoveEndState(this, direction);
@@ -166,7 +170,7 @@ export default class Dot {
       if (debug) {
         console.log(`[MODEL] "${this.id}" nextMove package for "${direction}" =>`, nextMove);
       }
-    }
+    } // end-if (moves.length > 0)
 
     return nextMove;
   }

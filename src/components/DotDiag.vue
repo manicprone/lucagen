@@ -63,7 +63,7 @@ export default {
 
 <style scoped>
   .header {
-    margin: 0 0 12px 45px;
+    margin: 0 0 15px 45px;
     padding-bottom: 10px;
     text-align: right;
     border-bottom: 1px solid #d9d9d9;
