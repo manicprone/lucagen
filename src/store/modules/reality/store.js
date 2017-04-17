@@ -80,6 +80,8 @@ const realityData = {
       });
       if (name) world.name = name;
 
+      console.log(`[STORE] World "${world.name}" created =>`, world);
+
       // Populate with pioneers...
       dots.forEach((dotData) => {
         const dot = new Dot(dotData);
@@ -100,7 +102,6 @@ const realityData = {
   mutations: {
 
     SET_WORLD(state, world) {
-      console.log(`[STORE] World "${world.name}" created =>`, world);
       state.world = world;
     },
 
