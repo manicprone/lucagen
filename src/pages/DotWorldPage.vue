@@ -11,7 +11,6 @@
         <div v-if="world" class="world-container">
           <dot ref="dot-lonely"
                v-bind:type="'life'"
-               v-bind:index="'0'"
                v-bind:id="'lonely'" />
         </div>
       </transition>
@@ -83,7 +82,6 @@ export default {
     const lonely = {
       id: 'lonely',
       name: 'Lonely',
-      index: 0,
       width: 9,
       height: 9,
       birthX: 1,

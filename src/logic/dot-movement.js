@@ -1,22 +1,22 @@
 // -------------------------------------------------------------
-// dot-world-utils.js
+// dot-movement.js
 //
-// Provides helper functions for the Dot World logic.
+// Logic for Dot movement.
 // -------------------------------------------------------------
-import objectUtils from './object-utils';
+import objectUtils from '../utils/object-utils';
 
-const debug = false;
-const verbose = false;
+const debug = true;
+const verbose = true;
 
 // Basically, just ensure the Dot will not hit a wall.
 // e.g. ['n', 'e', 's', 'w'] (ordered by priority)
 //      priority will be leveraged when other factors
 //      are considered.
-export function determineAvailableMoves(dot, world) {
+export function determineAvailableMoves(dot = {}, world = {}) {
   const moves = [];
   const step = dot.width;
 
-  if (dot && dot.type === 'Dot' && world && world.type === 'DotWorld') {
+  if (dot.type === 'Dot' && world.type === 'DotWorld') {
     const nextDotEast = dot.x2 + step;
     const nextDotWest = dot.x1 - step;
     const nextDotNorth = dot.y1 - step;
@@ -28,27 +28,27 @@ export function determineAvailableMoves(dot, world) {
     const worldSouth = world.y2;
 
     // North...
-    if (debug && verbose) console.log(`[UTILS] is dotNorth ${dot.y1} - ${step} >= worldNorth ${worldNorth}?`);
+    if (debug && verbose) console.log(`[movement] is dotNorth ${dot.y1} - ${step} >= worldNorth ${worldNorth}?`);
     if (nextDotNorth >= worldNorth) moves.push('n');
 
     // East...
-    if (debug && verbose) console.log(`[UTILS] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
+    if (debug && verbose) console.log(`[movement] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
     if (nextDotEast <= worldEast) moves.push('e');
 
     // South...
-    if (debug && verbose) console.log(`[UTILS] is dotSouth ${dot.y2} + ${step} <= worldSouth ${worldSouth}?`);
+    if (debug && verbose) console.log(`[movement] is dotSouth ${dot.y2} + ${step} <= worldSouth ${worldSouth}?`);
     if (nextDotSouth <= worldSouth) moves.push('s');
 
     // West...
-    if (debug && verbose) console.log(`[UTILS] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
+    if (debug && verbose) console.log(`[movement] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
     if (nextDotWest >= worldWest) moves.push('w');
   }
 
   return moves;
 }
 
-export function generateMoveEndState(dot, direction) {
-  if (dot && dot.type === 'Dot') {
+export function generateMoveEndState(dot = {}, direction) {
+  if (dot.type === 'Dot') {
     const step = dot.width;
 
     switch (direction) {
@@ -98,7 +98,7 @@ export function generateMoveEndState(dot, direction) {
 // distance: <Number>   => The pixel value for the desired
 //                         transformation distance.
 // -----------------------------------------------------------
-export function generateMoveInstruction(moveInfo) {
+export function generateMoveInstruction(moveInfo = {}) {
   const direction = objectUtils.get(moveInfo, 'direction', 'noop');
   const distance = objectUtils.get(moveInfo, 'distance', null);
 
@@ -133,4 +133,31 @@ export function generateMoveInstruction(moveInfo) {
   } // end-if (target && !NaN(target))
 
   return moveInstruction;
+}
+
+// -----------------------------------------------------------
+// Returns an array of dots that are nearby the provided dot.
+// -----------------------------------------------------------
+//
+// -----------------------------------------------------------
+export function getNearbyDots(dot = {}, world = {}) {
+  const nearby = [];
+
+  if (dot.type === 'Dot' && world.type === 'DotWorld') {
+    const registry = world.dotRegistry;
+
+    Object.keys(registry).forEach((dotID) => {
+      if (dotID !== dot.id) {
+        const other = registry[dotID];
+        if (debug && verbose) console.log('[movement] scoping other dot =>', other);
+        if (isDotInRange(dot, other)) nearby.push(other);
+      }
+    });
+  }
+
+  return nearby;
+}
+
+export function isDotInRange(/* observer = {}, other = {} */) {
+  return false;
 }

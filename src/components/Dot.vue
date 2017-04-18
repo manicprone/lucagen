@@ -13,7 +13,6 @@ export default {
 
   props: [
     'type',
-    'index',
     'id',
   ],
 

@@ -29,8 +29,6 @@ export default class DotWorld {
     this.freedomMode = true;
   }
 
-  // ----------------------------------------------- Size
-
   // ----------------------------------------------- Dot management
   addDot(dot) {
     const dotID = dot.id;
@@ -57,8 +55,6 @@ export default class DotWorld {
   setFreedom(value) {
     this.freedomMode = (value === true);
   }
-
-  // ----------------------------------------------- Serialize
 
   // ----------------------------------------------- Hydrate
   static hydrate(worldData) {
