@@ -2,6 +2,7 @@
   <div ref="dotDiag" v-bind:class="dotDiagClasses">
     <transition name="fade">
       <div v-if="dot">
+
         <div class="header">
           {{ dot.name }}
         </div>
@@ -35,6 +36,14 @@
             </div>
           </div>
         </div>
+
+        <div class="diag-move-shift-info">
+          <div class="diag-shift-memory col">
+            <div class="diag-label">Shift Memory ({{ dot.memoryDepth }})</div>
+            <div class="diag-value">{{ dot.moveShiftHistory }}</div>
+          </div>
+        </div>
+
       </div>
     </transition>
   </div>
@@ -67,6 +76,10 @@ export default {
     padding-bottom: 10px;
     text-align: right;
     border-bottom: 1px solid #d9d9d9;
+  }
+
+  .col {
+    float: left;
   }
 
   .diag-label {
@@ -113,9 +126,6 @@ export default {
   .diag-square-container {
     height: 49px;
     margin-left: 31px;
-  }
-  .diag-square-container .col {
-    float: left;
   }
   .diag-square-container .diag-label,
   .diag-square-container .diag-value {
@@ -178,4 +188,16 @@ export default {
   .diag-label-from-y {
     line-height: 14px;
   }
+
+  /* move shift info */
+  .diag-move-shift-info {
+    clear: both;
+    margin: 0 0 0 47px;
+    height: 40px;
+  }
+  .diag-move-shift-info .diag-label,
+  .diag-move-shift-info .diag-value {
+    display: block;
+  }
+
 </style>
