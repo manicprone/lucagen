@@ -1,5 +1,5 @@
 import objectUtils from '../utils/object-utils';
-import * as dotWorldUtils from '../utils/dot-world-utils';
+import * as dotMovement from '../logic/dot-movement';
 
 const debug = true;
 const verbose = false;
@@ -13,8 +13,7 @@ export default class Dot {
     // --------------
     const isNew = objectUtils.get(data, 'new', true);
     this.id = objectUtils.get(data, 'id', `dot-${new Date().getTime()}`);
-    this.name = objectUtils.get(data, 'name', 'Anon');
-    this.index = objectUtils.get(data, 'index', -1);
+    this.name = objectUtils.get(data, 'name', this.id);
 
     if (debug && isNew) {
       console.log(`[MODEL] A Dot is born: "${this.id}"`);
@@ -110,7 +109,7 @@ export default class Dot {
     const shiftMemory = this.moveShiftHistory.slice(0);
 
     // Determine all available moves at this moment in the world...
-    const moves = dotWorldUtils.determineAvailableMoves(this, world);
+    const moves = dotMovement.determineAvailableMoves(this, world);
     if (debug) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
     if (moves.length > 0) {
@@ -159,9 +158,9 @@ export default class Dot {
       }
 
       // Generate move data...
-      const endState = dotWorldUtils.generateMoveEndState(this, direction);
+      const endState = dotMovement.generateMoveEndState(this, direction);
       const distance = (objectUtils.has(endState, 'fromX')) ? endState.fromX : endState.fromY;
-      const instruction = dotWorldUtils.generateMoveInstruction({ direction, distance });
+      const instruction = dotMovement.generateMoveInstruction({ direction, distance });
 
       // Add endState and instruction data to return package...
       nextMove.endState = endState;
