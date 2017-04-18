@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import settingsData from './modules/app/store';
-import realityData from './modules/reality/store';
+import dotWorldData from './modules/dotWorld/store';
 import taxonData from './modules/taxa/store';
 
 Vue.use(Vuex);
@@ -12,7 +12,7 @@ const store = new Vuex.Store({
     app: settingsData,
 
     // Manages dot world data for the active session
-    reality: realityData,
+    dotWorld: dotWorldData,
 
     // Manages lucafeed data for the active session
     taxa: taxonData,

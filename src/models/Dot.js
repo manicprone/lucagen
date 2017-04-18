@@ -16,8 +16,8 @@ export default class Dot {
     this.name = objectUtils.get(data, 'name', this.id);
 
     if (debug && isNew) {
-      console.log(`[MODEL] A Dot is born: "${this.id}"`);
-      if (verbose) console.log('[MODEL] with data =>', data);
+      console.log(`A Dot is born: "${this.id}"`);
+      if (verbose) console.log('with data =>', data);
     }
 
     // ----------
@@ -78,18 +78,6 @@ export default class Dot {
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
   }
-
-  // ----------------------------------------------- Size
-
-
-  // ----------------------------------------------- Speed
-
-
-  // ----------------------------------------------- Birthplace
-
-
-  // ----------------------------------------------- Current location
-
 
   // ----------------------------------------------- Movement
   sleep() {
@@ -182,8 +170,6 @@ export default class Dot {
     if (objectUtils.has(endState, 'fromX')) this.fromX = endState.fromX;
     if (objectUtils.has(endState, 'fromY')) this.fromY = endState.fromY;
   }
-
-  // ----------------------------------------------- Serialize
 
   // ----------------------------------------------- Hydrate
   static hydrate(dotData) {

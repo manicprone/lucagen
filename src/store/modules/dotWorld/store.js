@@ -5,7 +5,7 @@ import Dot from '../../../models/Dot';
 // -----------------------------------------------
 // Exposes the API actions and data of a Dot world
 // -----------------------------------------------
-const realityData = {
+const dotWorldData = {
   state: {
 
     // The active dot world...
@@ -16,7 +16,7 @@ const realityData = {
   getters: {
 
     dotWorld(state) {
-      // Hydrate World into World model...
+      // Hydrate World data into World model...
       if (state.world) {
         const world = World.hydrate(state.world);
         return world;
@@ -75,12 +75,10 @@ const realityData = {
 
       // Configure world...
       const world = new World({
+        name,
         width,
         height,
       });
-      if (name) world.name = name;
-
-      console.log(`[STORE] World "${world.name}" created =>`, world);
 
       // Populate with pioneers...
       dots.forEach((dotData) => {
@@ -117,4 +115,4 @@ const realityData = {
   /* eslint-enable no-param-reassign */
 };
 
-export default realityData;
+export default dotWorldData;

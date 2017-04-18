@@ -8,10 +8,11 @@ import objectUtils from '../utils/object-utils';
 const debug = true;
 const verbose = true;
 
-// Basically, just ensure the Dot will not hit a wall.
-// e.g. ['n', 'e', 's', 'w'] (ordered by priority)
-//      priority will be leveraged when other factors
-//      are considered.
+// -----------------------------------------------------------
+// Returns an array of available moves
+// -----------------------------------------------------------
+//
+// -----------------------------------------------------------
 export function determineAvailableMoves(dot = {}, world = {}) {
   const moves = [];
   const step = dot.width;
@@ -28,20 +29,20 @@ export function determineAvailableMoves(dot = {}, world = {}) {
     const worldSouth = world.y2;
 
     // North...
-    if (debug && verbose) console.log(`[movement] is dotNorth ${dot.y1} - ${step} >= worldNorth ${worldNorth}?`);
-    if (nextDotNorth >= worldNorth) moves.push('n');
+    if (debug && verbose) console.log(`[movement] is dotNorth ${dot.y1} - ${step} > worldNorth ${worldNorth}?`);
+    if (nextDotNorth > worldNorth) moves.push('n');
 
     // East...
-    if (debug && verbose) console.log(`[movement] is dotEast ${dot.x2} + ${step} <= worldEast ${worldEast}?`);
-    if (nextDotEast <= worldEast) moves.push('e');
+    if (debug && verbose) console.log(`[movement] is dotEast ${dot.x2} + ${step} < worldEast ${worldEast}?`);
+    if (nextDotEast < worldEast) moves.push('e');
 
     // South...
-    if (debug && verbose) console.log(`[movement] is dotSouth ${dot.y2} + ${step} <= worldSouth ${worldSouth}?`);
-    if (nextDotSouth <= worldSouth) moves.push('s');
+    if (debug && verbose) console.log(`[movement] is dotSouth ${dot.y2} + ${step} < worldSouth ${worldSouth}?`);
+    if (nextDotSouth < worldSouth) moves.push('s');
 
     // West...
-    if (debug && verbose) console.log(`[movement] is dotWest ${dot.x1} - ${step} >= worldWest ${worldWest}?`);
-    if (nextDotWest >= worldWest) moves.push('w');
+    if (debug && verbose) console.log(`[movement] is dotWest ${dot.x1} - ${step} > worldWest ${worldWest}?`);
+    if (nextDotWest > worldWest) moves.push('w');
   }
 
   return moves;
@@ -136,7 +137,7 @@ export function generateMoveInstruction(moveInfo = {}) {
 }
 
 // -----------------------------------------------------------
-// Returns an array of dots that are nearby the provided dot.
+// Returns an array of dots that are nearby the provided dot
 // -----------------------------------------------------------
 //
 // -----------------------------------------------------------
