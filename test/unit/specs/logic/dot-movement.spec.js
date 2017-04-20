@@ -5,9 +5,6 @@ import * as dotMovement from '../../../../src/logic/dot-movement';
 
 const expect = chai.expect;
 
-// ----------------------
-// Instances for tests...
-// ----------------------
 let world = null;
 let observer = null;
 

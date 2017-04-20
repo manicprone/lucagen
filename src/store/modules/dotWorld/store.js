@@ -5,7 +5,7 @@ import Dot from '../../../models/Dot';
 // -----------------------------------------------
 // Exposes the API actions and data of a Dot world
 // -----------------------------------------------
-const realityData = {
+const dotWorldData = {
   state: {
 
     // The active dot world...
@@ -16,7 +16,7 @@ const realityData = {
   getters: {
 
     dotWorld(state) {
-      // Hydrate World into World model...
+      // Hydrate world data into World model...
       if (state.world) {
         const world = World.hydrate(state.world);
         return world;
@@ -28,7 +28,7 @@ const realityData = {
       if (state.world && state.world.dotRegistry) {
         const registry = {};
 
-        // Hydrate Dot data into Dot models...
+        // Hydrate dot data into Dot models...
         const dots = Object.keys(state.world.dotRegistry);
         dots.forEach((dotID) => {
           const dotData = state.world.dotRegistry[dotID];
@@ -64,29 +64,57 @@ const realityData = {
   // ---------------------------------------------------------------------------
   actions: {
 
-    CREATE_WORLD(context, options) {
+    CREATE_WORLD(context, worldData) {
       const { commit } = context;
 
-      // Handle options...
-      const name = objectUtils.get(options, 'name', null);
-      const width = objectUtils.get(options, 'width', 400);
-      const height = objectUtils.get(options, 'height', 200);
-      const dots = objectUtils.get(options, 'dots', []);
+      // Parse world configuration...
+      const name = objectUtils.get(worldData, 'name', null);
+      const width = objectUtils.get(worldData, 'width', 400);
+      const height = objectUtils.get(worldData, 'height', 200);
+      const dots = objectUtils.get(worldData, 'dots', []);
 
-      // Configure world...
+      // Create world...
       const world = new World({
+        name,
         width,
         height,
       });
-      if (name) world.name = name;
-
-      console.log(`[STORE] World "${world.name}" created =>`, world);
 
       // Populate with pioneers...
       dots.forEach((dotData) => {
         const dot = new Dot(dotData);
         world.addDot(dot);
       });
+
+      commit('SET_WORLD', world);
+    },
+
+    ADD_DOT_TO_WORLD(context, dotData) {
+      const { commit, getters } = context;
+      const world = getters.dotWorld;
+
+      const dot = new Dot(dotData);
+      world.addDot(dot);
+
+      commit('SET_WORLD', world);
+    },
+
+    RESUME_LIFE(context) {
+      const { commit, getters } = context;
+      const world = getters.dotWorld;
+
+      world.setFreedom(true);
+      world.resumeDots();
+
+      commit('SET_WORLD', world);
+    },
+
+    PAUSE_LIFE(context) {
+      const { commit, getters } = context;
+      const world = getters.dotWorld;
+
+      world.setFreedom(false);
+      world.pauseDots();
 
       commit('SET_WORLD', world);
     },
@@ -108,7 +136,6 @@ const realityData = {
     SET_DOT_UPDATE(state, update) {
       const dotID = update.id;
       const dotData = update.dotData;
-      console.log(`[STORE] Dot "${dotID}" updated =>`, update);
 
       state.world.dotRegistry[dotID] = dotData;
     },
@@ -117,4 +144,4 @@ const realityData = {
   /* eslint-enable no-param-reassign */
 };
 
-export default realityData;
+export default dotWorldData;

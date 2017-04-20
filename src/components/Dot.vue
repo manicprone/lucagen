@@ -1,5 +1,5 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-on:click="toggle">
+  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles" v-on:click="toggle">
     <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
   </div>
 </template>
@@ -17,6 +17,15 @@ export default {
   ],
 
   computed: {
+    world() {
+      return this.$store.getters.dotWorld;
+    },
+    dotRegistry() {
+      return this.$store.getters.dotWorldRegistry;
+    },
+    self() {
+      return this.dotRegistry[this.id];
+    },
     dotSpaceClasses() {
       const base = 'dot-space';
       switch (this.type) {
@@ -25,31 +34,25 @@ export default {
         default: return base;
       }
     },
+    dotSpaceStyles() {
+      return (this.self)
+        ? { left: `${this.self.birthLeft}px`, top: `${this.self.birthTop}px` }
+        : {};
+    },
     dotClasses() {
       const base = 'dot';
       switch (this.type) {
         default: return base;
       }
     },
-    world() {
-      return this.$store.getters.dotWorld;
-    },
-    worldRegistry() {
-      return this.$store.getters.dotWorldRegistry;
-    },
-    self() {
-      return this.worldRegistry[this.id];
-    },
   },
 
-  watch: {
-    self(/* value */) {
-      if (!this.self.isAsleep && this.world.freedomMode) this.move();
-    },
+  mounted() {
+    console.log(`[DOT] "${this.self.id}" =>`, this.self);
   },
 
-  beforeMount() {
-    // Calculate birthplace...
+  updated() {
+    if (!this.self.isAsleep && this.world.freedomMode) this.move();
   },
 
   destroyed() {
@@ -119,9 +122,7 @@ export default {
     float: left;
   }
   .dot-space.life {
-    position: relative;
-    left: 0px;
-    top: 261px;
+    position: absolute;
   }
 
   .dot {
