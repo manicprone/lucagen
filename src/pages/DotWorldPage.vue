@@ -1,17 +1,23 @@
 <template>
   <div class="dot-world-page page">
 
-    <div class="world-stats-col col">
-      <div v-if="world" class="world-stats-container">
+    <div class="world-management-col col">
+      <div v-if="world" class="world-management-container">
+        <div>
+          <span v-bind:class="addDotActionClasses">
+            <a v-bind:class="addDotActionLinkClasses" v-on:click="addDotToWorld">{{ addDotLabel }}</a>
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="world-col col">
       <transition name="fade">
-        <div v-if="world" class="world-container">
-          <dot ref="dot-lonely"
+        <div ref="dot-world" v-if="world" class="world-container">
+          <dot v-for="dotID in dotIDs"
+               v-bind:ref="'dots'"
                v-bind:type="'life'"
-               v-bind:id="'lonely'" />
+               v-bind:id="dotID" />
         </div>
       </transition>
 
@@ -52,6 +58,16 @@ export default {
     world() {
       return this.$store.getters.dotWorld;
     },
+    dotIDs() {
+      return this.world.dots;
+    },
+    dotRegistry() {
+      return this.$store.getters.dotWorldRegistry;
+    },
+    dotToInspect() {
+      const dotID = 'lonely';
+      return this.dotRegistry[dotID];
+    },
     lifeToggleLabel() {
       return (this.isPaused) ? 'Wake' : 'Sleep';
     },
@@ -60,30 +76,33 @@ export default {
     },
     stepActionClasses() {
       return (this.isPaused)
-        ? 'step-action'
-        : 'step-action disabled';
+        ? 'step-action action'
+        : 'step-action action disabled';
     },
     stepActionLinkClasses() {
       return (this.isPaused)
-        ? 'step-action-link'
-        : 'step-action-link disabled';
+        ? 'step-action-link action-link'
+        : 'step-action-link action-link disabled';
     },
-    worldRegistry() {
-      return this.$store.getters.dotWorldRegistry;
+    addDotLabel() {
+      return 'Add Dot';
     },
-    dotToInspect() {
-      const dotID = 'lonely';
-      return this.worldRegistry[dotID];
+    addDotActionClasses() {
+      return (this.isPaused)
+        ? 'add-dot-action action'
+        : 'add-dot-action action disabled';
+    },
+    addDotActionLinkClasses() {
+      return (this.isPaused)
+        ? 'add-dot-action-link action-link'
+        : 'add-dot-action-link action-link disabled';
     },
   },
 
   beforeMount() {
-    // Create Lonely World...
     const lonely = {
       id: 'lonely',
       name: 'Lonely',
-      width: 9,
-      height: 9,
       birthX: 1,
       birthY: 262,
       speed: 200,
@@ -95,10 +114,13 @@ export default {
       height: 270,
       dots: [lonely],
     };
+
+    // Create Lonely World...
     this.$store.dispatch('CREATE_WORLD', world);
   },
 
-  mounted() {
+  updated() {
+    // console.log('!!! WORLD updated (refs) =>', this.$refs);
   },
 
   methods: {
@@ -110,17 +132,32 @@ export default {
       }
     },
     resumeLife() {
-      this.world.setFreedom(true);
-      this.world.resumeDots();
+      this.$store.dispatch('RESUME_LIFE');
       this.isPaused = false;
     },
     pauseLife() {
-      this.world.setFreedom(false);
-      this.world.pauseDots();
+      this.$store.dispatch('PAUSE_LIFE');
       this.isPaused = true;
     },
     step() {
-      this.$refs['dot-lonely'].move();
+      if (this.isPaused) {
+        this.$refs.dots.forEach((dot) => {
+          dot.move();
+        });
+      }
+    },
+    addDotToWorld() {
+      if (this.isPaused) {
+        const dot = {
+          id: 'friendly',
+          name: 'Friendly',
+          birthX: 1,
+          birthY: 1,
+          speed: 200,
+          memoryDepth: 5,
+        };
+        this.$store.dispatch('ADD_DOT_TO_WORLD', dot);
+      }
     },
   },
 
@@ -132,41 +169,42 @@ export default {
 </script>
 
 <style scoped>
-  /* Page layout */
+  /* Page Layout */
   .dot-world-page {
     margin: 30px;
   }
-  .world-stats-col {
+  .world-management-col {
     width: 340px;
     height: 50px;
   }
   .world-col {
     width: 510px;
   }
-  .dot-inspect-col {
+  .dot-inspect-col {}
 
-  }
-
+  /* World */
   .world-container {
+    position: relative;
     width: 450px;
     height: 270px;
     border: 1px solid #ff9977;
     margin: 0 auto;
   }
 
+  /* World Controls */
   .world-controls-container {
     margin: 20px 0 0 0;
   }
   .world-controls {
     margin: 0 auto;
   }
-  .step-action {
-    margin-left: 90px;
-  }
-  .step-action.disabled {
+  .action.disabled {
     cursor: not-allowed;
   }
-  .step-action-link.disabled {
+  .action-link.disabled {
     color: #b9b9b9;
+  }
+  .step-action {
+    margin-left: 90px;
   }
 </style>

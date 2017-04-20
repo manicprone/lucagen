@@ -5,8 +5,8 @@
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
 
-const debug = true;
-const verbose = true;
+const debug = false;
+const verbose = false;
 
 // -----------------------------------------------------------
 // Returns an array of available moves

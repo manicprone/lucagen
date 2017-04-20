@@ -1,7 +1,7 @@
 import objectUtils from '../utils/object-utils';
 import * as dotMovement from '../logic/dot-movement';
 
-const debug = true;
+const debug = false;
 const verbose = false;
 
 export default class Dot {
