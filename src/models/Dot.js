@@ -37,6 +37,11 @@ export default class Dot {
     // ----------------
     this.speed = objectUtils.get(data, 'speed', 2000);
 
+    // -----------------
+    // Vision attributes
+    // -----------------
+    this.visionDepth = objectUtils.get(data, 'visionDepth', 1);
+
     // ---------------------------------------------------------
     // Memory attributes
     // ---------------------------------------------------------

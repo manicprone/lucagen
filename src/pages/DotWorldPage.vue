@@ -17,6 +17,7 @@
           <dot v-for="dotID in dotIDs"
                v-bind:ref="'dots'"
                v-bind:type="'life'"
+               v-bind:key="'dot-' + dotID"
                v-bind:id="dotID" />
         </div>
       </transition>

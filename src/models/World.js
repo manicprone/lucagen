@@ -1,6 +1,6 @@
 import objectUtils from '../utils/object-utils';
 
-const debug = true;
+const debug = false;
 const verbose = false;
 
 export default class DotWorld {
