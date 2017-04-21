@@ -5,69 +5,68 @@ import * as dotMovement from '../../../../src/logic/dot-movement';
 
 const expect = chai.expect;
 
-let world = null;
-let observers = {};
-let others = {};
+const worlds = {};
+const observers = {};
+const others = {};
 
 describe.only('dot-movement', () => {
+  before(() => {
+    // --------------------------------
+    // Contruct world of 7 x 7 steps...
+    // --------------------------------
+    const step = 9;
+    const rows = 7;
+    const cols = 7;
+
+    const worldData = {
+      name: 'Lonely World',
+      width: step * cols,
+      height: step * rows,
+    };
+    worlds['center-lonely'] = new World(worldData); // observer in center, no others
+    worlds['center-full'] = new World(worldData); // observer in center, others in all remaining
+    worlds['cornerSW'] = new World(worldData); // observer in SW corner, others in all remaining
+
+    // -----------------------
+    // Fill world with dots...
+    // -----------------------
+    for (let r = 0; r < rows; r++) {
+      const y1 = (r === 0) ? 1 : (r * step) + 1;
+      for (let c = 0; c < cols; c++) {
+        const x1 = (c === 0) ? 1 : (c * step) + 1;
+        if (x1 === 28 && y1 === 28) {
+          // Generate observer at center of world (range of 3 steps in all directions)
+          const observerData = {
+            id: 'observer-center',
+            name: 'Center Observer',
+            birthX: x1,
+            birthY: y1,
+          };
+          observers['observer-center'] = new Dot(observerData);
+          worlds['center-lonely'].addDot(observers['observer-center']);
+          worlds['center-full'].addDot(observers['observer-center']);
+        } else {
+          // Generate other dots for all remaining steps...
+          const id = `r-${r}_c-${c}`;
+          const name = `R-${r}_C-${c}`;
+          const otherDotData = { id, name, birthX: x1, birthY: y1 };
+          others[id] = new Dot(otherDotData);
+          worlds['center-full'].addDot(others[id]);
+        }
+      } // end-for (cols)
+    } // end-for (rows)
+
+    // console.log(`[TEST] other dots created (${Object.keys(others).length})`);
+    // Object.keys(others).forEach((dotID) => {
+    //   const dot = others[dotID];
+    //   console.log(`[${dot.birthX}, ${dot.birthY}]`);
+    // });
+  });
+
   // ------------------------
   // Testing: isDotInRange...
   // ------------------------
   describe('isDotInRange', () => {
-    before(() => {
-      // -------------------
-      // Clear registries...
-      // -------------------
-      observers = {};
-      others = {};
-
-      // --------------------------------
-      // Contruct world of 7 x 7 steps...
-      // --------------------------------
-      const step = 9;
-      const rows = 7;
-      const cols = 7;
-
-      const worldData = {
-        name: 'Test World',
-        width: step * cols,
-        height: step * rows,
-      };
-      world = new World(worldData);
-
-      // -----------------------
-      // Fill world with dots...
-      // -----------------------
-      for (let r = 0; r < rows; r++) {
-        const y1 = (r === 0) ? 1 : (r * step) + 1;
-        for (let c = 0; c < cols; c++) {
-          const x1 = (c === 0) ? 1 : (c * step) + 1;
-          if (x1 === 28 && y1 === 28) {
-            // Generate observer at center of world (range of 3 steps in all directions)
-            const observerData = {
-              id: 'observer-center',
-              name: 'Center Observer',
-              birthX: x1,
-              birthY: y1,
-            };
-            observers['observer-center'] = new Dot(observerData);
-          } else {
-            // Generate other dots for all remaining steps...
-            const id = `r-${r}_c-${c}`;
-            const name = `R-${r}_C-${c}`;
-            const otherDotData = { id, name, birthX: x1, birthY: y1 };
-            others[id] = new Dot(otherDotData);
-          }
-        } // end-for (cols)
-      } // end-for (rows)
-
-      // console.log(`[TEST] other dots created (${Object.keys(others).length})`);
-      // Object.keys(others).forEach((dotID) => {
-      //   const dot = others[dotID];
-      //   console.log(`[${dot.birthX}, ${dot.birthY}]`);
-      // });
-    });
-
     it('should return "false" when invalid parameters are provided', () => {
       const fake = { id: 1, name: 'Fake Dot' };
       const result = dotMovement.isDotInRange(fake, {});
@@ -113,46 +112,6 @@ describe.only('dot-movement', () => {
   // Testing: getNearbyDots...
   // -------------------------
   describe('getNearbyDots', () => {
-    before(() => {
-      // -------------------
-      // Clear registries...
-      // -------------------
-      observers = {};
-      others = {};
-
-      // --------------------------------
-      // Contruct world of 7 x 7 steps...
-      // --------------------------------
-      const step = 9;
-      const rows = 7;
-      const cols = 7;
-
-      const worldData = {
-        name: 'Test World',
-        width: step * cols,
-        height: step * rows,
-      };
-      world = new World(worldData);
-
-      // -------------------------------
-      // Populate observers for tests...
-      // -------------------------------
-      // NW corner of world
-      const cornerNWObserverData = {
-        id: 'observer-nw',
-        name: 'NW Corner Observer',
-        birthX: 1,
-        birthY: 1,
-        visionDepth: 1,
-      };
-      observers['observer-nw'] = new Dot(cornerNWObserverData);
-
-      // ------------------------
-      // Add observer to world...
-      // ------------------------
-      world.addDot(observers['observer-nw']);
-    });
-
     it('should return an empty array when no parameters are provided', () => {
       const nearby = dotMovement.getNearbyDots();
 
@@ -162,7 +121,8 @@ describe.only('dot-movement', () => {
     });
 
     it('should return an empty array when no other dots exist in the world', () => {
-      const observer = observers['observer-nw'];
+      const world = worlds['center-lonely'];
+      const observer = observers['observer-center'];
       const nearby = dotMovement.getNearbyDots(observer, world);
 
       expect(nearby)
