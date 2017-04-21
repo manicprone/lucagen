@@ -7,7 +7,7 @@ const expect = chai.expect;
 
 let world = null;
 let observers = {};
-// let others = {};
+let others = {};
 
 describe.only('dot-movement', () => {
   // ------------------------
@@ -19,34 +19,53 @@ describe.only('dot-movement', () => {
       // Clear registries...
       // -------------------
       observers = {};
-      // others = {};
+      others = {};
 
       // --------------------------------
       // Contruct world of 7 x 7 steps...
       // --------------------------------
+      const step = 9;
+      const rows = 7;
+      const cols = 7;
+
       const worldData = {
         name: 'Test World',
-        width: 63,
-        height: 63,
+        width: step * cols,
+        height: step * rows,
       };
       world = new World(worldData);
 
-      // -------------------------------
-      // Populate observers for tests...
-      // -------------------------------
-      // Dead center of world (range of 3 steps in all directions)
-      const centerObserverData = {
-        id: 'observer-center',
-        name: 'Center Observer',
-        birthX: 28,
-        birthY: 28,
-        visionDepth: 1,
-      };
-      observers['observer-center'] = new Dot(centerObserverData);
+      // -----------------------
+      // Fill world with dots...
+      // -----------------------
+      for (let r = 0; r < rows; r++) {
+        const y1 = (r === 0) ? 1 : (r * step) + 1;
+        for (let c = 0; c < cols; c++) {
+          const x1 = (c === 0) ? 1 : (c * step) + 1;
+          if (x1 === 28 && y1 === 28) {
+            // Generate observer at center of world (range of 3 steps in all directions)
+            const observerData = {
+              id: 'observer-center',
+              name: 'Center Observer',
+              birthX: x1,
+              birthY: y1,
+            };
+            observers['observer-center'] = new Dot(observerData);
+          } else {
+            // Generate other dots for all remaining steps...
+            const id = `r-${r}_c-${c}`;
+            const name = `R-${r}_C-${c}`;
+            const otherDotData = { id, name, birthX: x1, birthY: y1 };
+            others[id] = new Dot(otherDotData);
+          }
+        } // end-for (cols)
+      } // end-for (rows)
 
-      // ----------------------------
-      // Populate others for tests...
-      // ----------------------------
+      // console.log(`[TEST] other dots created (${Object.keys(others).length})`);
+      // Object.keys(others).forEach((dotID) => {
+      //   const dot = others[dotID];
+      //   console.log(`[${dot.birthX}, ${dot.birthY}]`);
+      // });
     });
 
     it('should return "false" when invalid parameters are provided', () => {
@@ -56,108 +75,37 @@ describe.only('dot-movement', () => {
       expect(result).to.equal(false);
     });
 
-    it('should return "true" when a Dot is in visual range (visionDepth = 1)', () => {
-      // Adjacent North
-      const adjacentNorthData = {
-        id: 'north-1',
-        name: 'Adjacent North',
-        birthX: 28,
-        birthY: 19,
-      };
-      const adjacentNorth = new Dot(adjacentNorthData);
-
-      // Two Steps North...
-      const twoNorthData = {
-        id: 'north-2',
-        name: 'Two North',
-        birthX: 28,
-        birthY: 10,
-      };
-      const twoNorth = new Dot(twoNorthData);
-
-      // Adjacent East...
-      const adjacentEastData = {
-        id: 'east-1',
-        name: 'Adjacent East',
-        width: 9,
-        height: 9,
-        birthX: 37,
-        birthY: 28,
-      };
-      const adjacentEast = new Dot(adjacentEastData);
-
-      // Two Steps East...
-      const twoEastData = {
-        id: 'east-2',
-        name: 'Two East',
-        width: 9,
-        height: 9,
-        birthX: 46,
-        birthY: 28,
-      };
-      const twoEast = new Dot(twoEastData);
-
-      // Adjacent South...
-      const adjacentSouthData = {
-        id: 'south-1',
-        name: 'Adjacent South',
-        width: 9,
-        height: 9,
-        birthX: 28,
-        birthY: 37,
-      };
-      const adjacentSouth = new Dot(adjacentSouthData);
-
-      // Two Steps South...
-      const twoSouthData = {
-        id: 'south-2',
-        name: 'Two South',
-        width: 9,
-        height: 9,
-        birthX: 28,
-        birthY: 46,
-      };
-      const twoSouth = new Dot(twoSouthData);
-
-      // Adjacent West...
-      const adjacentWestData = {
-        id: 'west-1',
-        name: 'Adjacent West',
-        width: 9,
-        height: 9,
-        birthX: 19,
-        birthY: 28,
-      };
-      const adjacentWest = new Dot(adjacentWestData);
-
-      // Two Steps West...
-      const twoWestData = {
-        id: 'west-2',
-        name: 'Two West',
-        width: 9,
-        height: 9,
-        birthX: 10,
-        birthY: 28,
-      };
-      const twoWest = new Dot(twoWestData);
-
+    it('should return "true" when a Dot is in visual range', () => {
       const observer = observers['observer-center'];
-      const isAdjacentNorth = dotMovement.isDotInRange(observer, adjacentNorth);
-      const isTwoNorth = dotMovement.isDotInRange(observer, twoNorth);
-      const isAdjacentEast = dotMovement.isDotInRange(observer, adjacentEast);
-      const isTwoEast = dotMovement.isDotInRange(observer, twoEast);
-      const isAdjacentSouth = dotMovement.isDotInRange(observer, adjacentSouth);
-      const isTwoSouth = dotMovement.isDotInRange(observer, twoSouth);
-      const isAdjacentWest = dotMovement.isDotInRange(observer, adjacentWest);
-      const isTwoWest = dotMovement.isDotInRange(observer, twoWest);
-      expect(isAdjacentNorth).to.equal(true);
-      expect(isTwoNorth).to.equal(false);
-      expect(isAdjacentEast).to.equal(true);
-      expect(isTwoEast).to.equal(false);
-      expect(isAdjacentSouth).to.equal(true);
-      expect(isTwoSouth).to.equal(false);
-      expect(isAdjacentWest).to.equal(true);
-      expect(isTwoWest).to.equal(false);
+      let inRangeCount = 0;
+
+      // visionDepth = 1
+      Object.keys(others).forEach((dotID) => {
+        const dot = others[dotID];
+        const result = dotMovement.isDotInRange(observer, dot);
+        if (result) inRangeCount += 1;
+      });
+      expect(inRangeCount).to.equal(8);
+
+      // visionDepth = 2
+      observer.visionDepth = 2;
+      inRangeCount = 0;
+      Object.keys(others).forEach((dotID) => {
+        const dot = others[dotID];
+        const result = dotMovement.isDotInRange(observer, dot);
+        if (result) inRangeCount += 1;
+      });
+      expect(inRangeCount).to.equal(24);
+
+      // visionDepth = 3
+      observer.visionDepth = 3;
+      inRangeCount = 0;
+      Object.keys(others).forEach((dotID) => {
+        const dot = others[dotID];
+        const result = dotMovement.isDotInRange(observer, dot);
+        if (result) inRangeCount += 1;
+      });
+      expect(inRangeCount).to.equal(48);
     });
   }); // end-isDotInRange
 
@@ -170,15 +118,19 @@ describe.only('dot-movement', () => {
       // Clear registries...
       // -------------------
       observers = {};
-      // others = {};
+      others = {};
 
       // --------------------------------
       // Contruct world of 7 x 7 steps...
       // --------------------------------
+      const step = 9;
+      const rows = 7;
+      const cols = 7;
+
       const worldData = {
         name: 'Test World',
-        width: 63,
-        height: 63,
+        width: step * cols,
+        height: step * rows,
       };
       world = new World(worldData);
 
