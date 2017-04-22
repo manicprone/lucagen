@@ -169,15 +169,15 @@ describe('dot-movement', () => {
   }); // end-getNearbyDots
 
   // -----------------------------------
-  // Testing: determineAvailableMoves...
+  // Testing: calculateAvailableSteps...
   // -----------------------------------
-  describe('determineAvailableMoves', () => {
+  describe('calculateAvailableSteps', () => {
     it('should return an empty array when no parameters are provided', () => {
-      const moves = dotMovement.determineAvailableMoves();
+      const steps = dotMovement.calculateAvailableSteps();
 
-      expect(moves)
+      expect(steps)
         .to.be.an('array')
         .and.to.have.length(0);
     });
-  }); // end-determineAvailableMoves
+  }); // end-calculateAvailableSteps
 });

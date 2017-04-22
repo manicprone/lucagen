@@ -84,7 +84,7 @@ export default {
     // -------------------------- Moves
     move() {
       // Obtain next move and current speed...
-      const nextMove = this.self.getNextMove(this.world);
+      const nextMove = this.self.chooseNextMove(this.world);
       const currSpeed = this.self.speed;
 
       // Obtain dot DOM element...

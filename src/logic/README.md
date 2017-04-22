@@ -32,9 +32,9 @@
 //
 // -----------------------------------------------------------------------------
 //
-//  Dot.chooseNextMove                    (currently: dot.getNextMove)
+//  Dot.chooseNextMove
 //   |   |
-//   |   |__ calculateAvailableEvents     (currently: determineAvailableMoves)
+//   |   |__ calculateAvailableEvents 
 //   |        |
 //   |        |__ getNearbyDots
 //   |        |    |__ chooseToInteract

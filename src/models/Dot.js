@@ -13,7 +13,7 @@ const verbose = false;
 // -----------------------------------------------------------------------------
 // The life of a Dot
 // -----------------------------------------------------------------------------
-// Make a move: getNextMove((endState) => applyMove(endState))
+// Make a move: chooseNextMove((endState) => applyMove(endState))
 //
 // (1) Determine physical movement (step or stay still)
 //     ------------------------------------------------
@@ -145,9 +145,9 @@ export default class Dot {
   }
 
   // ---------------------------------------------------------------
-  // Calculate and evaluate everything that will occur in this event
+  // Choose the next event
   // ---------------------------------------------------------------
-  getNextMove(world) {
+  chooseNextMove(world) {
     const nextMove = {
       endState: {},
       instruction: {},
@@ -157,7 +157,7 @@ export default class Dot {
     const shiftMemory = this.moveShiftHistory.slice(0);
 
     // Determine all available moves at this moment in the world...
-    const moves = dotMovement.determineAvailableMoves(this, world);
+    const moves = dotMovement.calculateAvailableEvents(this, world);
     if (debug && verbose) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
     // If moves are available, decide which to take...
@@ -231,6 +231,12 @@ export default class Dot {
       this[attr] = endState[attr];
     });
   }
+
+  // -----------------------------------------------
+  // Evaluate
+  // -----------------------------------------------
+  // evaluate() {
+  // }
 
   // ----------------------------------------------- Hydrate
   static hydrate(dotData) {

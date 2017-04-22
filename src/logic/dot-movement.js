@@ -9,7 +9,7 @@ const debug = true;
 const verbose = false;
 
 // -----------------------------------------------------------
-// Returns an array of available moves
+// Returns an array of available events (moves)
 // -----------------------------------------------------------
 // TODO: move this to main file !!!
 // TODO: return move package:
@@ -18,8 +18,28 @@ const verbose = false;
 //   interactions: [],
 // }
 // -----------------------------------------------------------
-export function determineAvailableMoves(dot = {}, world = {}) {
-  const moves = [];
+export function calculateAvailableEvents(dot = {}, world = {}) {
+  if (dot.type === 'Dot' && world.type === 'DotWorld') {
+    // Check for nearby dots...
+    const nearbyDots = getNearbyDots(dot, world);
+    if (nearbyDots.length > 0) {
+      if (debug) console.log(`[movement] [${dot.id}] ${nearbyDots.length} nearby dot(s)`);
+    }
+
+    // Calculate steps available at this moment...
+    const steps = calculateAvailableSteps(dot, world);
+
+    return steps;
+  }
+
+  return [];
+}
+
+// -----------------------------------------------------------
+// Returns an array of available steps
+// -----------------------------------------------------------
+export function calculateAvailableSteps(dot = {}, world = {}) {
+  const steps = [];
   const step = dot.width;
 
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
@@ -33,30 +53,24 @@ export function determineAvailableMoves(dot = {}, world = {}) {
     const worldNorth = world.y1;
     const worldSouth = world.y2;
 
-    // Check for nearby dots...
-    const nearbyDots = getNearbyDots(dot, world);
-    if (nearbyDots.length > 0) {
-      if (debug) console.log(`[movement] [${dot.id}] ${nearbyDots.length} nearby dot(s)`);
-    }
-
     // North...
     if (debug && verbose) console.log(`[movement] [${dot.id}] is dotNorth ${dot.y1} - ${step} > worldNorth ${worldNorth}?`);
-    if (nextDotNorth > worldNorth) moves.push('n');
+    if (nextDotNorth > worldNorth) steps.push('n');
 
     // East...
     if (debug && verbose) console.log(`[movement] [${dot.id}] is dotEast ${dot.x2} + ${step} < worldEast ${worldEast}?`);
-    if (nextDotEast < worldEast) moves.push('e');
+    if (nextDotEast < worldEast) steps.push('e');
 
     // South...
     if (debug && verbose) console.log(`[movement] [${dot.id}] is dotSouth ${dot.y2} + ${step} < worldSouth ${worldSouth}?`);
-    if (nextDotSouth < worldSouth) moves.push('s');
+    if (nextDotSouth < worldSouth) steps.push('s');
 
     // West...
     if (debug && verbose) console.log(`[movement] [${dot.id}] is dotWest ${dot.x1} - ${step} > worldWest ${worldWest}?`);
-    if (nextDotWest > worldWest) moves.push('w');
+    if (nextDotWest > worldWest) steps.push('w');
   }
 
-  return moves;
+  return steps;
 }
 
 export function generateStepEndState(dot = {}, direction) {
