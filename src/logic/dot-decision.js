@@ -5,7 +5,7 @@
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
 import * as dotInteraction from './dot-interaction';
-import * as dotStep from './dot-step';
+import * as dotMovement from './dot-movement';
 
 const debug = true;
 const verbose = true;
@@ -28,11 +28,13 @@ export function chooseNextMove(dot, world) {
     const nearbyDots = dotInteraction.getNearbyDots(dot, world);
     if (nearbyDots.length > 0) {
       if (debug && verbose) console.log(`[decision] [${dot.id}] ${nearbyDots.length} nearby dot(s)`);
+
+      // Decide if interaction is desired...
+      // const willingInteractions = dotInteraction.chooseToInteractWithDots(dot, nearbyDots);
     }
 
-    // TODO: Pass nearbyDots to include in calculation !!!
     // Determine all available moves at this moment in the world...
-    const moves = dotStep.calculateAvailableSteps(dot, world);
+    const moves = dotMovement.calculateAvailableSteps(dot, world, nearbyDots);
     if (debug && verbose) console.log(`[decision] [${dot.id}] available moves =>`, moves);
 
     // If moves are available, decide which to take...
@@ -84,7 +86,7 @@ export function chooseNextMove(dot, world) {
       } // end-if-else (objectUtils.includes(moves, lastDirection))
 
       // Generate step endState...
-      const stepEndState = dotStep.generateStepEndState(dot, direction);
+      const stepEndState = dotMovement.generateStepEndState(dot, direction);
 
       // Package move decision...
       nextMove.direction = direction;

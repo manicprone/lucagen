@@ -1,6 +1,6 @@
 import objectUtils from '../utils/object-utils';
 import * as dotDecision from '../logic/dot-decision';
-import * as dotStep from '../logic/dot-step';
+import * as dotMovementUI from '../logic/dot-movement-ui';
 
 const debug = true;
 const verbose = false;
@@ -172,7 +172,7 @@ export default class Dot {
     // If we are moving, generate UI instruction...
     if (direction) {
       const distance = (objectUtils.has(stepEndState, 'fromX')) ? stepEndState.fromX : stepEndState.fromY;
-      const stepInstruction = dotStep.generateStepInstruction({ direction, distance });
+      const stepInstruction = dotMovementUI.generateStepInstruction({ direction, distance });
       nextMove.instruction = stepInstruction;
       nextMove.speed = this.speed; // add speed
     }

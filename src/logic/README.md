@@ -13,11 +13,8 @@
 //
 // (2) Chooses his next move.
 //
-//     (based upon his current motivation / emotional state and
+//     (based upon his current motivation/emotional state and
 //     the current state of the world as perceived by him)
-//
-//     comprised of move parts:
-//       - step move  => physical movement
 //
 //
 // (3) Applies the move, interacting with other Dots nearby.
@@ -47,11 +44,11 @@
 //
 //  Dot.chooseNextMove
 //   |   |
-//   |   |__ calculateAvailableMoves
+//   |   |__ chooseNextMove
 //   |        |
 //   |        |__ getNearbyDots
 //   |        |__ calculateAvailableSteps
-//   |        |__ chooseToInteractWithDot (for each nearby)
+//   |        |__ chooseToInteractWithDots (for each nearby)
 //   |
 //   V
 //  Dot.applyMove
@@ -65,7 +62,7 @@
 //
 // + The World data is a copy per each Dot (their own perception)
 //
-// + But, the Dot data is shared by reference (to affect each other)
+// + The Dot data is shared by reference (to affect each other)
 //
 // -----------------------------------------------------------------------------
 //

@@ -62,3 +62,8 @@ export function isDotInRange(observer = {}, other = {}) {
 
   return result;
 }
+
+export function chooseToInteractWithDots(/* observer = {}, others = {} */) {
+  const interactionChoices = {};
+  return interactionChoices;
+}

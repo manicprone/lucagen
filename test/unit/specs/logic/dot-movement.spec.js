@@ -1,5 +1,5 @@
 import chai from 'chai';
-import * as dotStep from '../../../../src/logic/dot-step';
+import * as dotMovement from '../../../../src/logic/dot-movement';
 
 const expect = chai.expect;
 
@@ -9,7 +9,7 @@ describe('dot-step', () => {
   // -----------------------------------
   describe('calculateAvailableSteps', () => {
     it('should return an empty array when no parameters are provided', () => {
-      const steps = dotStep.calculateAvailableSteps();
+      const steps = dotMovement.calculateAvailableSteps();
 
       expect(steps)
         .to.be.an('array')
