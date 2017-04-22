@@ -105,6 +105,7 @@ export default class Dot {
     const moves = dotMovement.determineAvailableMoves(this, world);
     if (debug) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
+    // If moves are available, decide which to take...
     if (moves.length > 0) {
       let direction = moves[0];
       const lastDirection = (shiftMemory.length > 0)

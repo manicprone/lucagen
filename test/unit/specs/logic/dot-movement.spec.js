@@ -9,7 +9,7 @@ const worlds = {};
 const observers = {};
 const others = {};
 
-describe.only('dot-movement', () => {
+describe('dot-movement', () => {
   before(() => {
     // --------------------------------
     // Contruct world of 7 x 7 steps...
@@ -25,7 +25,6 @@ describe.only('dot-movement', () => {
     };
     worlds['center-lonely'] = new World(worldData); // observer in center, no others
     worlds['center-full'] = new World(worldData); // observer in center, others in all remaining
-    worlds['cornerSW'] = new World(worldData); // observer in SW corner, others in all remaining
 
     // -----------------------
     // Fill world with dots...
@@ -121,13 +120,51 @@ describe.only('dot-movement', () => {
     });
 
     it('should return an empty array when no other dots exist in the world', () => {
-      const world = worlds['center-lonely'];
+      const world = worlds['center-lonely']; // no other dots
       const observer = observers['observer-center'];
+
+      // Verify dot count in world...
+      expect(world.dots.length).to.equal(1);
+
+      // visionDepth = 3
+      observer.visionDepth = 3;
       const nearby = dotMovement.getNearbyDots(observer, world);
 
       expect(nearby)
         .to.be.an('array')
         .and.to.have.length(0);
+    });
+
+    it('should return an array of dots that are in visual range of the observer', () => {
+      const world = worlds['center-full']; // full of dots, observer in center
+      const observer = observers['observer-center'];
+
+      // Verify dot count in world...
+      expect(world.dots.length).to.equal(49);
+
+      // visionDepth = 1
+      observer.visionDepth = 1;
+      const nearbyWithVision1 = dotMovement.getNearbyDots(observer, world);
+      expect(nearbyWithVision1)
+        .to.be.an('array')
+        .and.to.have.length(8);
+      expect(nearbyWithVision1[0].type).to.equal('Dot');
+
+      // visionDepth = 2
+      observer.visionDepth = 2;
+      const nearbyWithVision2 = dotMovement.getNearbyDots(observer, world);
+      expect(nearbyWithVision2)
+        .to.be.an('array')
+        .and.to.have.length(24);
+      expect(nearbyWithVision2[23].type).to.equal('Dot');
+
+      // visionDepth = 3
+      observer.visionDepth = 3;
+      const nearbyWithVision3 = dotMovement.getNearbyDots(observer, world);
+      expect(nearbyWithVision3)
+        .to.be.an('array')
+        .and.to.have.length(48);
+      expect(nearbyWithVision3[47].type).to.equal('Dot');
     });
   }); // end-getNearbyDots
 
