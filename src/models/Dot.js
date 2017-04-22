@@ -1,8 +1,8 @@
 import objectUtils from '../utils/object-utils';
-import * as dotInteraction from '../logic/dot-interaction';
+import * as dotDecision from '../logic/dot-decision';
 import * as dotStep from '../logic/dot-step';
 
-const debug = false;
+const debug = true;
 const verbose = false;
 
 // -----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ export default class Dot {
     // ----------------
     // Speed attributes
     // ----------------
-    this.speed = objectUtils.get(data, 'speed', 2000);
+    this.speed = objectUtils.get(data, 'speed', 200);
 
     // -----------------
     // Vision attributes
@@ -150,90 +150,37 @@ export default class Dot {
   }
 
   // ---------------------------------------------------------------
-  // Choose the next event
+  // Choose the next move
+  // ---------------------------------------------------------------
+  // nextMove: {
+  //   endState: {},
+  //   instruction: {},
+  //   speed: 200,
+  // }
   // ---------------------------------------------------------------
   chooseNextMove(world) {
     const nextMove = {
       endState: {},
-      instruction: {},
     };
 
-    // TODO: Access otherDot memory ???
-    // Access movement memory...
-    const shiftMemory = this.moveShiftHistory.slice(0);
+    // Choose next move...
+    const move = dotDecision.chooseNextMove(this, world);
+    if (debug && verbose) console.log(`[MODEL] "${this.id}" next move chosen =>`, move);
+    const stepEndState = move.stepEndState;
+    const direction = move.direction;
 
-    // Check for nearby dots...
-    const nearbyDots = dotInteraction.getNearbyDots(this, world);
-    if (nearbyDots.length > 0) {
-      if (debug && verbose) console.log(`[MODEL] [${this.id}] ${nearbyDots.length} nearby dot(s)`);
-    }
-
-    // TODO: Pass nearbyDots to include in calculation !!!
-    // Determine all available moves at this moment in the world...
-    const moves = dotStep.calculateAvailableSteps(this, world);
-    if (debug && verbose) console.log(`[MODEL] [${this.id}] available moves =>`, moves);
-
-    // If moves are available, decide which to take...
-    if (moves.length > 0) {
-      let direction = moves[0];
-      const lastDirection = (shiftMemory.length > 0)
-          ? shiftMemory[shiftMemory.length - 1]
-          : null;
-
-      // TODO: Reduce step options based upon desires wrt to nearby dots !!!
-      //       (e.g. stay next to other, go towards other, go away from other)
-
-      // Try to continue in the same direction...
-      if (objectUtils.includes(moves, lastDirection)) {
-        direction = lastDirection;
-
-      // Otherwise try to choose a fresh path...
-      } else {
-        if (lastDirection !== null) {
-          const firstOption = direction;
-
-          if (debug && verbose) {
-            console.log('---------------------------------------------------------------------');
-            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${firstOption}`);
-            console.log('        history:', shiftMemory);
-            console.log('----------------------------------------------------------------------');
-          }
-
-          // If we recall taking this path, look for the freshest option...
-          if (objectUtils.includes(shiftMemory, direction) && moves.length > 1) {
-            let freshest = shiftMemory.length - 1;
-            moves.forEach((move) => {
-              const index = shiftMemory.lastIndexOf(move);
-              if (index < freshest) {
-                freshest = index;
-                direction = move;
-              }
-            });
-          }
-
-          if (debug && verbose && direction !== firstOption) {
-            console.log(`[MODEL] "${this.id}" has selected ${direction} instead`);
-          }
-        } // end-if (lastDirection !== null)
-
-        // Record shift...
-        shiftMemory.push(direction);
-        if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
-        nextMove.endState.moveShiftHistory = shiftMemory;
-      }
-
-      // Generate move data...
-      const stepEndState = dotStep.generateStepEndState(this, direction);
+    // If we are moving, generate UI instruction...
+    if (direction) {
       const distance = (objectUtils.has(stepEndState, 'fromX')) ? stepEndState.fromX : stepEndState.fromY;
       const stepInstruction = dotStep.generateStepInstruction({ direction, distance });
-      Object.assign(nextMove.endState, stepEndState);
-      Object.assign(nextMove.instruction, stepInstruction);
-    } // end-if (moves.length > 0)
+      nextMove.instruction = stepInstruction;
+      nextMove.speed = this.speed; // add speed
+    }
 
-    // Increment events count...
-    nextMove.endState.events = this.events + 1;
+    // Generate move end state...
+    Object.assign(nextMove.endState, stepEndState);
 
-    if (debug) console.log(`[MODEL] "${this.id}" nextMove =>`, nextMove);
+    if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
     return nextMove;
   }
 
@@ -241,7 +188,7 @@ export default class Dot {
   // Apply everything that changed during this event
   // -----------------------------------------------
   applyMove(endState) {
-    if (debug) console.log(`[MODEL] "${this.id}" endState =>`, endState);
+    if (debug) console.log(`[MODEL] "${this.id}" applying endState =>`, endState);
 
     Object.keys(endState).forEach((attr) => {
       this[attr] = endState[attr];

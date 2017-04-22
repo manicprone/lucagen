@@ -52,6 +52,7 @@ export default {
   },
 
   updated() {
+    // console.log(`[DOT] "${this.self.name}" updated.`);
     if (!this.self.isAsleep && this.world.freedomMode) this.move();
   },
 
@@ -87,13 +88,13 @@ export default {
     move() {
       // Obtain next move and current speed...
       const nextMove = this.self.chooseNextMove(this.world);
-      const currSpeed = this.self.speed;
 
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
 
       // Parse move info...
       const instruction = nextMove.instruction;
+      const currSpeed = nextMove.speed;
       const endState = nextMove.endState;
 
       // Execute move on DOM element...
