@@ -77,6 +77,8 @@ export default {
       // Apply move info...
       this.self.applyMove(moveInfo);
 
+      // TODO: this.self.evaluate !!!
+
       // Notify store...
       const update = { id: this.self.id, dotData: this.self };
       this.$store.dispatch('NOTIFY_DOT_UPDATE', update);

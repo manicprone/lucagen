@@ -1,8 +1,8 @@
 import objectUtils from '../utils/object-utils';
-import * as dotDecision from '../logic/dot-decision';
+import * as dotInteraction from '../logic/dot-interaction';
 import * as dotStep from '../logic/dot-step';
 
-const debug = true;
+const debug = false;
 const verbose = false;
 
 // -----------------------------------------------------------------------------
@@ -126,13 +126,17 @@ export default class Dot {
     // -----------------------------------------------------------
     // Life Experience Memory
     // -----------------------------------------------------------
-    // events        => Total count of events lapsed since birth
-    //                  (i.e. perceived time).
+    // events         => Total count of events lapsed since birth
+    //                   (i.e. perceived time).
     //
-    // interactions  => Total count of interactions since birth.
+    // interactions   => Total count of interactions since birth.
+    //
+    // interactingWith  => A hash of dotIDs that are actively
+    //                     interacting with him.
     // -----------------------------------------------------------
     this.events = objectUtils.get(data, 'events', 0);
     this.interactions = objectUtils.get(data, 'interactions', 0);
+    this.interactingWith = objectUtils.get(data, 'interactingWith', {});
   }
 
   sleep() {
@@ -154,12 +158,20 @@ export default class Dot {
       instruction: {},
     };
 
+    // TODO: Access otherDot memory ???
     // Access movement memory...
     const shiftMemory = this.moveShiftHistory.slice(0);
 
+    // Check for nearby dots...
+    const nearbyDots = dotInteraction.getNearbyDots(this, world);
+    if (nearbyDots.length > 0) {
+      if (debug && verbose) console.log(`[MODEL] [${this.id}] ${nearbyDots.length} nearby dot(s)`);
+    }
+
+    // TODO: Pass nearbyDots to include in calculation !!!
     // Determine all available moves at this moment in the world...
-    const moves = dotDecision.calculateAvailableEvents(this, world);
-    if (debug && verbose) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
+    const moves = dotStep.calculateAvailableSteps(this, world);
+    if (debug && verbose) console.log(`[MODEL] [${this.id}] available moves =>`, moves);
 
     // If moves are available, decide which to take...
     if (moves.length > 0) {
@@ -167,6 +179,9 @@ export default class Dot {
       const lastDirection = (shiftMemory.length > 0)
           ? shiftMemory[shiftMemory.length - 1]
           : null;
+
+      // TODO: Reduce step options based upon desires wrt to nearby dots !!!
+      //       (e.g. stay next to other, go towards other, go away from other)
 
       // Try to continue in the same direction...
       if (objectUtils.includes(moves, lastDirection)) {

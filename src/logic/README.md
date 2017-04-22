@@ -2,22 +2,28 @@
 // DotWorld Logic
 // -----------------------------------------------------------------------------
 //
+// -----------------------------------------------------------------------------
 // Within a World, a Dot continuously:
+// -----------------------------------------------------------------------------
 //
-// + Calculates the events he perceives are available to him.
+// (1) Calculates the moves he perceives are available to him.
 //
-//     (based upon his current view of the world/others and himself)
+//     (based upon his current view of the world, others, and himself)
 //
-// + Chooses his next "move" (event).
+//
+// (2) Chooses his next move.
 //
 //     (based upon his current motivation / emotional state and
 //     the current state of the world as perceived by him)
 //
 //     comprised of move parts:
-//       - step move         => physical movement
-//       - interaction move  => interactions/exchanges with other Dots
+//       - step move  => physical movement
 //
-// + Evaluates the result of this chosen event.
+//
+// (3) Applies the move, interacting with other Dots nearby.
+//     
+//    
+// (4) Evaluates the result of his move.
 //
 //     (based upon his interactions/exchanges with other Dots
 //     and the current state of the world as reflected upon him)
@@ -27,27 +33,39 @@
 //       - the world as a whole
 //       - his "self"
 //
-// + Stops moving, if he perceives he has no events available or
-//   if he does not have sufficient motivation to choose an event.
+// -----------------------------------------------------------------------------
+// A Dot will stop moving if:
+// -----------------------------------------------------------------------------
+//
+// + He perceives he has no moves available.
+//
+//     -or-
+//
+// + He does not have sufficient motivation to choose a move.
 //
 // -----------------------------------------------------------------------------
 //
 //  Dot.chooseNextMove
 //   |   |
-//   |   |__ calculateAvailableEvents 
+//   |   |__ calculateAvailableMoves
 //   |        |
 //   |        |__ getNearbyDots
-//   |        |    |__ chooseToInteract
-//   |        |         |__ interactWithDot
-//   |        |
 //   |        |__ calculateAvailableSteps
+//   |        |__ chooseToInteractWithDot (for each nearby)
 //   |
 //   V
 //  Dot.applyMove
-//   |
+//   |   |
+//   |   |__ interactWithDot (for all active interactions)
 //   |
 //   V
 //  Dot.evaluate
+//
+// -----------------------------------------------------------------------------
+//
+// + The World data is a copy per each Dot (their own perception)
+//
+// + But, the Dot data is shared by reference (to affect each other)
 //
 // -----------------------------------------------------------------------------
 //

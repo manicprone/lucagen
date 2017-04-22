@@ -1,7 +1,7 @@
 // -------------------------------------------------------------
 // dot-interaction.js
 //
-// Logic for Dot interaction.
+// Logic for Dot interactions.
 // -------------------------------------------------------------
 // import objectUtils from '../utils/object-utils';
 
