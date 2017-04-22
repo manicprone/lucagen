@@ -22,7 +22,6 @@ module.exports = {
       }
     }
   },
-  // add your custom rules here
   'rules': {
     // don't require .vue extension when importing
     'import/extensions': ['error', 'always', { 'js': 'never', 'vue': 'never' }],
@@ -36,5 +35,6 @@ module.exports = {
     'arrow-body-style': 'off',
     'no-console': 'off',
     'default-case': 'off',
+    'dot-notation': 'off',
   },
 }
