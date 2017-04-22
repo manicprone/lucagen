@@ -1,5 +1,6 @@
 import objectUtils from '../utils/object-utils';
-import * as dotMovement from '../logic/dot-movement';
+import * as dotDecision from '../logic/dot-decision';
+import * as dotStep from '../logic/dot-step';
 
 const debug = true;
 const verbose = false;
@@ -157,7 +158,7 @@ export default class Dot {
     const shiftMemory = this.moveShiftHistory.slice(0);
 
     // Determine all available moves at this moment in the world...
-    const moves = dotMovement.calculateAvailableEvents(this, world);
+    const moves = dotDecision.calculateAvailableEvents(this, world);
     if (debug && verbose) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
 
     // If moves are available, decide which to take...
@@ -207,9 +208,9 @@ export default class Dot {
       }
 
       // Generate move data...
-      const stepEndState = dotMovement.generateStepEndState(this, direction);
+      const stepEndState = dotStep.generateStepEndState(this, direction);
       const distance = (objectUtils.has(stepEndState, 'fromX')) ? stepEndState.fromX : stepEndState.fromY;
-      const stepInstruction = dotMovement.generateStepInstruction({ direction, distance });
+      const stepInstruction = dotStep.generateStepInstruction({ direction, distance });
       Object.assign(nextMove.endState, stepEndState);
       Object.assign(nextMove.instruction, stepInstruction);
     } // end-if (moves.length > 0)

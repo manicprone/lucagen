@@ -1,39 +1,12 @@
 // -------------------------------------------------------------
-// dot-movement.js
+// dot-step.js
 //
-// Logic for Dot movement.
+// Logic for Dot steps.
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
 
-const debug = true;
+const debug = false;
 const verbose = false;
-
-// -----------------------------------------------------------
-// Returns an array of available events (moves)
-// -----------------------------------------------------------
-// TODO: move this to main file !!!
-// TODO: return move package:
-// {
-//   movements: [],
-//   interactions: [],
-// }
-// -----------------------------------------------------------
-export function calculateAvailableEvents(dot = {}, world = {}) {
-  if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    // Check for nearby dots...
-    const nearbyDots = getNearbyDots(dot, world);
-    if (nearbyDots.length > 0) {
-      if (debug) console.log(`[movement] [${dot.id}] ${nearbyDots.length} nearby dot(s)`);
-    }
-
-    // Calculate steps available at this moment...
-    const steps = calculateAvailableSteps(dot, world);
-
-    return steps;
-  }
-
-  return [];
-}
 
 // -----------------------------------------------------------
 // Returns an array of available steps
@@ -160,59 +133,4 @@ export function generateStepInstruction(moveInfo = {}) {
   } // end-if (target && !NaN(target))
 
   return stepInstruction;
-}
-
-// -----------------------------------------------------------
-// Returns an array of dots that are nearby the provided dot
-// -----------------------------------------------------------
-//
-// -----------------------------------------------------------
-export function getNearbyDots(dot = {}, world = {}) {
-  const nearby = [];
-
-  if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    const registry = world.dotRegistry;
-
-    Object.keys(registry).forEach((dotID) => {
-      if (dotID !== dot.id) {
-        const other = registry[dotID];
-        if (isDotInRange(dot, other)) nearby.push(other);
-      }
-    });
-  }
-
-  return nearby;
-}
-
-export function isDotInRange(observer = {}, other = {}) {
-  let result = false;
-
-  if (observer.type === 'Dot' && other.type === 'Dot') {
-    const distance = observer.visionDepth * observer.width;
-    const myNorthSight = (observer.y1 - 1) - distance;
-    const myEastSight = (observer.x1 + 1) + distance;
-    const mySouthSight = (observer.y2 + 1) + distance;
-    const myWestSight = (observer.x2 - 1) - distance;
-
-    if (debug && verbose) {
-      console.log(`[movement] [${observer.id}] isDotInRange -------------------------------`);
-      console.log(`my visionDepth: ${observer.visionDepth}`);
-      console.log(`myNorthSight: ${myNorthSight}`);
-      console.log(`myEastSight: ${myEastSight}`);
-      console.log(`mySouthSight: ${mySouthSight}`);
-      console.log(`myWestSight: ${myWestSight}`);
-      console.log(`other.x2: ${other.x2}`);
-      console.log(`other.x1: ${other.x1}`);
-      console.log(`other.y2: ${other.y2}`);
-      console.log(`other.y1: ${other.y1}`);
-      console.log('-------------------------------------------------------');
-    }
-
-    if (other.x2 > myWestSight && other.x1 < myEastSight &&
-        other.y2 > myNorthSight && other.y1 < mySouthSight) {
-      result = true;
-    }
-  }
-
-  return result;
 }

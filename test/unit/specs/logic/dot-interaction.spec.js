@@ -1,7 +1,7 @@
 import chai from 'chai';
 import World from '../../../../src/models/World';
 import Dot from '../../../../src/models/Dot';
-import * as dotMovement from '../../../../src/logic/dot-movement';
+import * as dotInteraction from '../../../../src/logic/dot-interaction';
 
 const expect = chai.expect;
 
@@ -9,7 +9,7 @@ const worlds = {};
 const observers = {};
 const others = {};
 
-describe('dot-movement', () => {
+describe('dot-interaction', () => {
   before(() => {
     // --------------------------------
     // Contruct world of 7 x 7 steps...
@@ -68,7 +68,7 @@ describe('dot-movement', () => {
   describe('isDotInRange', () => {
     it('should return "false" when invalid parameters are provided', () => {
       const fake = { id: 1, name: 'Fake Dot' };
-      const result = dotMovement.isDotInRange(fake, {});
+      const result = dotInteraction.isDotInRange(fake, {});
 
       expect(result).to.equal(false);
     });
@@ -80,7 +80,7 @@ describe('dot-movement', () => {
       // visionDepth = 1
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotInteraction.isDotInRange(observer, dot);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(8);
@@ -90,7 +90,7 @@ describe('dot-movement', () => {
       inRangeCount = 0;
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotInteraction.isDotInRange(observer, dot);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(24);
@@ -100,7 +100,7 @@ describe('dot-movement', () => {
       inRangeCount = 0;
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotInteraction.isDotInRange(observer, dot);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(48);
@@ -112,7 +112,7 @@ describe('dot-movement', () => {
   // -------------------------
   describe('getNearbyDots', () => {
     it('should return an empty array when no parameters are provided', () => {
-      const nearby = dotMovement.getNearbyDots();
+      const nearby = dotInteraction.getNearbyDots();
 
       expect(nearby)
         .to.be.an('array')
@@ -128,7 +128,7 @@ describe('dot-movement', () => {
 
       // visionDepth = 3
       observer.visionDepth = 3;
-      const nearby = dotMovement.getNearbyDots(observer, world);
+      const nearby = dotInteraction.getNearbyDots(observer, world);
 
       expect(nearby)
         .to.be.an('array')
@@ -144,7 +144,7 @@ describe('dot-movement', () => {
 
       // visionDepth = 1
       observer.visionDepth = 1;
-      const nearbyWithVision1 = dotMovement.getNearbyDots(observer, world);
+      const nearbyWithVision1 = dotInteraction.getNearbyDots(observer, world);
       expect(nearbyWithVision1)
         .to.be.an('array')
         .and.to.have.length(8);
@@ -152,7 +152,7 @@ describe('dot-movement', () => {
 
       // visionDepth = 2
       observer.visionDepth = 2;
-      const nearbyWithVision2 = dotMovement.getNearbyDots(observer, world);
+      const nearbyWithVision2 = dotInteraction.getNearbyDots(observer, world);
       expect(nearbyWithVision2)
         .to.be.an('array')
         .and.to.have.length(24);
@@ -160,24 +160,11 @@ describe('dot-movement', () => {
 
       // visionDepth = 3
       observer.visionDepth = 3;
-      const nearbyWithVision3 = dotMovement.getNearbyDots(observer, world);
+      const nearbyWithVision3 = dotInteraction.getNearbyDots(observer, world);
       expect(nearbyWithVision3)
         .to.be.an('array')
         .and.to.have.length(48);
       expect(nearbyWithVision3[47].type).to.equal('Dot');
     });
   }); // end-getNearbyDots
-
-  // -----------------------------------
-  // Testing: calculateAvailableSteps...
-  // -----------------------------------
-  describe('calculateAvailableSteps', () => {
-    it('should return an empty array when no parameters are provided', () => {
-      const steps = dotMovement.calculateAvailableSteps();
-
-      expect(steps)
-        .to.be.an('array')
-        .and.to.have.length(0);
-    });
-  }); // end-calculateAvailableSteps
 });
