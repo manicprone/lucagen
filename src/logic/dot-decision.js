@@ -4,19 +4,19 @@
 // Logic for Dot decisions.
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
-import * as dotInteraction from './dot-interaction';
+// import * as dotInteraction from './dot-interaction';
 import * as dotMovement from './dot-movement';
 
 const debug = true;
-const verbose = true;
+const verbose = false;
 
-// nextMove: {
+// nextStep: {
 //   direction: '',
-//   stepEndState: {},
+//   endState: {},
 // }
-export function chooseNextMove(dot, world) {
-  const nextMove = {
-    stepEndState: {},
+export function chooseNextStep(dot, world) {
+  const nextStep = {
+    endState: {},
   };
 
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
@@ -24,22 +24,13 @@ export function chooseNextMove(dot, world) {
     // Access movement memory...
     const shiftMemory = dot.moveShiftHistory.slice(0);
 
-    // Check for nearby dots...
-    const nearbyDots = dotInteraction.getNearbyDots(dot, world);
-    if (nearbyDots.length > 0) {
-      if (debug && verbose) console.log(`[decision] [${dot.id}] ${nearbyDots.length} nearby dot(s)`);
+    // Determine all available steps at this moment in the world...
+    const steps = dotMovement.calculateAvailableSteps(dot, world);
+    if (debug && verbose) console.log(`[decision] [${dot.id}] available steps =>`, steps);
 
-      // Decide if interaction is desired...
-      // const willingInteractions = dotInteraction.chooseToInteractWithDots(dot, nearbyDots);
-    }
-
-    // Determine all available moves at this moment in the world...
-    const moves = dotMovement.calculateAvailableSteps(dot, world, nearbyDots);
-    if (debug && verbose) console.log(`[decision] [${dot.id}] available moves =>`, moves);
-
-    // If moves are available, decide which to take...
-    if (moves.length > 0) {
-      let direction = moves[0];
+    // If steps are available, decide which to take...
+    if (steps.length > 0) {
+      let direction = steps[0];
       const lastDirection = (shiftMemory.length > 0)
           ? shiftMemory[shiftMemory.length - 1]
           : null;
@@ -48,7 +39,7 @@ export function chooseNextMove(dot, world) {
       //       (e.g. stay next to other, go towards other, go away from other)
 
       // Try to continue in the same direction...
-      if (objectUtils.includes(moves, lastDirection)) {
+      if (objectUtils.includes(steps, lastDirection)) {
         direction = lastDirection;
 
       // Otherwise try to choose a fresh path...
@@ -64,9 +55,9 @@ export function chooseNextMove(dot, world) {
           }
 
           // If we recall taking this path, look for the freshest option...
-          if (objectUtils.includes(shiftMemory, direction) && moves.length > 1) {
+          if (objectUtils.includes(shiftMemory, direction) && steps.length > 1) {
             let freshest = shiftMemory.length - 1;
-            moves.forEach((move) => {
+            steps.forEach((move) => {
               const index = shiftMemory.lastIndexOf(move);
               if (index < freshest) {
                 freshest = index;
@@ -83,20 +74,20 @@ export function chooseNextMove(dot, world) {
         // Record shift...
         shiftMemory.push(direction);
         if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
-      } // end-if-else (objectUtils.includes(moves, lastDirection))
+      } // end-if-else (objectUtils.includes(steps, lastDirection))
 
       // Generate step endState...
       const stepEndState = dotMovement.generateStepEndState(dot, direction);
 
-      // Package move decision...
-      nextMove.direction = direction;
-      nextMove.stepEndState.moveShiftHistory = shiftMemory;
-      Object.assign(nextMove.stepEndState, stepEndState);
-    } // end-if (moves.length > 0)
+      // Package step decision...
+      nextStep.direction = direction;
+      nextStep.endState.moveShiftHistory = shiftMemory;
+      Object.assign(nextStep.endState, stepEndState);
+    } // end-if (steps.length > 0)
 
     // Increment events count...
-    nextMove.stepEndState.events = dot.events + 1;
+    nextStep.endState.events = dot.events + 1;
   }
 
-  return nextMove;
+  return nextStep;
 }

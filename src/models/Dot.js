@@ -1,5 +1,6 @@
 import objectUtils from '../utils/object-utils';
 import * as dotDecision from '../logic/dot-decision';
+import * as dotInteraction from '../logic/dot-interaction';
 import * as dotMovementUI from '../logic/dot-movement-ui';
 
 const debug = true;
@@ -14,7 +15,7 @@ const verbose = false;
 // -----------------------------------------------------------------------------
 // The life of a Dot
 // -----------------------------------------------------------------------------
-// Make a move: chooseNextMove((endState) => applyMove(endState))
+// Make a move: getNextMove((endState) => applyMove(endState))
 //
 // (1) Determine physical movement (step or stay still)
 //     ------------------------------------------------
@@ -120,11 +121,11 @@ export default class Dot {
     // steps         => Total steps taken since birth.
     // -----------------------------------------------------------
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
-    this.steps = objectUtils.get(data, 'steps', 0);
+    this.steps = objectUtils.get(data, 'steps', 0); // TODO: totalSteps
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
 
     // -----------------------------------------------------------
-    // Life Experience Memory
+    // Interaction Memory
     // -----------------------------------------------------------
     // events         => Total count of events lapsed since birth
     //                   (i.e. perceived time).
@@ -134,8 +135,9 @@ export default class Dot {
     // interactingWith  => A hash of dotIDs that are actively
     //                     interacting with him.
     // -----------------------------------------------------------
-    this.events = objectUtils.get(data, 'events', 0);
-    this.interactions = objectUtils.get(data, 'interactions', 0);
+    this.events = objectUtils.get(data, 'events', 0); // TODO: totalEvents
+    this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
+    this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
     this.interactingWith = objectUtils.get(data, 'interactingWith', {});
   }
 
@@ -158,16 +160,30 @@ export default class Dot {
   //   speed: 200,
   // }
   // ---------------------------------------------------------------
-  chooseNextMove(world) {
+  getNextMove(world) {
     const nextMove = {
       endState: {},
     };
 
-    // Choose next move...
-    const move = dotDecision.chooseNextMove(this, world);
-    if (debug && verbose) console.log(`[MODEL] "${this.id}" next move chosen =>`, move);
-    const stepEndState = move.stepEndState;
-    const direction = move.direction;
+    // Check for adjacent dots (for interactions)...
+    const adjacentDots = dotInteraction.getNearbyDots(this, world.dotRegistry, 1);
+    if (adjacentDots.length > 0) {
+      if (debug) console.log(`[MODEL] "${this.id}" ${adjacentDots.length} adjacent dot(s)`);
+
+      // TODO: Where do we decide if we want to interact or not?
+      //       It seems to be elegant to just call this with all adjacent,
+      //       and let the function to handle it...
+      // const interactions = dotInteraction.interactWithOthers(this, adjacentDots, world);
+
+      // Add interactions endState...
+      // Object.assign(nextMove.endState, interactions.endState);
+    }
+
+    // Choose next step...
+    const step = dotDecision.chooseNextStep(this, world);
+    if (debug && verbose) console.log(`[MODEL] "${this.id}" next step chosen =>`, step);
+    const stepEndState = step.endState;
+    const direction = step.direction;
 
     // If we are moving, generate UI instruction...
     if (direction) {
@@ -177,18 +193,18 @@ export default class Dot {
       nextMove.speed = this.speed; // add speed
     }
 
-    // Generate move end state...
+    // Add step endState...
     Object.assign(nextMove.endState, stepEndState);
 
     if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
     return nextMove;
   }
 
-  // -----------------------------------------------
-  // Apply everything that changed during this event
-  // -----------------------------------------------
+  // ----------------------------------------------
+  // Apply everything that changed during this move
+  // ----------------------------------------------
   applyMove(endState) {
-    if (debug) console.log(`[MODEL] "${this.id}" applying endState =>`, endState);
+    // if (debug) console.log(`[MODEL] "${this.id}" applying endState =>`, endState);
 
     Object.keys(endState).forEach((attr) => {
       this[attr] = endState[attr];

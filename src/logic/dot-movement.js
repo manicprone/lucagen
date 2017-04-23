@@ -6,11 +6,14 @@
 // const debug = false;
 // const verbose = false;
 
-// TODO: Apply nearbyDots to calculation (avoid collisions) !!!
+// TODO: Apply nearbyDots to calculation (to avoid collisions) !!!
+//       (using the observer's visionDepth)
+// TODO: Idea => look at history of nearbyDots (2 or 3 depth)
+//       so observer can predict their next direction !!!
 // -----------------------------------------------------------
 // Returns an array of available steps
 // -----------------------------------------------------------
-export function calculateAvailableSteps(dot = {}, world = {} /* nearbyDots */) {
+export function calculateAvailableSteps(dot = {}, world = {}) {
   const steps = [];
   const step = dot.width;
 

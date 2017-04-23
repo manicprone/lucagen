@@ -42,18 +42,19 @@
 //
 // -----------------------------------------------------------------------------
 //
-//  Dot.chooseNextMove
+//  Dot.getNextMove
 //   |   |
-//   |   |__ chooseNextMove
+//   |   |__ interactWithOthers (for all active interactions)
+//   |   |
+//   |   |__ chooseNextStep
 //   |        |
 //   |        |__ getNearbyDots
 //   |        |__ calculateAvailableSteps
-//   |        |__ chooseToInteractWithDots (for each nearby)
+//   |        |__ chooseToInteractWithDots (for each nearby)   !!! interaction will happen on next tick
 //   |
 //   V
 //  Dot.applyMove
-//   |   |
-//   |   |__ interactWithDot (for all active interactions)
+//   |
 //   |
 //   V
 //  Dot.evaluate

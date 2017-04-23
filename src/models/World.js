@@ -45,6 +45,11 @@ export default class DotWorld {
     this.dots = objectUtils.get(data, 'dots', []);
     this.dotRegistry = objectUtils.get(data, 'dotRegistry', {});
     this.freedomMode = true;
+
+    // ----------------------
+    // Interaction Management
+    // ----------------------
+    this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
   }
 
   // ----------------------------------------------- Dot management
