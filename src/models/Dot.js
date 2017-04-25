@@ -125,20 +125,18 @@ export default class Dot {
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
 
     // -----------------------------------------------------------
-    // Interaction Memory
+    // Interaction Management
     // -----------------------------------------------------------
-    // events         => Total count of events lapsed since birth
-    //                   (i.e. perceived time).
+    // events             => Total count of events lapsed since
+    //                       birth (i.e. perceived time).
     //
-    // interactions   => Total count of interactions since birth.
-    //
-    // interactingWith  => A hash of dotIDs that are actively
-    //                     interacting with him.
+    // totalInteractions  => Total count of interactions since
+    //                       birth.
     // -----------------------------------------------------------
     this.events = objectUtils.get(data, 'events', 0); // TODO: totalEvents
     this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
     this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
-    this.interactingWith = objectUtils.get(data, 'interactingWith', {});
+    this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
   }
 
   sleep() {
@@ -165,19 +163,9 @@ export default class Dot {
       endState: {},
     };
 
-    // Check for adjacent dots (for interactions)...
-    const adjacentDots = dotInteraction.getNearbyDots(this, world.dotRegistry, 1);
-    if (adjacentDots.length > 0) {
-      if (debug) console.log(`[MODEL] "${this.id}" ${adjacentDots.length} adjacent dot(s)`);
-
-      // TODO: Where do we decide if we want to interact or not?
-      //       It seems to be elegant to just call this with all adjacent,
-      //       and let the function to handle it...
-      // const interactions = dotInteraction.interactWithOthers(this, adjacentDots, world);
-
-      // Add interactions endState...
-      // Object.assign(nextMove.endState, interactions.endState);
-    }
+    // Check for interactions...
+    const interactions = dotInteraction.interactWithOthers(this, world);
+    Object.assign(nextMove.endState, interactions.endState);
 
     // Choose next step...
     const step = dotDecision.chooseNextStep(this, world);

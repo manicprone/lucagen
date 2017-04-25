@@ -49,7 +49,7 @@ export default class DotWorld {
     // ----------------------
     // Interaction Management
     // ----------------------
-    this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
+    // this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
   }
 
   // ----------------------------------------------- Dot management

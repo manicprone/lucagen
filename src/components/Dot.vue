@@ -1,5 +1,5 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles" v-on:click="toggle">
+  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles">
     <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
   </div>
 </template>
@@ -52,7 +52,6 @@ export default {
   },
 
   updated() {
-    console.log(`[DOT] "${this.self.name}" updated.`);
     if (!this.self.isAsleep && this.world.freedomMode) this.move();
   },
 
@@ -61,16 +60,6 @@ export default {
   },
 
   methods: {
-    toggle() {
-      // this.self.isAsleep = !this.self.isAsleep;
-    },
-    // resume() {
-    //   this.isPaused = false;
-    //   this.move();
-    // },
-    // pause() {
-    //   this.isPaused = true;
-    // },
     pulse() {
       // console.log('(( . ))');
     },
