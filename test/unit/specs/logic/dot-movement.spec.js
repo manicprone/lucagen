@@ -80,27 +80,25 @@ describe('dot-movement', () => {
       // visionDepth = 1
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotMovement.isDotInRange(observer, dot, 1);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(8);
 
       // visionDepth = 2
-      observer.visionDepth = 2;
       inRangeCount = 0;
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotMovement.isDotInRange(observer, dot, 2);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(24);
 
       // visionDepth = 3
-      observer.visionDepth = 3;
       inRangeCount = 0;
       Object.keys(others).forEach((dotID) => {
         const dot = others[dotID];
-        const result = dotMovement.isDotInRange(observer, dot);
+        const result = dotMovement.isDotInRange(observer, dot, 3);
         if (result) inRangeCount += 1;
       });
       expect(inRangeCount).to.equal(48);
@@ -126,9 +124,8 @@ describe('dot-movement', () => {
       // Verify dot count in world...
       expect(world.dots.length).to.equal(1);
 
-      // visionDepth = 3
-      observer.visionDepth = 3;
-      const nearby = dotMovement.getNearbyDots(observer, world);
+      // visionDepth = 3 (entire world space)
+      const nearby = dotMovement.getNearbyDots(observer, world.dotRegistry, 3);
 
       expect(nearby)
         .to.be.an('array')
@@ -143,41 +140,25 @@ describe('dot-movement', () => {
       expect(world.dots.length).to.equal(49);
 
       // visionDepth = 1
-      observer.visionDepth = 1;
-      const nearbyWithVision1 = dotMovement.getNearbyDots(observer, world);
-      expect(nearbyWithVision1)
+      const nearbyWithDepth1 = dotMovement.getNearbyDots(observer, world.dotRegistry, 1);
+      expect(nearbyWithDepth1)
         .to.be.an('array')
         .and.to.have.length(8);
-      expect(nearbyWithVision1[0].type).to.equal('Dot');
+      expect(nearbyWithDepth1[0].type).to.equal('Dot');
 
       // visionDepth = 2
-      observer.visionDepth = 2;
-      const nearbyWithVision2 = dotMovement.getNearbyDots(observer, world);
-      expect(nearbyWithVision2)
+      const nearbyWithDepth2 = dotMovement.getNearbyDots(observer, world.dotRegistry, 2);
+      expect(nearbyWithDepth2)
         .to.be.an('array')
         .and.to.have.length(24);
-      expect(nearbyWithVision2[23].type).to.equal('Dot');
+      expect(nearbyWithDepth2[23].type).to.equal('Dot');
 
       // visionDepth = 3
-      observer.visionDepth = 3;
-      const nearbyWithVision3 = dotMovement.getNearbyDots(observer, world);
-      expect(nearbyWithVision3)
+      const nearbyWithDepth3 = dotMovement.getNearbyDots(observer, world.dotRegistry, 3);
+      expect(nearbyWithDepth3)
         .to.be.an('array')
         .and.to.have.length(48);
-      expect(nearbyWithVision3[47].type).to.equal('Dot');
+      expect(nearbyWithDepth3[47].type).to.equal('Dot');
     });
   }); // end-getNearbyDots
-
-  // -----------------------------------
-  // Testing: determineAvailableMoves...
-  // -----------------------------------
-  describe('determineAvailableMoves', () => {
-    it('should return an empty array when no parameters are provided', () => {
-      const moves = dotMovement.determineAvailableMoves();
-
-      expect(moves)
-        .to.be.an('array')
-        .and.to.have.length(0);
-    });
-  }); // end-determineAvailableMoves
 });

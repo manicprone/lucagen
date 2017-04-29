@@ -36,5 +36,6 @@ module.exports = {
     'no-console': 'off',
     'default-case': 'off',
     'dot-notation': 'off',
+    'import/prefer-default-export': 'off',
   },
 }

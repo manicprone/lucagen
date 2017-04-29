@@ -1,8 +1,47 @@
 import objectUtils from '../utils/object-utils';
+import * as dotInteraction from '../logic/dot-interaction';
 import * as dotMovement from '../logic/dot-movement';
+import * as dotMovementUI from '../logic/dot-movement-ui';
 
-const debug = false;
+const debug = true;
 const verbose = false;
+
+// -----------------------------------------------------------------------------
+// The motivation of a Dot
+// -----------------------------------------------------------------------------
+// (1) To keep stimulated and avoid listlessness
+// (2) To seek a higher level of pride
+//
+// -----------------------------------------------------------------------------
+// The life of a Dot
+// -----------------------------------------------------------------------------
+// Make a move: getNextMove((endState) => applyMove(endState))
+//
+// (1) Determine physical movement (step or stay still)
+//     ------------------------------------------------
+//     (a) Look for interaction (if feeling social)
+//                -or-
+//         Avoid interaction (if feeling anti-social)
+//
+//     (b) Avoid walls
+//
+// (2) Interact (if collision occurs)
+//     ------------------------------
+//     (a) Exchange with each other(s)
+//
+//     (b) Evaluate other(s) individually
+//
+//     (c) Evaluate world as a whole
+//         (based on evaluation of all others up to this point)
+//
+// (3) Evaluate self
+//     -------------
+//     (a) Assess all emotional states
+//
+//     (b) Qualify motivation in world
+//
+//     (c) Calculate level of pride
+// -----------------------------------------------------------------------------
 
 export default class Dot {
   constructor(data = {}) {
@@ -35,24 +74,23 @@ export default class Dot {
     // ----------------
     // Speed attributes
     // ----------------
-    this.speed = objectUtils.get(data, 'speed', 2000);
+    this.speed = objectUtils.get(data, 'speed', 200);
 
     // -----------------
     // Vision attributes
     // -----------------
     this.visionDepth = objectUtils.get(data, 'visionDepth', 1);
 
-    // ---------------------------------------------------------
+    // -----------------------------------------------------------
     // Memory attributes
-    // ---------------------------------------------------------
-    // memoryDepth => The max size of the moveShiftHistory
-    //                array.
-    // ---------------------------------------------------------
+    // -----------------------------------------------------------
+    // memoryDepth  => The max size of the moveShiftHistory array.
+    // -----------------------------------------------------------
     this.memoryDepth = objectUtils.get(data, 'memoryDepth', 4);
 
-    // -------------------
+    // -----------------------------------------------------------
     // Location Management
-    // -------------------
+    // -----------------------------------------------------------
     if (objectUtils.has(data, 'birthLeft')) this.birthLeft = data.birthLeft;
     if (objectUtils.has(data, 'birthTop')) this.birthTop = data.birthTop;
     if (objectUtils.has(data, 'x1')) this.x1 = data.x1;
@@ -77,14 +115,31 @@ export default class Dot {
       this.fromY = 0;
     }
 
-    // -------------------
+    // -----------------------------------------------------------
     // Movement Management
-    // -------------------
+    // -----------------------------------------------------------
+    // steps         => Total steps taken since birth.
+    // -----------------------------------------------------------
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
+    this.steps = objectUtils.get(data, 'steps', 0); // TODO: totalSteps
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
+
+    // -----------------------------------------------------------
+    // Interaction Management
+    // -----------------------------------------------------------
+    // events             => Total count of events lapsed since
+    //                       birth (i.e. perceived time).
+    //
+    // totalInteractions  => Total count of interactions since
+    //                       birth.
+    // -----------------------------------------------------------
+    this.events = objectUtils.get(data, 'events', 0); // TODO: totalEvents
+    this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
+    this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
+    this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
+    this.stepContracts = objectUtils.get(data, 'stepContracts', {});
   }
 
-  // ----------------------------------------------- Movement
   sleep() {
     this.isAsleep = true;
     if (debug) console.log(`[MODEL] "${this.id}" has been put to sleep`);
@@ -95,87 +150,61 @@ export default class Dot {
     if (debug) console.log(`[MODEL] "${this.id}" has awoken`);
   }
 
+  // ---------------------------------------------------------------
+  // Choose the next move
+  // ---------------------------------------------------------------
+  // nextMove: {
+  //   endState: {},
+  //   instruction: {},
+  //   speed: 200,
+  // }
+  // ---------------------------------------------------------------
   getNextMove(world) {
-    const nextMove = {};
+    const nextMove = {
+      endState: {},
+    };
 
-    // Access movement memory...
-    const shiftMemory = this.moveShiftHistory.slice(0);
+    // Check for interactions...
+    const interactions = dotInteraction.interactWithOthers(this, world);
+    Object.assign(nextMove.endState, interactions.endState);
 
-    // Determine all available moves at this moment in the world...
-    const moves = dotMovement.determineAvailableMoves(this, world);
-    if (debug) console.log(`[MODEL] "${this.id}" available moves =>`, moves);
+    // Choose next step...
+    const step = dotMovement.chooseNextStep(this, world);
+    if (debug && verbose) console.log(`[MODEL] "${this.id}" next step chosen =>`, step);
+    const stepEndState = step.endState;
+    const direction = step.direction;
 
-    // If moves are available, decide which to take...
-    if (moves.length > 0) {
-      let direction = moves[0];
-      const lastDirection = (shiftMemory.length > 0)
-          ? shiftMemory[shiftMemory.length - 1]
-          : null;
+    // If we are moving, generate UI instruction...
+    if (direction) {
+      const distance = (objectUtils.has(stepEndState, 'fromX')) ? stepEndState.fromX : stepEndState.fromY;
+      const stepInstruction = dotMovementUI.generateStepInstruction({ direction, distance });
+      nextMove.instruction = stepInstruction;
+      nextMove.speed = this.speed; // add speed
+    }
 
-      // Try to continue in the same direction...
-      if (objectUtils.includes(moves, lastDirection)) {
-        direction = lastDirection;
+    // Add step endState...
+    Object.assign(nextMove.endState, stepEndState);
 
-      // Otherwise try to choose a fresh path...
-      } else {
-        if (lastDirection !== null) {
-          const firstOption = direction;
-
-          if (debug && verbose) {
-            console.log('---------------------------------------------------------------------');
-            console.log(`[MODEL] "${this.id}" is deciding on a new direction: ${firstOption}`);
-            console.log('        history:', shiftMemory);
-            console.log('----------------------------------------------------------------------');
-          }
-
-          // If we recall taking this path, look for the freshest option...
-          if (objectUtils.includes(shiftMemory, direction) && moves.length > 1) {
-            let freshest = shiftMemory.length - 1;
-            moves.forEach((move) => {
-              const index = shiftMemory.lastIndexOf(move);
-              if (index < freshest) {
-                freshest = index;
-                direction = move;
-              }
-            });
-          }
-
-          if (debug && verbose && direction !== firstOption) {
-            console.log(`[MODEL] "${this.id}" has selected ${direction} instead`);
-          }
-        } // end-if (lastDirection !== null)
-
-        // Record shift...
-        shiftMemory.push(direction);
-        if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
-        this.moveShiftHistory = shiftMemory;
-      }
-
-      // Generate move data...
-      const endState = dotMovement.generateMoveEndState(this, direction);
-      const distance = (objectUtils.has(endState, 'fromX')) ? endState.fromX : endState.fromY;
-      const instruction = dotMovement.generateMoveInstruction({ direction, distance });
-
-      // Add endState and instruction data to return package...
-      nextMove.endState = endState;
-      nextMove.instruction = instruction;
-
-      if (debug) {
-        console.log(`[MODEL] "${this.id}" nextMove package for "${direction}" =>`, nextMove);
-      }
-    } // end-if (moves.length > 0)
-
+    if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
     return nextMove;
   }
 
+  // ----------------------------------------------
+  // Apply everything that changed during this move
+  // ----------------------------------------------
   applyMove(endState) {
-    if (objectUtils.has(endState, 'x1')) this.x1 = endState.x1;
-    if (objectUtils.has(endState, 'x2')) this.x2 = endState.x2;
-    if (objectUtils.has(endState, 'y1')) this.y1 = endState.y1;
-    if (objectUtils.has(endState, 'y1')) this.y2 = endState.y2;
-    if (objectUtils.has(endState, 'fromX')) this.fromX = endState.fromX;
-    if (objectUtils.has(endState, 'fromY')) this.fromY = endState.fromY;
+    // if (debug) console.log(`[MODEL] "${this.id}" applying endState =>`, endState);
+
+    Object.keys(endState).forEach((attr) => {
+      this[attr] = endState[attr];
+    });
   }
+
+  // -----------------------------------------------
+  // Evaluate
+  // -----------------------------------------------
+  // evaluate() {
+  // }
 
   // ----------------------------------------------- Hydrate
   static hydrate(dotData) {

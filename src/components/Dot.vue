@@ -1,5 +1,5 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles" v-on:click="toggle">
+  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles">
     <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
   </div>
 </template>
@@ -48,7 +48,7 @@ export default {
   },
 
   mounted() {
-    console.log(`[DOT] "${this.self.id}" =>`, this.self);
+    console.log(`[DOT] Welcome "${this.self.name}" to "${this.world.name}" =>`, this.self);
   },
 
   updated() {
@@ -56,26 +56,18 @@ export default {
   },
 
   destroyed() {
-    console.log(`[DOT] "${this.self.id}" was destroyed.`);
+    console.log(`[DOT] "${this.self.name}" has died.`);
   },
 
   methods: {
-    toggle() {
-      // this.self.isAsleep = !this.self.isAsleep;
-    },
-    // resume() {
-    //   this.isPaused = false;
-    //   this.move();
-    // },
-    // pause() {
-    //   this.isPaused = true;
-    // },
     pulse() {
       // console.log('(( . ))');
     },
     notify(moveInfo) {
       // Apply move info...
       this.self.applyMove(moveInfo);
+
+      // TODO: this.self.evaluate !!!
 
       // Notify store...
       const update = { id: this.self.id, dotData: this.self };
@@ -85,13 +77,13 @@ export default {
     move() {
       // Obtain next move and current speed...
       const nextMove = this.self.getNextMove(this.world);
-      const currSpeed = this.self.speed;
 
       // Obtain dot DOM element...
       const obj = this.$refs.dotSpace;
 
       // Parse move info...
       const instruction = nextMove.instruction;
+      const currSpeed = nextMove.speed;
       const endState = nextMove.endState;
 
       // Execute move on DOM element...
