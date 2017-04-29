@@ -1,6 +1,6 @@
 import objectUtils from '../utils/object-utils';
-import * as dotDecision from '../logic/dot-decision';
 import * as dotInteraction from '../logic/dot-interaction';
+import * as dotMovement from '../logic/dot-movement';
 import * as dotMovementUI from '../logic/dot-movement-ui';
 
 const debug = true;
@@ -137,6 +137,7 @@ export default class Dot {
     this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
     this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
     this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
+    this.stepContracts = objectUtils.get(data, 'stepContracts', {});
   }
 
   sleep() {
@@ -168,7 +169,7 @@ export default class Dot {
     Object.assign(nextMove.endState, interactions.endState);
 
     // Choose next step...
-    const step = dotDecision.chooseNextStep(this, world);
+    const step = dotMovement.chooseNextStep(this, world);
     if (debug && verbose) console.log(`[MODEL] "${this.id}" next step chosen =>`, step);
     const stepEndState = step.endState;
     const direction = step.direction;

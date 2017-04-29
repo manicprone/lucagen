@@ -44,7 +44,7 @@
 //
 //  Dot.getNextMove
 //   |   |
-//   |   |__ interactWithOthers (for all active interactions)
+//   |   |__ interactWithOthers
 //   |   |
 //   |   |__ chooseNextStep
 //   |        |
