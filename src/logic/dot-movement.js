@@ -26,7 +26,7 @@ export function chooseNextStep(dot, world) {
 
     // Determine all available steps at this moment in the world...
     const steps = calculateAvailableSteps(dot, world);
-    if (debug && verbose) console.log(`[decision] [${dot.id}] available steps =>`, steps);
+    if (debug && verbose) console.log(`[movement] [${dot.id}] available steps =>`, steps);
 
     // If steps are available, decide which to take...
     if (steps.length > 0) {
@@ -46,7 +46,7 @@ export function chooseNextStep(dot, world) {
 
           if (debug && verbose) {
             console.log('---------------------------------------------------------------------');
-            console.log(`[decision] "${dot.id}" is deciding on a new direction: ${firstOption}`);
+            console.log(`[movement] "${dot.id}" is deciding on a new direction: ${firstOption}`);
             console.log('        history:', shiftMemory);
             console.log('----------------------------------------------------------------------');
           }
@@ -64,7 +64,7 @@ export function chooseNextStep(dot, world) {
           }
 
           if (debug && verbose && direction !== firstOption) {
-            console.log(`[decision] "${dot.id}" has selected ${direction} instead`);
+            console.log(`[movement] "${dot.id}" has selected ${direction} instead`);
           }
         } // end-if (lastDirection !== null)
 
@@ -122,6 +122,7 @@ export function getApproachingDots(/* dot = {}, others = {} */) {
 //  - - - - -
 // ---------------------------
 export function isDotApproachingHeadOn(/* observer = {}, other = {} */) {
+  return false;
 }
 
 export function isDotApproaching(/* observer = {}, other = {} */) {

@@ -40,7 +40,6 @@ export function interactWithOthers(observer = {}, world = {}) {
 
   if (observer.type === 'Dot' && world.type === 'DotWorld') {
     const others = world.dotRegistry;
-    // const stepContracts = observer.stepContracts;
 
     // Look for nearby dots...
     const nearbyDots = dotMovement.getNearbyDots(observer, others, 2);
@@ -56,9 +55,10 @@ export function interactWithOthers(observer = {}, world = {}) {
         //     ? Object.assign({}, other.recipientInteractions[observer.id])
         //     : null;
 
-        const interact = chooseToInteractWithDot(observer, other);
+        const isWillingToInteract = isWillingToInteractWithDot(observer, other);
 
-        if (interact) {
+        if (isWillingToInteract) {
+          // if (debug) console.log(`[interaction] "${observer.id}" is interacting with ${other.id}`);
           // [performInteraction logic]
           // if principal interaction (we are initiator -or- recipient)
           //    perform interaction
@@ -66,9 +66,12 @@ export function interactWithOthers(observer = {}, world = {}) {
           // else we have existing step contract
           //    perform interaction
           //    update contract
-        } else {
-          // create/update step contract (I move, you can continue)
         }
+
+        const contract = negotiateStepContract(observer, other, isWillingToInteract);
+
+        // Record contract...
+        observer.stepContracts[other.id] = contract; // eslint-disable-line no-param-reassign
       });
     } // end-if (nearbyDots.length > 0)
   }
@@ -126,7 +129,7 @@ export function interactWithOthers(observer = {}, world = {}) {
 //   return interactions;
 // }
 
-export function chooseToInteractWithDot(/* observer = {}, other = {} */) {
+export function isWillingToInteractWithDot(/* observer = {}, other = {} */) {
   const interact = false;
   // if (observer.type === 'Dot' && other.type === 'Dot') {
   // }
@@ -145,4 +148,51 @@ export function performInteraction() {
   };
 
   return interaction;
+}
+
+// stepContract: {
+//   observer: {
+//     nextDirection: 'n',
+//     intent: 'follow' | 'meet' | 'avoid',
+//     satisfied: true | false
+//   }
+// }
+export function negotiateStepContract(observer = {}, other = {}, isWillingToInteract = false) {
+  const stepContract = {
+    observer: {},
+    recipient: {},
+  };
+
+  if (observer.type === 'Dot' && other.type === 'Dot') {
+    // Check for existing step contract initiated by other...
+    const contract = (other.stepContracts[observer.id])
+        ? Object.assign({}, other.stepContracts[observer.id])
+        : null;
+
+    if (contract) {
+      if (debug) console.log(`[interaction] "${observer.id}" has an existing step contract with ${other.id} =>`, contract);
+
+      // Obtain contract from other, and mark as satisfied...
+      Object.assign(stepContract.observer, contract.observer, { satisfied: true });
+      Object.assign(stepContract.recipient, contract.recipient, { satisfied: true });
+    } else {
+      if (debug) console.log(`[interaction] "${observer.id}" is creating a step contract with ${other.id}`);
+
+      // decide to: meet -or- avoid
+      const meet = isWillingToInteract;
+      if (meet) {
+        Object.assign(stepContract.observer, { intent: 'meet', satisfied: false });
+        Object.assign(stepContract.recipient, { intent: 'meet', satisfied: false });
+        // negotiate place to meet
+      } else {
+        Object.assign(stepContract.observer, { intent: 'avoid', satisfied: false });
+        Object.assign(stepContract.recipient, { intent: 'avoid', satisfied: false });
+        if (dotMovement.isDotApproachingHeadOn(observer, other)) {
+          // initiator chooses avoid step (if possible)
+        }
+      }
+    } // end-if-else (contract)
+  }
+
+  return stepContract;
 }

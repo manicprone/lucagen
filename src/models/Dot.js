@@ -154,6 +154,7 @@ export default class Dot {
   // Choose the next move
   // ---------------------------------------------------------------
   // nextMove: {
+  //   stepContracts: {},
   //   endState: {},
   //   instruction: {},
   //   speed: 200,
