@@ -1,16 +1,15 @@
 # DotWorld Logic
 
----
 
 ## Within a World, a Dot continuously:
 
-(1) Views the other Dots near him, choosing whether or not to interact.
+1. Views the other Dots near him, choosing whether or not to interact.
 
-(2) Chooses his next move.
+2. Chooses his next move.
 
-(3) Applies the move.
+3. Applies the move.
 
-(4) Evaluates the result of his move.
+4. Evaluates the result of his move.
 
     evaluates:
     - others, individually
@@ -20,11 +19,9 @@
 
 ## A Dot will stop moving if:
 
----
-
 * He perceives he has no moves available.
 
- -or-
+          -or-
 
 * He does not have sufficient motivation to choose a move.
 
