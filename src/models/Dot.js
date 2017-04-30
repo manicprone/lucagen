@@ -138,7 +138,7 @@ export default class Dot {
     this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
     this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
     this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
-    this.stepContracts = objectUtils.get(data, 'stepContracts', {});
+    this.stepContract = objectUtils.get(data, 'stepContract', {});
   }
 
   sleep() {
@@ -155,7 +155,6 @@ export default class Dot {
   // Choose the next move
   // ---------------------------------------------------------------
   // nextMove: {
-  //   stepContracts: {},
   //   endState: {},
   //   instruction: {},
   //   speed: 200,

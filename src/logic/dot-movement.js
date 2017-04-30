@@ -17,17 +17,20 @@ export function chooseNextStep(dot, world) {
     endState: {},
   };
 
-  // TODO: First, Look at existing step contracts.
-  //       If nothing decided for next step, follow logic below...
-
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    const stepContracts = dot.stepContracts;
-    if (Object.keys(stepContracts).length > 0) {
-      console.log(`[!!!!!!!] "${dot.id}" stepContracts =>`, stepContracts);
-    }
-
     // Access movement memory...
     const shiftMemory = dot.moveShiftHistory.slice(0);
+
+    // Check for active step contract with others...
+    const stepContract = objectUtils.get(dot.stepContract, `members[${dot.id}]`, null);
+
+    if (stepContract) {
+      if (!stepContract.satisfied) {
+        console.log(`====================>> "${dot.id}" will honor contract to move:`, stepContract.nextDirection);
+      } else if (dot.currentDirection !== stepContract.resumeDirection) {
+        console.log(`====================>> "${dot.id}" wants to resume direction:`, stepContract.resumeDirection);
+      }
+    }
 
     // Determine all available steps at this moment in the world...
     const steps = calculateAvailableSteps(dot, world);
@@ -210,9 +213,14 @@ export function calculateAvailableSteps(dot = {}, world = {}) {
     const worldNorth = world.y1;
     const worldSouth = world.y2;
 
+    // if (nextDotNorth > worldNorth) steps.push('n');
+    // if (nextDotEast < worldEast) steps.push('e');
+    // if (nextDotSouth < worldSouth) steps.push('s');
+    // if (nextDotWest > worldWest) steps.push('w');
+
     if (nextDotNorth > worldNorth) steps.push('n');
-    if (nextDotEast < worldEast) steps.push('e');
     if (nextDotSouth < worldSouth) steps.push('s');
+    if (nextDotEast < worldEast) steps.push('e');
     if (nextDotWest > worldWest) steps.push('w');
   }
 
