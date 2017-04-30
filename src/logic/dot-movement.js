@@ -12,15 +12,16 @@ const verbose = false;
 //   direction: '',
 //   endState: {},
 // }
-export function chooseNextStep(dot, world) {
+
+// TODO: Renamed to getNextStep !!!
+
+export function chooseNextStep(dot = {}, world = {}) {
   const nextStep = {
+    direction: null,
     endState: {},
   };
 
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    // Access movement memory...
-    const shiftMemory = dot.moveShiftHistory.slice(0);
-
     // Check for active step contract with others...
     const stepContract = objectUtils.get(dot.stepContract, `members[${dot.id}]`, null);
 
@@ -32,6 +33,111 @@ export function chooseNextStep(dot, world) {
       }
     }
 
+    // Follow step contract...
+    // ==> direction, shiftMemory
+
+    // Otherwise, choose freedom step...
+    const freedomStep = chooseFreedomStep(dot, world);
+    Object.assign(nextStep, freedomStep);
+
+    // Increment events count...
+    nextStep.endState.events = dot.events + 1;
+  }
+
+  return nextStep;
+}
+
+// export function chooseNextStep(dot = {}, world = {}) {
+//   const nextStep = {
+//     endState: {},
+//   };
+//
+//   if (dot.type === 'Dot' && world.type === 'DotWorld') {
+//     // Access movement memory...
+//     const shiftMemory = dot.moveShiftHistory.slice(0);
+//
+//     // Check for active step contract with others...
+//     const stepContract = objectUtils.get(dot.stepContract, `members[${dot.id}]`, null);
+//
+//     if (stepContract) {
+//       if (!stepContract.satisfied) {
+//         console.log(`====================>> "${dot.id}" will honor contract to move:`, stepContract.nextDirection);
+//       } else if (dot.currentDirection !== stepContract.resumeDirection) {
+//         console.log(`====================>> "${dot.id}" wants to resume direction:`, stepContract.resumeDirection);
+//       }
+//     }
+//
+//     // Follow step contract...
+//
+//     // Otherwise, choose freedom step...
+//
+//     // Determine all available steps at this moment in the world...
+//     const steps = calculateAvailableSteps(dot, world);
+//     if (debug && verbose) console.log(`[movement] "${dot.id}" available steps =>`, steps);
+//
+//     // If steps are available, decide which to take...
+//     if (steps.length > 0) {
+//       let direction = steps[0];
+//       const lastDirection = dot.currentDirection;
+//
+//       // Try to continue in the same direction...
+//       if (objectUtils.includes(steps, lastDirection)) {
+//         direction = lastDirection;
+//
+//       // Otherwise try to choose a fresh path...
+//       } else {
+//         if (lastDirection !== null) {
+//           const firstOption = direction;
+//
+//           // If we recall taking this path, look for the freshest option...
+//           if (objectUtils.includes(shiftMemory, direction) && steps.length > 1) {
+//             let freshest = shiftMemory.length - 1;
+//             steps.forEach((move) => {
+//               const index = shiftMemory.lastIndexOf(move);
+//               if (index < freshest) {
+//                 freshest = index;
+//                 direction = move;
+//               }
+//             });
+//           }
+//
+//           if (debug && verbose && direction !== firstOption) {
+//             console.log(`[movement] "${dot.id}" has selected ${direction} instead`);
+//           }
+//         } // end-if (lastDirection !== null)
+//
+//         // Record shift...
+//         shiftMemory.push(direction);
+//         if (shiftMemory.length > dot.memoryDepth) shiftMemory.shift(); // respect memory capacity
+//       } // end-if-else (objectUtils.includes(steps, lastDirection))
+//
+//       // Generate step endState...
+//       const stepEndState = generateStepEndState(dot, direction);
+//
+//       // Package step decision...
+//       nextStep.direction = direction;
+//       nextStep.endState.currentDirection = direction;
+//       nextStep.endState.moveShiftHistory = shiftMemory;
+//       Object.assign(nextStep.endState, stepEndState);
+//     } // end-if (steps.length > 0)
+//
+//     // Increment events count...
+//     nextStep.endState.events = dot.events + 1;
+//   }
+//
+//   return nextStep;
+// }
+
+export function chooseFreedomStep(dot = {}, world = {}) {
+  const nextStep = {
+    direction: null,
+    endState: {},
+  };
+
+  if (dot.type === 'Dot' && world.type === 'DotWorld') {
+    // Access movement memory...
+    const shiftMemory = dot.moveShiftHistory.slice(0);
+
     // Determine all available steps at this moment in the world...
     const steps = calculateAvailableSteps(dot, world);
     if (debug && verbose) console.log(`[movement] "${dot.id}" available steps =>`, steps);
@@ -39,9 +145,7 @@ export function chooseNextStep(dot, world) {
     // If steps are available, decide which to take...
     if (steps.length > 0) {
       let direction = steps[0];
-      const lastDirection = (shiftMemory.length > 0)
-          ? shiftMemory[shiftMemory.length - 1]
-          : null;
+      const lastDirection = dot.currentDirection;
 
       // Try to continue in the same direction...
       if (objectUtils.includes(steps, lastDirection)) {
@@ -49,36 +153,21 @@ export function chooseNextStep(dot, world) {
 
       // Otherwise try to choose a fresh path...
       } else {
-        if (lastDirection !== null) {
-          const firstOption = direction;
-
-          if (debug && verbose) {
-            console.log('---------------------------------------------------------------------');
-            console.log(`[movement] "${dot.id}" is deciding on a new direction: ${firstOption}`);
-            console.log('        history:', shiftMemory);
-            console.log('----------------------------------------------------------------------');
-          }
-
-          // If we recall taking this path, look for the freshest option...
-          if (objectUtils.includes(shiftMemory, direction) && steps.length > 1) {
-            let freshest = shiftMemory.length - 1;
-            steps.forEach((move) => {
-              const index = shiftMemory.lastIndexOf(move);
-              if (index < freshest) {
-                freshest = index;
-                direction = move;
-              }
-            });
-          }
-
-          if (debug && verbose && direction !== firstOption) {
-            console.log(`[movement] "${dot.id}" has selected ${direction} instead`);
-          }
-        } // end-if (lastDirection !== null)
+        // If we recall taking this path, look for the freshest option...
+        if (objectUtils.includes(shiftMemory, direction) && steps.length > 1) {
+          let freshest = shiftMemory.length - 1;
+          steps.forEach((move) => {
+            const index = shiftMemory.lastIndexOf(move);
+            if (index < freshest) {
+              freshest = index;
+              direction = move;
+            }
+          });
+        }
 
         // Record shift...
         shiftMemory.push(direction);
-        if (shiftMemory.length > this.memoryDepth) shiftMemory.shift(); // respect memory capacity
+        if (shiftMemory.length > dot.memoryDepth) shiftMemory.shift(); // respect memory capacity
       } // end-if-else (objectUtils.includes(steps, lastDirection))
 
       // Generate step endState...
@@ -90,9 +179,6 @@ export function chooseNextStep(dot, world) {
       nextStep.endState.moveShiftHistory = shiftMemory;
       Object.assign(nextStep.endState, stepEndState);
     } // end-if (steps.length > 0)
-
-    // Increment events count...
-    nextStep.endState.events = dot.events + 1;
   }
 
   return nextStep;
