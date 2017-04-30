@@ -122,6 +122,7 @@ export default class Dot {
     // -----------------------------------------------------------
     this.isAsleep = objectUtils.get(data, 'isAsleep', true);
     this.steps = objectUtils.get(data, 'steps', 0); // TODO: totalSteps
+    this.currentDirection = objectUtils.get(data, 'currentDirection', null);
     this.moveShiftHistory = objectUtils.get(data, 'moveShiftHistory', []);
 
     // -----------------------------------------------------------

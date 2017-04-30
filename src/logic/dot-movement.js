@@ -21,12 +21,17 @@ export function chooseNextStep(dot, world) {
   //       If nothing decided for next step, follow logic below...
 
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
+    const stepContracts = dot.stepContracts;
+    if (Object.keys(stepContracts).length > 0) {
+      console.log(`[!!!!!!!] "${dot.id}" stepContracts =>`, stepContracts);
+    }
+
     // Access movement memory...
     const shiftMemory = dot.moveShiftHistory.slice(0);
 
     // Determine all available steps at this moment in the world...
     const steps = calculateAvailableSteps(dot, world);
-    if (debug && verbose) console.log(`[movement] [${dot.id}] available steps =>`, steps);
+    if (debug && verbose) console.log(`[movement] "${dot.id}" available steps =>`, steps);
 
     // If steps are available, decide which to take...
     if (steps.length > 0) {
@@ -78,6 +83,7 @@ export function chooseNextStep(dot, world) {
 
       // Package step decision...
       nextStep.direction = direction;
+      nextStep.endState.currentDirection = direction;
       nextStep.endState.moveShiftHistory = shiftMemory;
       Object.assign(nextStep.endState, stepEndState);
     } // end-if (steps.length > 0)
@@ -121,8 +127,24 @@ export function getApproachingDots(/* dot = {}, others = {} */) {
 //  - - - - -
 //  - - - - -
 // ---------------------------
-export function isDotApproachingHeadOn(/* observer = {}, other = {} */) {
-  return false;
+export function isDotApproachingHeadOn(observer = {}, other = {}) {
+  let headOn = false;
+
+  if (observer.type === 'Dot' && other.type === 'Dot') {
+    const observerDirection = observer.currentDirection;
+    const otherDirection = other.currentDirection;
+
+    if (observerDirection && otherDirection) {
+      headOn = (
+        (observerDirection === 'n' && otherDirection === 's') ||
+        (observerDirection === 's' && otherDirection === 'n') ||
+        (observerDirection === 'e' && otherDirection === 'w') ||
+        (observerDirection === 'w' && otherDirection === 'e')
+      );
+    } // end-if (observerDirection && otherDirection)
+  }
+
+  return headOn;
 }
 
 export function isDotApproaching(/* observer = {}, other = {} */) {
@@ -133,14 +155,14 @@ export function isDotApproaching(/* observer = {}, other = {} */) {
 // -----------------------------------------------------------
 //
 // -----------------------------------------------------------
-export function getNearbyDots(dot = {}, others = {}, visionDepth = 1) {
+export function getNearbyDots(observer = {}, others = {}, visionDepth = 1) {
   const nearby = [];
 
-  if (dot.type === 'Dot') {
+  if (observer.type === 'Dot') {
     Object.keys(others).forEach((dotID) => {
-      if (dotID !== dot.id) {
+      if (dotID !== observer.id) {
         const other = others[dotID];
-        if (isDotInRange(dot, other, visionDepth)) nearby.push(other);
+        if (isDotInRange(observer, other, visionDepth)) nearby.push(other);
       }
     });
   }
@@ -188,20 +210,19 @@ export function calculateAvailableSteps(dot = {}, world = {}) {
     const worldNorth = world.y1;
     const worldSouth = world.y2;
 
-    // North...
     if (nextDotNorth > worldNorth) steps.push('n');
-
-    // East...
     if (nextDotEast < worldEast) steps.push('e');
-
-    // South...
     if (nextDotSouth < worldSouth) steps.push('s');
-
-    // West...
     if (nextDotWest > worldWest) steps.push('w');
   }
 
   return steps;
+}
+
+export function getOrthogonalDirections(origin) {
+  return (origin === 'n' || origin === 's')
+      ? ['e', 'w']
+      : ['n', 's'];
 }
 
 export function generateStepEndState(dot = {}, direction) {
@@ -210,29 +231,25 @@ export function generateStepEndState(dot = {}, direction) {
     const steps = dot.steps + 1; // increment steps count
 
     switch (direction) {
-      case 'n':
-      case 'north': {
+      case 'n': {
         const newY1 = dot.y1 - step;
         const newY2 = dot.y2 - step;
         const newFromY = dot.fromY - step;
         return { steps, y1: newY1, y2: newY2, fromY: newFromY };
       }
-      case 's':
-      case 'south': {
+      case 's': {
         const newY1 = dot.y1 + step;
         const newY2 = dot.y2 + step;
         const newFromY = dot.fromY + step;
         return { steps, y1: newY1, y2: newY2, fromY: newFromY };
       }
-      case 'e':
-      case 'east': {
+      case 'e': {
         const newX1 = dot.x1 + step;
         const newX2 = dot.x2 + step;
         const newFromX = dot.fromX + step;
         return { steps, x1: newX1, x2: newX2, fromX: newFromX };
       }
-      case 'w':
-      case 'west': {
+      case 'w': {
         const newX1 = dot.x1 - step;
         const newX2 = dot.x2 - step;
         const newFromX = dot.fromX - step;
