@@ -6,24 +6,19 @@
 // Within a World, a Dot continuously:
 // -----------------------------------------------------------------------------
 //
-// (1) Calculates the moves he perceives are available to him.
-//
-//     (based upon his current view of the world, others, and himself)
+// (1) Views the other Dots near him, choosing whether or not to interact.
 //
 //
 // (2) Chooses his next move.
 //
-//     (based upon his current motivation/emotional state and
-//     the current state of the world as perceived by him)
 //
-//
-// (3) Applies the move, interacting with other Dots nearby.
+// (3) Applies the move.
 //     
 //    
 // (4) Evaluates the result of his move.
 //
 //     (based upon his interactions/exchanges with other Dots
-//     and the current state of the world as reflected upon him)
+//     and his current emotional state)
 //
 //     evaluates:
 //       - others, individually
@@ -44,13 +39,9 @@
 //
 //  Dot.getNextMove
 //   |   |
-//   |   |__ interactWithOthers
+//   |   |__ interactWithOthers (manage step contracts)
 //   |   |
 //   |   |__ chooseNextStep
-//   |        |
-//   |        |__ getNearbyDots
-//   |        |__ calculateAvailableSteps
-//   |        |__ chooseToInteractWithDots (for each nearby)   !!! interaction will happen on next tick
 //   |
 //   V
 //  Dot.applyMove
@@ -58,12 +49,6 @@
 //   |
 //   V
 //  Dot.evaluate
-//
-// -----------------------------------------------------------------------------
-//
-// + The World data is a copy per each Dot (their own perception)
-//
-// + The Dot data is shared by reference (to affect each other)
 //
 // -----------------------------------------------------------------------------
 //
