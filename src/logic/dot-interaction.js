@@ -114,17 +114,14 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
   const stepContracts = {};
 
   // Access existing step contracts...
-  const myRecords = observer.stepContracts;
-  const yourRecords = other.stepContracts;
+  const myRecords = observer.stepContracts.members;
+  const yourRecords = other.stepContracts.members;
 
-  // If we don't have a contract with other in our records,
-  // check other if already negotiated, otherwise, we will initate a one...
-  if (!objectUtils.has(myRecords, `members[${observer.id}]`)) {
-    stepContracts.members = {};
-
-    // Check if observer has existing step contract with other...
-    const existingContract = (objectUtils.has(yourRecords, `members[${observer.id}]`))
-        ? Object.assign({}, yourRecords.members[observer.id])
+  // Determine negotiation, if we don't have a contract on record yet...
+  if (!objectUtils.has(myRecords, other.id)) {
+    // Check if other has existing step contract for us...
+    const existingContract = (objectUtils.has(yourRecords, observer.id))
+        ? Object.assign({}, yourRecords[observer.id])
         : null;
 
     // --------------------
@@ -133,27 +130,30 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
     if (existingContract) {
       if (debug) console.log(`[interaction] "${observer.id}" has an existing step contract with "${other.id}" to record =>`, existingContract);
 
-      // Obtain contract from other to save in our records...
-      stepContracts.members[observer.id] = existingContract;
+      // Save contract into our records...
+      stepContracts.personal = existingContract;
+      stepContracts.members = {};
+      stepContracts.members[other.id] = other.stepContracts.personal;
 
     // ---------------
     // New contract...
     // ---------------
     } else {
       if (debug) console.log(`[interaction] "${observer.id}" is creating a step contract with "${other.id}"`);
-      stepContracts.members[observer.id] = {};
+      stepContracts.personal = {};
+      stepContracts.members = {};
       stepContracts.members[other.id] = {};
 
       // Determine if a meetup is desired...
       const meet = false;
       if (meet) {
         // Create a step contract to meetup...
-        Object.assign(stepContracts.members[observer.id], { intent: 'meet', satisfied: false });
+        Object.assign(stepContracts.personal, { intent: 'meet', satisfied: false });
         Object.assign(stepContracts.members[other.id], { intent: 'meet', satisfied: false });
         // TODO: negotiate place to meet
       } else {
         // Create a step contract to ignore attempts for interaction...
-        Object.assign(stepContracts.members[observer.id], { intent: 'avoid' });
+        Object.assign(stepContracts.personal, { intent: 'avoid' });
         Object.assign(stepContracts.members[other.id], { intent: 'avoid' });
 
         // If a collision appears imminent, determine step to take...
@@ -182,14 +182,14 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
           if (avoidStep === 'n' || avoidStep === 's') observerDirection.resumeX = observer.x1;
           if (avoidStep === 'e' || avoidStep === 'w') observerDirection.resumeY = observer.y1;
           const otherDirection = { nextDirection: other.currentDirection };
-          Object.assign(stepContracts.members[observer.id], observerDirection, { satisfied: false });
+          Object.assign(stepContracts.personal, observerDirection, { satisfied: false });
           Object.assign(stepContracts.members[other.id], otherDirection, { satisfied: true });
         } // end-if (dotMovement.isDotApproachingHeadOn)
       } // end-if-else (meet)
     } // end-if-else (existingContract)
   } else if (debug) {
     console.log(`[interaction] "${observer.id}" has a step contract on record with "${other.id}"`);
-  } // end-if-elseif (!objectUtils.has(myRecords, `members[${observer.id}]`))
+  } // end-if-elseif (!objectUtils.has(myRecords, other.id))
 
   return stepContracts;
 }

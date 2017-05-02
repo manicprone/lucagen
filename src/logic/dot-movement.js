@@ -30,7 +30,9 @@ export function chooseNextStep(dot = {}, world = {}) {
     // }
 
     // Check for active step contract with others...
-    const stepContract = objectUtils.get(dot.stepContracts, `members[${dot.id}]`, null);
+    const stepContract = (objectUtils.has(dot.stepContracts.personal, 'satisfied'))
+        ? dot.stepContracts.personal
+        : null;
 
     // ----------------------------------------
     // Honor agreements made with other Dots...
@@ -40,7 +42,7 @@ export function chooseNextStep(dot = {}, world = {}) {
 
       // Accept agreed direction, satisfy contract...
       const nextDirection = stepContract.nextDirection;
-      Object.assign(dot.stepContracts.members[dot.id], { satisfied: true });
+      Object.assign(stepContract, { satisfied: true });
 
       // If planning to return to a direction, create a conviction...
       if (objectUtils.has(stepContract, 'resumeDirection')) {
