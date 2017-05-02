@@ -138,7 +138,15 @@ export default class Dot {
     this.totalInteractions = objectUtils.get(data, 'totalInteractions', 0);
     this.totalInteractionsInitiated = objectUtils.get(data, 'totalInteractionsInitiated', 0);
     this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
-    this.stepContract = objectUtils.get(data, 'stepContract', {});
+    this.stepContracts = objectUtils.get(data, 'stepContracts', {});
+
+    // -----------------------------------------------------------
+    // Self Management
+    //
+    // conviction types:
+    // - step       (intents: meet, follow, rest, avoid, hide)
+    // -----------------------------------------------------------
+    this.convictions = objectUtils.get(data, 'convictions', {});
   }
 
   sleep() {
@@ -171,7 +179,6 @@ export default class Dot {
 
     // Choose next step...
     const step = dotMovement.chooseNextStep(this, world);
-    if (debug && verbose) console.log(`[MODEL] "${this.id}" next step chosen =>`, step);
     const stepEndState = step.endState;
     const direction = step.direction;
 
@@ -186,7 +193,7 @@ export default class Dot {
     // Add step endState...
     Object.assign(nextMove.endState, stepEndState);
 
-    if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
+    // if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
     return nextMove;
   }
 
@@ -194,11 +201,11 @@ export default class Dot {
   // Apply everything that changed during this move
   // ----------------------------------------------
   applyMove(endState) {
-    // if (debug) console.log(`[MODEL] "${this.id}" applying endState =>`, endState);
-
     Object.keys(endState).forEach((attr) => {
       this[attr] = endState[attr];
     });
+
+    if (debug) console.log(`[MODEL] "${this.id}" state after apply =>`, this);
   }
 
   // -----------------------------------------------

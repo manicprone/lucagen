@@ -29,9 +29,9 @@
 ```
   Dot.getNextMove
    |   |
-   |   |__ interactWithOthers (manage step contracts)
+   |   |__ interactWithOthers (create step contracts)
    |   |
-   |   |__ chooseNextStep
+   |   |__ chooseNextStep (manage step contracts)
    |
    V
   Dot.applyMove

@@ -4,6 +4,7 @@
 // Logic for Dot movement (steps).
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
+import * as dotMotivation from './dot-motivation';
 
 const debug = false;
 const verbose = false;
@@ -19,24 +20,38 @@ export function chooseNextStep(dot = {}, world = {}) {
   };
 
   if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    // Check for active step contract with others...
-    const stepContract = objectUtils.get(dot.stepContract, `members[${dot.id}]`, null);
+    // Check for step conviction...
+    const stepConviction = objectUtils.get(dot.convictions, 'step', null);
+    if (stepConviction) console.log(`CONVICTION =========>> "${dot.id}" has a step conviction:`, stepConviction);
+    // if (stepConviction.resumeX) {
+    //   nextDirection = (dot.x1 < stepConviction.resumeX) ? 'w' : 'e';
+    // } else if (stepConviction.resumeY) {
+    //   nextDirection = (dot.y1 < stepConviction.resumeY) ? 's' : 'n';
+    // }
 
-    // -------------------
-    // Honor agreements...
-    // -------------------
+    // Check for active step contract with others...
+    const stepContract = objectUtils.get(dot.stepContracts, `members[${dot.id}]`, null);
+
+    // ----------------------------------------
+    // Honor agreements made with other Dots...
+    // ----------------------------------------
     if (stepContract && !stepContract.satisfied) {
+      console.log(`====================>> "${dot.id}" has an unsatisfied step contract:`, stepContract);
+
+      // Accept agreed direction, satisfy contract...
       const nextDirection = stepContract.nextDirection;
-      console.log(`====================>> "${dot.id}" will honor contract to move:`, nextDirection);
+      Object.assign(dot.stepContracts.members[dot.id], { satisfied: true });
+
+      // If planning to return to a direction, create a conviction...
+      if (objectUtils.has(stepContract, 'resumeDirection')) {
+        console.log(`====================>> "${dot.id}" wants to resume direction:`, stepContract.resumeDirection);
+        dotMotivation.addStepConviction(dot, stepContract);
+      }
 
       // Package step decision...
       nextStep.direction = nextDirection;
       nextStep.endState.currentDirection = nextDirection;
       Object.assign(nextStep.endState, generateStepEndState(dot, nextDirection));
-
-      // if (dot.currentDirection !== stepContract.resumeDirection) {
-      //   console.log(`====================>> "${dot.id}" wants to resume direction:`, stepContract.resumeDirection);
-      // }
 
     // ---------------------------------------------
     // Otherwise, we are free to choose next step...
@@ -144,19 +159,17 @@ export function getApproachingDots(/* dot = {}, others = {} */) {
 export function isDotApproachingHeadOn(observer = {}, other = {}) {
   let headOn = false;
 
-  if (observer.type === 'Dot' && other.type === 'Dot') {
-    const observerDirection = observer.currentDirection;
-    const otherDirection = other.currentDirection;
+  const observerDirection = observer.currentDirection;
+  const otherDirection = other.currentDirection;
 
-    if (observerDirection && otherDirection) {
-      headOn = (
-        (observerDirection === 'n' && otherDirection === 's') ||
-        (observerDirection === 's' && otherDirection === 'n') ||
-        (observerDirection === 'e' && otherDirection === 'w') ||
-        (observerDirection === 'w' && otherDirection === 'e')
-      );
-    } // end-if (observerDirection && otherDirection)
-  }
+  if (observerDirection && otherDirection) {
+    headOn = (
+      (observerDirection === 'n' && otherDirection === 's') ||
+      (observerDirection === 's' && otherDirection === 'n') ||
+      (observerDirection === 'e' && otherDirection === 'w') ||
+      (observerDirection === 'w' && otherDirection === 'e')
+    );
+  } // end-if (observerDirection && otherDirection)
 
   return headOn;
 }
@@ -172,14 +185,12 @@ export function isDotApproaching(/* observer = {}, other = {} */) {
 export function getNearbyDots(observer = {}, others = {}, visionDepth = 1) {
   const nearby = [];
 
-  if (observer.type === 'Dot') {
-    Object.keys(others).forEach((dotID) => {
-      if (dotID !== observer.id) {
-        const other = others[dotID];
-        if (isDotInRange(observer, other, visionDepth)) nearby.push(other);
-      }
-    });
-  }
+  Object.keys(others).forEach((dotID) => {
+    if (dotID !== observer.id) {
+      const other = others[dotID];
+      if (isDotInRange(observer, other, visionDepth)) nearby.push(other);
+    }
+  });
 
   return nearby;
 }
@@ -205,30 +216,52 @@ export function isDotInRange(observer = {}, other = {}, visionDepth = 1) {
 
 // -----------------------------------------------------------
 // Returns an array of physically available steps
+// (according to the world's chirality and polarity)
 // -----------------------------------------------------------
 export function calculateAvailableSteps(dot = {}, world = {}) {
   const steps = [];
+
+  const polarity = world.polarity;
+  const chirality = world.chirality;
+  const worldEast = world.x2;
+  const worldWest = world.x1;
+  const worldNorth = world.y1;
+  const worldSouth = world.y2;
+
   const step = dot.width;
+  const nextDotEast = dot.x2 + step;
+  const nextDotWest = dot.x1 - step;
+  const nextDotNorth = dot.y1 - step;
+  const nextDotSouth = dot.y2 + step;
 
-  if (dot.type === 'Dot' && world.type === 'DotWorld') {
-    const nextDotEast = dot.x2 + step;
-    const nextDotWest = dot.x1 - step;
-    const nextDotNorth = dot.y1 - step;
-    const nextDotSouth = dot.y2 + step;
-    const worldEast = world.x2;
-    const worldWest = world.x1;
-    const worldNorth = world.y1;
-    const worldSouth = world.y2;
+  // if (polarity === 'U' && chirality === 'R') {
+  //   if (nextDotNorth > worldNorth) steps.push('n');
+  //   if (nextDotEast < worldEast) steps.push('e');
+  //   if (nextDotSouth < worldSouth) steps.push('s');
+  //   if (nextDotWest > worldWest) steps.push('w');
+  // } else if (polarity === 'D' && chirality === 'R') {
+  //   if (nextDotSouth < worldSouth) steps.push('s');
+  //   if (nextDotEast < worldEast) steps.push('e');
+  //   if (nextDotNorth > worldNorth) steps.push('n');
+  //   if (nextDotWest > worldWest) steps.push('w');
+  // } else if (polarity === 'U' && chirality === 'L') {
+  //   if (nextDotNorth > worldNorth) steps.push('n');
+  //   if (nextDotWest > worldWest) steps.push('w');
+  //   if (nextDotSouth < worldSouth) steps.push('s');
+  //   if (nextDotEast < worldEast) steps.push('e');
+  // } else if (polarity === 'D' && chirality === 'L') {
+  //   if (nextDotSouth < worldSouth) steps.push('s');
+  //   if (nextDotEast < worldEast) steps.push('e');
+  //   if (nextDotNorth > worldNorth) steps.push('n');
+  //   if (nextDotWest > worldWest) steps.push('w');
+  // }
 
+  // FOR TESTING !!!
+  if (polarity && chirality) {
     if (nextDotNorth > worldNorth) steps.push('n');
-    if (nextDotEast < worldEast) steps.push('e');
     if (nextDotSouth < worldSouth) steps.push('s');
+    if (nextDotEast < worldEast) steps.push('e');
     if (nextDotWest > worldWest) steps.push('w');
-
-    // if (nextDotNorth > worldNorth) steps.push('n');
-    // if (nextDotSouth < worldSouth) steps.push('s');
-    // if (nextDotEast < worldEast) steps.push('e');
-    // if (nextDotWest > worldWest) steps.push('w');
   }
 
   return steps;
