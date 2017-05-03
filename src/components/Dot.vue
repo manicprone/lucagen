@@ -1,6 +1,15 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles">
-    <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
+  <div ref="dotSpace"
+       v-bind:class="dotSpaceClasses"
+       v-bind:style="dotSpaceStyles"
+       v-on:mouseover="showFlyoverInfo">
+    <div ref="dot" v-bind:class="dotClasses">
+      <div ref="dotFlyover" v-bind:class="dotFlyoverClasses">
+        <div class="icon-close-flyover" v-on:click="hideFlyoverInfo"><a>X</a></div>
+        <div class="flyover-info">{{ self.name }}</div>
+        <div class="flyover-actions"><a>D</a></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -15,6 +24,12 @@ export default {
     'type',
     'id',
   ],
+
+  data: () => {
+    return {
+      showFlyover: false,
+    };
+  },
 
   computed: {
     world() {
@@ -45,6 +60,12 @@ export default {
         default: return base;
       }
     },
+    dotFlyoverClasses() {
+      const base = 'dot-flyover';
+      return (this.showFlyover)
+        ? `${base} show`
+        : `${base}`;
+    },
   },
 
   mounted() {
@@ -60,8 +81,11 @@ export default {
   },
 
   methods: {
-    pulse() {
-      // console.log('(( . ))');
+    showFlyoverInfo() {
+      if (this.$parent.isPaused) this.showFlyover = true;
+    },
+    hideFlyoverInfo() {
+      if (this.$parent.isPaused) this.showFlyover = false;
     },
     notify(moveInfo) {
       // Apply move info...
@@ -124,5 +148,58 @@ export default {
     background-color: #e9e9e9;
     border: 1px solid #525252;
     border-radius: 1px;
+  }
+
+  /* Dot flyover */
+  .dot-flyover {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    z-index: 9999;
+    width: 100px;
+    margin: 0 0 6px -55px;
+    padding: 2px 6px 4px 6px;
+    border-radius: 6px;
+    background-color: #666666;
+    color: #ffffff;
+    text-align: center;
+    visibility: hidden;
+  }
+  .dot-flyover::after {
+    content: " ";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: 9999;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #666666 transparent transparent transparent;
+  }
+  .dot-flyover.show {
+    visibility: visible;
+  }
+  .dot-flyover a {
+    color: #cccccc;
+    font-size: 11px;
+    line-height: 11px;
+  }
+  .dot-flyover a:hover {
+    color: #ffffff;
+  }
+  .icon-close-flyover {
+    float: left;
+  }
+  .flyover-info {
+    display: inline-block;
+    font-size: 12px;
+  }
+  .flyover-actions {
+    float: right;
+    margin: 0;
+  }
+  .flyover-actions a {
+    font-size: 12px;
+    line-height: 12px;
   }
 </style>

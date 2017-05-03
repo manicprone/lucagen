@@ -29,6 +29,7 @@
   body {
     background-color: #e9e9e9;
     margin: 0;
+    color: #252525;
   }
 
   h1, h2 {
