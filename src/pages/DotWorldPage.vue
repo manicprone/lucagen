@@ -16,7 +16,6 @@
         <div ref="dot-world" v-if="world" class="world-container">
           <dot v-for="dotID in dotIDs"
                v-bind:ref="'dots'"
-               v-bind:type="'life'"
                v-bind:key="'dot-' + dotID"
                v-bind:id="dotID" />
         </div>
@@ -34,8 +33,10 @@
 
     <div class="dot-inspect-col col">
       <div class="dot-inspect-container">
-        <dot-diag v-if="dotToInspect"
-                  v-bind:dot="dotToInspect"/>
+        <dot-diag v-for="dot in dotsToInspect"
+                  v-bind:ref="'dotDiags'"
+                  v-bind:key="'dot-diag-' + dot.id"
+                  v-bind:dot="dot"/>
       </div>
     </div>
 
@@ -65,9 +66,15 @@ export default {
     dotRegistry() {
       return this.$store.getters.dotWorldRegistry;
     },
-    dotToInspect() {
-      const dotID = 'lonely';
-      return this.dotRegistry[dotID];
+    dotsToInspect() {
+      const dots = [];
+      const dotIDs = this.$store.getters.dotsToInspect;
+      if (this.world.dotRegistry) {
+        dotIDs.forEach((dotID) => {
+          dots.push(this.world.dotRegistry[dotID]);
+        });
+      }
+      return dots;
     },
     lifeToggleLabel() {
       return (this.isPaused) ? 'Wake' : 'Sleep';
@@ -118,10 +125,6 @@ export default {
 
     // Create Lonely World...
     this.$store.dispatch('CREATE_WORLD', world);
-  },
-
-  updated() {
-    // console.log('!!! WORLD updated (refs) =>', this.$refs);
   },
 
   methods: {

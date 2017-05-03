@@ -5,9 +5,15 @@
        v-on:mouseover="showFlyoverInfo">
     <div ref="dot" v-bind:class="dotClasses">
       <div ref="dotFlyover" v-bind:class="dotFlyoverClasses">
-        <div class="icon-close-flyover" v-on:click="hideFlyoverInfo"><a>X</a></div>
-        <div class="flyover-info">{{ self.name }}</div>
-        <div class="flyover-actions"><a>D</a></div>
+        <div class="icon-close-flyover" v-on:click="hideFlyoverInfo">
+          <a>X</a>
+        </div>
+        <div class="flyover-info">
+          {{ self.name }}
+        </div>
+        <div class="flyover-actions">
+          <a v-on:click="openDotDiag">D</a>
+        </div>
       </div>
     </div>
   </div>
@@ -21,7 +27,6 @@ export default {
   name: 'Dot',
 
   props: [
-    'type',
     'id',
   ],
 
@@ -42,12 +47,7 @@ export default {
       return this.dotRegistry[this.id];
     },
     dotSpaceClasses() {
-      const base = 'dot-space';
-      switch (this.type) {
-        case 'grid': return `${base} grid-item`;
-        case 'life': return `${base} life`;
-        default: return base;
-      }
+      return 'dot-space';
     },
     dotSpaceStyles() {
       return (this.self)
@@ -55,10 +55,7 @@ export default {
         : {};
     },
     dotClasses() {
-      const base = 'dot';
-      switch (this.type) {
-        default: return base;
-      }
+      return 'dot';
     },
     dotFlyoverClasses() {
       const base = 'dot-flyover';
@@ -86,6 +83,12 @@ export default {
     },
     hideFlyoverInfo() {
       if (this.$parent.isPaused) this.showFlyover = false;
+    },
+    openDotDiag() {
+      if (this.self) this.$store.dispatch('ADD_DOT_TO_INSPECT', this.self.id);
+    },
+    closeDotDiag() {
+      if (this.self) this.$store.dispatch('REMOVE_DOT_TO_INSPECT', this.self.id);
     },
     notify(moveInfo) {
       // Apply move info...
@@ -124,6 +127,7 @@ export default {
 
 <style scoped>
   .dot-space {
+    position: absolute;
     height: 9px;
     width: 9px;
     border-radius: 3px;
@@ -131,14 +135,6 @@ export default {
   }
   .dot-space:hover {
     background-color: #f2f2f2;
-  }
-
-  /* Dot type variations */
-  .dot-space.grid-item {
-    float: left;
-  }
-  .dot-space.life {
-    position: absolute;
   }
 
   .dot {

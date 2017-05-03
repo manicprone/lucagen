@@ -11,9 +11,14 @@ const dotWorldData = {
     // The active dot world...
     world: null,
 
+    // The dots being inspected...
+    dotsToInspect: [],
+
   }, // END - state
 
   getters: {
+
+    // -------------------------------------------------------------- World Data
 
     dotWorld(state) {
       // Hydrate world data into World model...
@@ -41,6 +46,12 @@ const dotWorldData = {
       return {};
     },
 
+    // --------------------------------------------------------- Dots to Inspect
+
+    dotsToInspect(state) {
+      return state.dotsToInspect;
+    },
+
   }, // END - getters
 
   // ---------------------------------------------------------------------------
@@ -64,23 +75,17 @@ const dotWorldData = {
   // ---------------------------------------------------------------------------
   actions: {
 
+    // -------------------------------------------------------- World Management
+
     CREATE_WORLD(context, worldData) {
       const { commit } = context;
 
-      // Parse world configuration...
-      // const name = objectUtils.get(worldData, 'name', null);
-      // const width = objectUtils.get(worldData, 'width', 400);
-      // const height = objectUtils.get(worldData, 'height', 200);
+      // Parse out loaded dot data to hydrate...
       const worldConfig = Object.assign({}, worldData);
       if (worldConfig.dots) delete worldConfig.dots;
 
       // Create world...
       const world = new World(worldConfig);
-      // const world = new World({
-      //   name,
-      //   width,
-      //   height,
-      // });
 
       // Populate with pioneers...
       const dots = objectUtils.get(worldData, 'dots', []);
@@ -122,9 +127,23 @@ const dotWorldData = {
       commit('SET_WORLD', world);
     },
 
+    // ---------------------------------------------------------- Dot Management
+
     NOTIFY_DOT_UPDATE(context, update) {
       const { commit } = context;
       commit('SET_DOT_UPDATE', update);
+    },
+
+    // --------------------------------------------------------- Diag Management
+
+    ADD_DOT_TO_INSPECT(context, dot) {
+      const { commit } = context;
+      commit('ADD_DOT_TO_INSPECT', dot);
+    },
+
+    REMOVE_DOT_TO_INSPECT(context, dotID) {
+      const { commit } = context;
+      commit('REMOVE_DOT_TO_INSPECT', dotID);
     },
 
   },
@@ -141,6 +160,17 @@ const dotWorldData = {
       const dotData = update.dotData;
 
       state.world.dotRegistry[dotID] = dotData;
+    },
+
+    ADD_DOT_TO_INSPECT(state, dotID) {
+      if (dotID) state.dotsToInspect.push(dotID);
+    },
+
+    REMOVE_DOT_TO_INSPECT(state, dotID) {
+      const index = state.dotsToInspect.indexOf(dotID);
+      if (dotID && index > -1) {
+        state.dotsToInspect.splice(index, 1);
+      }
     },
 
   }, // END - mutations
