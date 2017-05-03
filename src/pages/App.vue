@@ -29,6 +29,7 @@
   body {
     background-color: #e9e9e9;
     margin: 0;
+    color: #252525;
   }
 
   h1, h2 {
@@ -71,6 +72,13 @@
     transition: opacity 2s;
   }
   .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
+  .fade-fast-enter-active, .fade-fast-leave-active {
+    transition: opacity 0.5s;
+  }
+  .fade-fast-enter, .fade-fast-leave-to {
     opacity: 0;
   }
 

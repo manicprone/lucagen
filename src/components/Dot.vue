@@ -1,6 +1,21 @@
 <template>
-  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles">
-    <div ref="dot" v-bind:class="dotClasses" v-on:mouseover="pulse"></div>
+  <div ref="dotSpace"
+       v-bind:class="dotSpaceClasses"
+       v-bind:style="dotSpaceStyles"
+       v-on:mouseover="showFlyoverInfo">
+    <div ref="dot" v-bind:class="dotClasses">
+      <div ref="dotFlyover" v-bind:class="dotFlyoverClasses">
+        <div class="icon-close-flyover" v-on:click="hideFlyoverInfo">
+          <a>X</a>
+        </div>
+        <div class="flyover-info">
+          {{ self.name }}
+        </div>
+        <div class="flyover-actions">
+          <a v-bind:class="dotDiagToggleClasses" v-on:click="toggleDotDiag">D</a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -12,9 +27,15 @@ export default {
   name: 'Dot',
 
   props: [
-    'type',
     'id',
   ],
+
+  data: () => {
+    return {
+      showFlyover: false,
+      isDiagOpen: false,
+    };
+  },
 
   computed: {
     world() {
@@ -27,12 +48,7 @@ export default {
       return this.dotRegistry[this.id];
     },
     dotSpaceClasses() {
-      const base = 'dot-space';
-      switch (this.type) {
-        case 'grid': return `${base} grid-item`;
-        case 'life': return `${base} life`;
-        default: return base;
-      }
+      return 'dot-space';
     },
     dotSpaceStyles() {
       return (this.self)
@@ -40,10 +56,19 @@ export default {
         : {};
     },
     dotClasses() {
-      const base = 'dot';
-      switch (this.type) {
-        default: return base;
-      }
+      return 'dot';
+    },
+    dotFlyoverClasses() {
+      const base = 'dot-flyover';
+      return (this.showFlyover)
+        ? `${base} show`
+        : `${base}`;
+    },
+    dotDiagToggleClasses() {
+      const base = 'dot-diag-toggle';
+      return (this.isDiagOpen)
+        ? `${base} active`
+        : `${base}`;
     },
   },
 
@@ -60,8 +85,27 @@ export default {
   },
 
   methods: {
-    pulse() {
-      // console.log('(( . ))');
+    showFlyoverInfo() {
+      if (this.$parent.isPaused) this.showFlyover = true;
+    },
+    hideFlyoverInfo() {
+      if (this.$parent.isPaused) this.showFlyover = false;
+    },
+    toggleDotDiag() {
+      if (!this.isDiagOpen) this.openDotDiag();
+      else this.closeDotDiag();
+    },
+    openDotDiag() {
+      if (this.self) {
+        this.isDiagOpen = true;
+        this.$store.dispatch('ADD_DOT_TO_INSPECT', this.self.id);
+      }
+    },
+    closeDotDiag() {
+      if (this.self) {
+        this.isDiagOpen = false;
+        this.$store.dispatch('REMOVE_DOT_TO_INSPECT', this.self.id);
+      }
     },
     notify(moveInfo) {
       // Apply move info...
@@ -100,6 +144,7 @@ export default {
 
 <style scoped>
   .dot-space {
+    position: absolute;
     height: 9px;
     width: 9px;
     border-radius: 3px;
@@ -109,14 +154,6 @@ export default {
     background-color: #f2f2f2;
   }
 
-  /* Dot type variations */
-  .dot-space.grid-item {
-    float: left;
-  }
-  .dot-space.life {
-    position: absolute;
-  }
-
   .dot {
     margin: 0 auto;
     height: 1px;
@@ -124,5 +161,64 @@ export default {
     background-color: #e9e9e9;
     border: 1px solid #525252;
     border-radius: 1px;
+  }
+
+  /* Dot flyover */
+  .dot-flyover {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    z-index: 9999;
+    width: 100px;
+    margin: 0 0 6px -55px;
+    padding: 2px 6px 4px 6px;
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.35);
+    color: #ffffff;
+    text-align: center;
+    visibility: hidden;
+  }
+  .dot-flyover::after {
+    content: " ";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: 9999;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #000000 transparent transparent transparent;
+    opacity: 0.35;
+  }
+  .dot-flyover.show {
+    visibility: visible;
+  }
+  .dot-flyover a {
+    color: #cccccc;
+    font-size: 11px;
+    line-height: 11px;
+  }
+  .dot-flyover a:hover {
+    color: #ffffff;
+  }
+  .icon-close-flyover {
+    float: left;
+  }
+  .flyover-info {
+    display: inline-block;
+    font-size: 12px;
+  }
+  .flyover-actions {
+    float: right;
+    margin: 0;
+  }
+  .flyover-actions a {
+    font-size: 12px;
+    line-height: 12px;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+  .flyover-actions a.active {
+    background-color: rgba(0, 0, 0, 0.4);
   }
 </style>

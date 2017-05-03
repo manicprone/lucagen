@@ -23,11 +23,11 @@ const verbose = false;
 //                -or-
 //         Avoid interaction (if feeling anti-social)
 //
-//     (b) Avoid walls
+//     (b) Avoid walls and collisions
 //
-// (2) Interact (if collision occurs)
-//     ------------------------------
-//     (a) Exchange with each other(s)
+// (2) Interact (if interaction occurs)
+//     --------------------------------
+//     (a) Exchange with other(s)
 //
 //     (b) Evaluate other(s) individually
 //

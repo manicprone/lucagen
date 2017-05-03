@@ -16,7 +16,6 @@
         <div ref="dot-world" v-if="world" class="world-container">
           <dot v-for="dotID in dotIDs"
                v-bind:ref="'dots'"
-               v-bind:type="'life'"
                v-bind:key="'dot-' + dotID"
                v-bind:id="dotID" />
         </div>
@@ -34,8 +33,12 @@
 
     <div class="dot-inspect-col col">
       <div class="dot-inspect-container">
-        <dot-diag v-if="dotToInspect"
-                  v-bind:dot="dotToInspect"/>
+        <transition-group name="fade-fast">
+          <dot-diag v-for="dot in dotsToInspect"
+                    v-bind:ref="'dotDiags'"
+                    v-bind:key="'dot-diag-' + dot.id"
+                    v-bind:dot="dot"/>
+        </transition-group>
       </div>
     </div>
 
@@ -65,9 +68,15 @@ export default {
     dotRegistry() {
       return this.$store.getters.dotWorldRegistry;
     },
-    dotToInspect() {
-      const dotID = 'lonely';
-      return this.dotRegistry[dotID];
+    dotsToInspect() {
+      const dots = [];
+      const dotIDs = this.$store.getters.dotsToInspect;
+      if (this.world.dotRegistry) {
+        dotIDs.forEach((dotID) => {
+          dots.push(this.world.dotRegistry[dotID]);
+        });
+      }
+      return dots;
     },
     lifeToggleLabel() {
       return (this.isPaused) ? 'Wake' : 'Sleep';
@@ -118,10 +127,6 @@ export default {
 
     // Create Lonely World...
     this.$store.dispatch('CREATE_WORLD', world);
-  },
-
-  updated() {
-    // console.log('!!! WORLD updated (refs) =>', this.$refs);
   },
 
   methods: {
@@ -181,7 +186,9 @@ export default {
   .world-col {
     width: 510px;
   }
-  .dot-inspect-col {}
+  .dot-inspect-col {
+    margin-bottom: 20px;
+  }
 
   /* World */
   .world-container {
@@ -197,7 +204,7 @@ export default {
     margin: 20px 0 0 0;
   }
   .world-controls {
-    margin: 0 auto;
+    margin: 0 auto 15px auto;
   }
   .action.disabled {
     cursor: not-allowed;
@@ -207,5 +214,11 @@ export default {
   }
   .step-action {
     margin-left: 90px;
+  }
+
+  /* Dot Inspect / Diags */
+  .dot-inspect-container .dot-diag {
+    float: left;
+    margin-right: 8px;
   }
 </style>

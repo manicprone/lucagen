@@ -1,71 +1,69 @@
 <template>
   <div ref="dotDiag" v-bind:class="dotDiagClasses">
-    <transition name="fade">
-      <div v-if="dot">
+    <div v-if="dot" class="dot-diag-data">
 
-        <div class="header">
-          {{ dot.name }}
-        </div>
-
-        <div class="diag-movement-ui">
-          <div class="diag-movement-x-values">
-            <div class="diag-value diag-value-x1">{{ dot.x1 }}</div>
-            <div class="diag-value diag-value-x2">{{ dot.x2 }}</div>
-          </div>
-          <div class="diag-square-x-labels">
-            <div class="diag-label diag-label-x1">x1</div>
-            <div class="diag-label diag-label-x2">x2</div>
-          </div>
-          <div class="diag-square-container">
-            <div class="diag-movement-y-values col">
-              <div class="diag-value diag-value-y1">{{ dot.y1 }}</div>
-              <div class="diag-value diag-value-y2">{{ dot.y2 }}</div>
-            </div>
-            <div class="diag-square-y-labels col">
-              <div class="diag-label diag-label-y1">y1</div>
-              <div class="diag-label diag-label-y2">y2</div>
-            </div>
-            <div class="diag-square col"></div>
-            <div class="diag-movement-from-x col">
-              <div class="diag-label diag-label-from-x">fromX</div>
-              <div class="diag-value diag-value-from-x">{{ dot.fromX }}</div>
-            </div>
-            <div class="diag-movement-from-y col">
-              <div class="diag-label diag-label-from-y">fromY</div>
-              <div class="diag-value diag-value-from-y">{{ dot.fromY }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="diag-step-info">
-          <div class="diag-speed col">
-            <div class="diag-label">Speed</div>
-            <div class="diag-value">{{ dot.speed }}</div>
-          </div>
-          <div class="diag-current-direction col">
-            <div class="diag-label">Direction</div>
-            <div class="diag-value">{{ dot.currentDirection }}</div>
-          </div>
-        </div>
-
-        <div class="diag-move-shift-info">
-          <div class="diag-shift-memory col">
-            <div class="diag-label">Shift Memory ({{ dot.memoryDepth }})</div>
-            <div class="diag-value">{{ dot.moveShiftHistory }}</div>
-          </div>
-        </div>
-
-        <div class="diag-step-contracts-info">
-          <div class="diag-step-contracts col">
-            <div class="diag-label">Step Contracts</div>
-            <div class="diag-value" v-for="(contract, memberID) in stepContracts">
-              <span>{{ memberID }}</span>
-            </div>
-          </div>
-        </div>
-
+      <div class="header">
+        {{ dot.name }}
       </div>
-    </transition>
+
+      <div class="diag-movement-ui">
+        <div class="diag-movement-x-values">
+          <div class="diag-value diag-value-x1">{{ dot.x1 }}</div>
+          <div class="diag-value diag-value-x2">{{ dot.x2 }}</div>
+        </div>
+        <div class="diag-square-x-labels">
+          <div class="diag-label diag-label-x1">x1</div>
+          <div class="diag-label diag-label-x2">x2</div>
+        </div>
+        <div class="diag-square-container">
+          <div class="diag-movement-y-values col">
+            <div class="diag-value diag-value-y1">{{ dot.y1 }}</div>
+            <div class="diag-value diag-value-y2">{{ dot.y2 }}</div>
+          </div>
+          <div class="diag-square-y-labels col">
+            <div class="diag-label diag-label-y1">y1</div>
+            <div class="diag-label diag-label-y2">y2</div>
+          </div>
+          <div class="diag-square col"></div>
+          <div class="diag-movement-from-x col">
+            <div class="diag-label diag-label-from-x">fromX</div>
+            <div class="diag-value diag-value-from-x">{{ dot.fromX }}</div>
+          </div>
+          <div class="diag-movement-from-y col">
+            <div class="diag-label diag-label-from-y">fromY</div>
+            <div class="diag-value diag-value-from-y">{{ dot.fromY }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="diag-step-info">
+        <div class="diag-speed col">
+          <div class="diag-label">Speed</div>
+          <div class="diag-value">{{ dot.speed }}</div>
+        </div>
+        <div class="diag-current-direction col">
+          <div class="diag-label">Direction</div>
+          <div class="diag-value">{{ dot.currentDirection }}</div>
+        </div>
+      </div>
+
+      <div class="diag-move-shift-info">
+        <div class="diag-shift-memory col">
+          <div class="diag-label">Shift Memory ({{ dot.memoryDepth }})</div>
+          <div class="diag-value">{{ dot.moveShiftHistory }}</div>
+        </div>
+      </div>
+
+      <div class="diag-step-contracts-info">
+        <div class="diag-step-contracts col">
+          <div class="diag-label">Step Contracts</div>
+          <div class="diag-value" v-for="(contract, memberID) in stepContracts">
+            <span>{{ memberID }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -92,8 +90,16 @@ export default {
 </script>
 
 <style scoped>
-  .header {
-    margin: 0 0 15px 45px;
+  .dot-diag {}
+  .dot-diag-data {
+    padding: 8px;
+    background-color: #ffffff;
+    border: 1px solid #999999;
+    border-radius: 3px;
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+  }
+  .dot-diag-data .header {
+    margin: 0 0 15px 0;
     padding-bottom: 10px;
     text-align: right;
     border-bottom: 1px solid #d9d9d9;
@@ -153,7 +159,6 @@ export default {
   /* square */
   .diag-square-container {
     height: 49px;
-    margin-left: 31px;
   }
   .diag-square-container .diag-label,
   .diag-square-container .diag-value {
@@ -237,7 +242,7 @@ export default {
   /* move shift info */
   .diag-move-shift-info {
     clear: both;
-    margin: 0 0 10px 47px;
+    margin: 0 0 10px 10px;
     height: 40px;
   }
   .diag-shift-memory .diag-label,
@@ -252,7 +257,7 @@ export default {
   /* step contracts info */
   .diag-step-contracts-info {
     clear: both;
-    margin: 0 0 0 47px;
+    margin: 0 0 0 10px;
     height: 40px;
   }
   .diag-step-contracts .diag-label,
@@ -260,4 +265,7 @@ export default {
     display: block;
     text-align: left;
   }
+
+  /* -------------------- Diag UI: Convictions */
+
 </style>
