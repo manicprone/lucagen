@@ -193,7 +193,7 @@ export default class Dot {
     // Add step endState...
     Object.assign(nextMove.endState, stepEndState);
 
-    // if (debug) console.log(`[MODEL] "${this.id}" next move package =>`, nextMove);
+    // if (debug) console.log(`"${this.id}" next move package =>`, nextMove);
     return nextMove;
   }
 

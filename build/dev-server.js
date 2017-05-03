@@ -73,9 +73,9 @@ var readyPromise = new Promise(resolve => {
 var server = app.listen(port);
 
 devMiddleware.waitUntilValid(() => {
-  console.info('=================================');
+  console.info('==================================');
   console.info(`lucagen started on localhost:${port}`);
-  console.info('=================================');
+  console.info('==================================');
   console.info('');
   _resolve();
 });
