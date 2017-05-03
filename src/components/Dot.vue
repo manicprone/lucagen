@@ -48,7 +48,7 @@ export default {
   },
 
   mounted() {
-    console.log(`[DOT] Welcome "${this.self.name}" to "${this.world.name}" =>`, this.self);
+    console.log(`[UI] Welcome "${this.self.name}" to "${this.world.name}" =>`, this.self);
   },
 
   updated() {
@@ -56,7 +56,7 @@ export default {
   },
 
   destroyed() {
-    console.log(`[DOT] "${this.self.name}" has died.`);
+    console.log(`[UI] "${this.self.name}" has died.`);
   },
 
   methods: {

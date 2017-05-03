@@ -9,13 +9,15 @@
 // const debug = true;
 // const verbose = true;
 
-// stepConviction: {
+// step: {
 //   intent: 'avoid',
-//   resumeX | resumeY: 9,
+//   resumeX: 136,
+//   resumeY: 9,
 //   resumeDirection: 'n',
-//   statisfied: true | false,
+//   statisfied: false,
 // }
-// TODO: Set satisfied: true !!!
 export function addStepConviction(observer = {}, stepConviction = {}) {
-  Object.assign(observer.convictions, { step: stepConviction });
+  const conviction = Object.assign({}, stepConviction, { satisfied: false });
+  delete conviction.nextDirection;
+  Object.assign(observer.convictions, { step: conviction });
 }

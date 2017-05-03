@@ -151,12 +151,12 @@ export default class Dot {
 
   sleep() {
     this.isAsleep = true;
-    if (debug) console.log(`[MODEL] "${this.id}" has been put to sleep`);
+    if (debug) console.log(`"${this.id}" has been put to sleep`);
   }
 
   wake() {
     this.isAsleep = false;
-    if (debug) console.log(`[MODEL] "${this.id}" has awoken`);
+    if (debug) console.log(`"${this.id}" has awoken`);
   }
 
   // ---------------------------------------------------------------
@@ -205,7 +205,7 @@ export default class Dot {
       this[attr] = endState[attr];
     });
 
-    if (debug) console.log(`[MODEL] "${this.id}" state after apply =>`, this);
+    if (debug) console.log(`"${this.id}" state after apply =>`, this);
   }
 
   // -----------------------------------------------

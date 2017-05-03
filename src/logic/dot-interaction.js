@@ -35,7 +35,8 @@ export function interactWithOthers(observer = {}, world = {}) {
 
   // Clean-up any unnecessary step contracts...
   if (objectUtils.has(observer.stepContracts, 'members')) {
-    // Object.assign(observer.stepContracts, purgeOldStepContracts(observer, nearbyDots));
+    const memberContracts = purgeMemberStepContracts(observer, nearbyDots);
+    Object.assign(observer.stepContracts, { members: memberContracts });
   }
 
   return interactions;
@@ -96,7 +97,8 @@ export function interactWithOthers(observer = {}, world = {}) {
 //   personal: {
 //     nextDirection: 'e',
 //     resumeDirection: 'n',
-//     resumeX | resumeY: 9,
+//     resumeX: 136,
+//     resumeY: 9,
 //     intent: 'lead' | 'follow' | 'meet' | 'avoid',
 //     satisfied: true | false,
 //   },
@@ -104,7 +106,8 @@ export function interactWithOthers(observer = {}, world = {}) {
 //     <dotID>: {
 //       nextDirection: 'e',
 //       resumeDirection: 'n',
-//       resumeX | resumeY: 9,
+//       resumeX: 136,
+//       resumeY: 9,
 //       intent: 'lead' | 'follow' | 'meet' | 'avoid',
 //       satisfied: true | false,
 //     },
@@ -178,9 +181,12 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
           if (debug) console.log(`[interaction] "${observer.id}" is stepping ${avoidStep}`);
 
           // Record directions...
-          const observerDirection = { nextDirection: avoidStep, resumeDirection: observer.currentDirection };
-          if (avoidStep === 'n' || avoidStep === 's') observerDirection.resumeX = observer.x1;
-          if (avoidStep === 'e' || avoidStep === 'w') observerDirection.resumeY = observer.y1;
+          const observerDirection = {
+            nextDirection: avoidStep,
+            resumeDirection: observer.currentDirection,
+            resumeX: observer.x1,
+            resumeY: observer.y1,
+          };
           const otherDirection = { nextDirection: other.currentDirection };
           Object.assign(stepContracts.personal, observerDirection, { satisfied: false });
           Object.assign(stepContracts.members[other.id], otherDirection, { satisfied: true });
@@ -197,31 +203,17 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
 // ----------------------------------------------------------------------
 // Purges step contracts that are no longer necessary...
 // ----------------------------------------------------------------------
-// Iterates through all existing step contracts of the observer,
+// Iterates through all existing member step contracts,
 // and removes:
 //
 // - any contracts that are not related to the provided "others".
 // ----------------------------------------------------------------------
-export function purgeOldStepContracts(observer = {}, others = []) {
-  const stepContracts = {
-    members: {},
-  };
+export function purgeMemberStepContracts(observer = {}, others = []) {
+  const memberContracts = {};
 
-  const memberContracts = observer.stepContracts.members;
-  const personalContract = memberContracts[observer.id]; // TODO: Move out of members !!!
-  const memberContractIDs = Object.keys(memberContracts);
+  const existingMemberContracts = observer.stepContracts.members || {};
+  const memberContractIDs = Object.keys(existingMemberContracts);
 
-  // console.log(`!!!!! [interaction] "${observer.id}" is looking to purge old step contracts (personal) =>`, personalContract);
-
-  // Purge personal step contract if already satisfied...
-  // if (personalContract && personalContract.satisfied === true) {
-  //   console.log(`!!!!! [interaction] "${observer.id}" purging satisfied personal contract`);
-  //   observer.stepContracts.members[observer.id] = null; // eslint-disable-line no-param-reassign
-  // }
-
-  stepContracts.members[observer.id] = personalContract;
-
-  // Check if observer has existing contracts with others...
   if (memberContractIDs.length > 0) {
     // Build array of other IDs...
     const otherIDs = [];
@@ -231,47 +223,16 @@ export function purgeOldStepContracts(observer = {}, others = []) {
 
     // Iterate through member contracts, keeping only relevant ones...
     memberContractIDs.forEach((otherID) => {
-      if (otherID !== observer.id && !objectUtils.includes(otherIDs, otherID)) {
-        stepContracts.members[otherID] = observer.stepContracts.members[otherID];
-
-        if (otherID !== observer.id) console.log(`!!!!! [interaction] "${observer.id}" purging old contract with "${otherID}"`);
+      if (objectUtils.includes(otherIDs, otherID)) {
+        memberContracts[otherID] = existingMemberContracts[otherID];
+      } else if (debug && verbose) {
+        console.log(`[interaction] "${observer.id}" is purging old step contract with "${otherID}"`);
       }
     });
   } // end-if (memberContractIDs.length > 0)
 
-  return stepContracts;
+  return memberContracts;
 }
-// export function purgeOldStepContracts(observer = {}, others = []) {
-//   const memberContracts = objectUtils.get(observer.stepContracts, 'members', {});
-//   const personalContract = memberContracts[observer.id];
-//   const memberContractIDs = Object.keys(memberContracts);
-//
-//   console.log(`!!!!! [interaction] "${observer.id}" is looking to purge old step contracts (personal) =>`, personalContract);
-//
-//   // Purge personal step contract if already satisfied...
-//   if (personalContract && personalContract.satisfied === true) {
-//     console.log(`!!!!! [interaction] "${observer.id}" purging satisfied personal contract`);
-//     observer.stepContracts.members[observer.id] = null; // eslint-disable-line no-param-reassign
-//   }
-//
-//   // Check if observer has existing contracts with others...
-//   if (memberContractIDs.length > 1) {
-//     // Build array of other IDs...
-//     const otherIDs = [];
-//     others.forEach((other) => {
-//       otherIDs.push(other.id);
-//     });
-//
-//     // Iterate through member contracts, removing if not related to others...
-//     memberContractIDs.forEach((memberID) => {
-//       if (memberID !== observer.id && !objectUtils.includes(otherIDs, memberID)) {
-//         delete observer.stepContracts.members[memberID]; // eslint-disable-line no-param-reassign
-//
-//         console.log(`!!!!! [interaction] "${observer.id}" purging old contract with "${memberID}"`);
-//       }
-//     });
-//   } // end-if (memberContractIDs.length > 1)
-// }
 
 export function isWillingToInteractWithDot(/* observer = {}, other = {} */) {
   const interact = false;
