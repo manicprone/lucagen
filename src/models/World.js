@@ -24,6 +24,13 @@ export default class DotWorld {
     this.width = objectUtils.get(data, 'width', 450);
     this.height = objectUtils.get(data, 'height', 270);
 
+    // -----------------------------------------------------------
+    // polarity   => U | D (up or down)
+    // chirality  => L | R (left or right)
+    // -----------------------------------------------------------
+    this.polarity = objectUtils.get(data, 'polarity', 'U');
+    this.chirality = objectUtils.get(data, 'chirality', 'R');
+
     // --------
     // Vertices
     // --------
@@ -45,11 +52,6 @@ export default class DotWorld {
     this.dots = objectUtils.get(data, 'dots', []);
     this.dotRegistry = objectUtils.get(data, 'dotRegistry', {});
     this.freedomMode = true;
-
-    // ----------------------
-    // Interaction Management
-    // ----------------------
-    // this.recipientInteractions = objectUtils.get(data, 'recipientInteractions', {});
   }
 
   // ----------------------------------------------- Dot management

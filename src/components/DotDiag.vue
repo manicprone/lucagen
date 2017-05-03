@@ -37,10 +37,30 @@
           </div>
         </div>
 
+        <div class="diag-step-info">
+          <div class="diag-speed col">
+            <div class="diag-label">Speed</div>
+            <div class="diag-value">{{ dot.speed }}</div>
+          </div>
+          <div class="diag-current-direction col">
+            <div class="diag-label">Direction</div>
+            <div class="diag-value">{{ dot.currentDirection }}</div>
+          </div>
+        </div>
+
         <div class="diag-move-shift-info">
           <div class="diag-shift-memory col">
             <div class="diag-label">Shift Memory ({{ dot.memoryDepth }})</div>
             <div class="diag-value">{{ dot.moveShiftHistory }}</div>
+          </div>
+        </div>
+
+        <div class="diag-step-contracts-info">
+          <div class="diag-step-contracts col">
+            <div class="diag-label">Step Contracts</div>
+            <div class="diag-value" v-for="(contract, memberID) in stepContracts">
+              <span>{{ memberID }}</span>
+            </div>
           </div>
         </div>
 
@@ -50,8 +70,6 @@
 </template>
 
 <script>
-// import objectUtils from '../utils/object-utils';
-
 export default {
   name: 'DotDiag',
 
@@ -62,6 +80,9 @@ export default {
   computed: {
     dotDiagClasses() {
       return 'dot-diag';
+    },
+    stepContracts() {
+      return this.dot.stepContracts.members;
     },
   },
 
@@ -92,12 +113,19 @@ export default {
     font-size: 15px;
     color: #121212;
   }
+  .diag-value .value-small {
+    font-size: 12px;
+  }
+
+  .divider-line {
+    border-bottom: 1px solid #d9d9d9;
+  }
 
   /* -------------------- Diag UI: Movement */
 
   .diag-movement-ui {
     margin: 0 auto;
-    height: 120px;
+    height: 105px;
   }
 
   /* x info */
@@ -189,15 +217,47 @@ export default {
     line-height: 14px;
   }
 
+  /* step info */
+  .diag-step-info {
+    clear: both;
+    height: 40px;
+    margin: 0 0 10px 47px;
+  }
+  .diag-step-info .diag-label,
+  .diag-step-info .diag-value {
+    display: block;
+  }
+  .diag-current-direction {
+    margin-left: 30px;
+  }
+  .diag-current-direction .diag-value {
+    text-transform: uppercase;
+  }
+
   /* move shift info */
   .diag-move-shift-info {
     clear: both;
-    margin: 0 0 0 47px;
+    margin: 0 0 10px 47px;
     height: 40px;
+  }
+  .diag-shift-memory .diag-label,
+  .diag-shift-memory .diag-value {
+    text-align: left;
   }
   .diag-move-shift-info .diag-label,
   .diag-move-shift-info .diag-value {
     display: block;
   }
 
+  /* step contracts info */
+  .diag-step-contracts-info {
+    clear: both;
+    margin: 0 0 0 47px;
+    height: 40px;
+  }
+  .diag-step-contracts .diag-label,
+  .diag-step-contracts .diag-value {
+    display: block;
+    text-align: left;
+  }
 </style>

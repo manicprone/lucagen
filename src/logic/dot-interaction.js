@@ -9,27 +9,6 @@ import * as dotMovement from './dot-movement';
 const debug = true;
 const verbose = true;
 
-// TODO: We need to prevent multiple interactions with same Dot !!!
-//       Idea => determine when a nearbyDot is "approaching"
-//               (for interaction and avoidance)
-//
-// The issue:
-// ---------------------------
-//  - X      <-- "approaching"   Event 0
-//  - -
-//  - O      <-- "observer"
-// ---------------------------
-// ---------------------------
-//  - -                          Event 1
-//  - X        (interaction)
-//  O -
-// ---------------------------
-// ---------------------------
-//  - -                          Event 2
-//  O -        (interaction)      !!!
-//  - X
-// ---------------------------
-
 // interactions: {
 //   endState: {},
 // }
@@ -38,42 +17,26 @@ export function interactWithOthers(observer = {}, world = {}) {
     endState: {},
   };
 
-  if (observer.type === 'Dot' && world.type === 'DotWorld') {
-    const others = world.dotRegistry;
+  const others = world.dotRegistry;
 
-    // Look for nearby dots...
-    const nearbyDots = dotMovement.getNearbyDots(observer, others, 2);
-    if (nearbyDots.length > 0) {
-      if (debug) console.log(`[interaction] "${observer.id}" is nearby ${nearbyDots.length} dot(s)`);
+  // Look for nearby dots...
+  const nearbyDots = dotMovement.getNearbyDots(observer, others, 2);
+  if (nearbyDots.length > 0) {
+    if (debug) console.log(`[interaction] "${observer.id}" is nearby ${nearbyDots.length} dot(s)`);
 
-      // Iterate through all nearby...
-      nearbyDots.forEach((other) => {
-        if (debug) console.log(`[interaction] "${observer.id}" is evaluating interaction with "${other.id}"`);
+    // Iterate through all nearby, and try to negotiate a step contract...
+    nearbyDots.forEach((other) => {
+      const contract = negotiateStepContract(observer, other, world);
 
-        // Check for existing recipient states...
-        // const received = (other.recipientInteractions[observer.id])
-        //     ? Object.assign({}, other.recipientInteractions[observer.id])
-        //     : null;
+      // Record contract...
+      Object.assign(observer.stepContracts, contract);
+    });
+  } // end-if (nearbyDots.length > 0)
 
-        const isWillingToInteract = isWillingToInteractWithDot(observer, other);
-
-        if (isWillingToInteract) {
-          // if (debug) console.log(`[interaction] "${observer.id}" is interacting with ${other.id}`);
-          // [performInteraction logic]
-          // if principal interaction (we are initiator -or- recipient)
-          //    perform interaction
-          //    create step contract
-          // else we have existing step contract
-          //    perform interaction
-          //    update contract
-        }
-
-        const contract = negotiateStepContract(observer, other, world, isWillingToInteract);
-
-        // Record contract...
-        Object.assign(observer.stepContract, contract);
-      });
-    } // end-if (nearbyDots.length > 0)
+  // Clean-up any unnecessary step contracts...
+  if (objectUtils.has(observer.stepContracts, 'members')) {
+    const memberContracts = purgeMemberStepContracts(observer, nearbyDots);
+    Object.assign(observer.stepContracts, { members: memberContracts });
   }
 
   return interactions;
@@ -129,83 +92,72 @@ export function interactWithOthers(observer = {}, world = {}) {
 //   return interactions;
 // }
 
-export function isWillingToInteractWithDot(/* observer = {}, other = {} */) {
-  const interact = false;
-  // if (observer.type === 'Dot' && other.type === 'Dot') {
-  // }
-  return interact;
-}
-
-// interaction: {
-//   initiatorEndState: {},
-//   recipientEndState: {},
-// }
-/* initiator = {}, recipient = {}, world = {} */
-export function performInteraction() {
-  const interaction = {
-    initiatorEndState: {},
-    recipientEndState: {},
-  };
-
-  return interaction;
-}
-
-// stepContract: {
+// stepContracts: {
 //   leader: <dotID> | null,
+//   personal: {
+//     nextDirection: 'e',
+//     resumeDirection: 'n',
+//     resumeX: 136,
+//     resumeY: 9,
+//     intent: 'lead' | 'follow' | 'meet' | 'avoid',
+//     satisfied: true | false,
+//   },
 //   members: {
 //     <dotID>: {
 //       nextDirection: 'e',
 //       resumeDirection: 'n',
+//       resumeX: 136,
+//       resumeY: 9,
 //       intent: 'lead' | 'follow' | 'meet' | 'avoid',
 //       satisfied: true | false,
 //     },
 //   },
 // }
-export function negotiateStepContract(observer = {}, other = {}, world = {}, isWillingToInteract = false) {
-  const stepContract = {
-    leader: null,
-    members: {},
-  };
+export function negotiateStepContract(observer = {}, other = {}, world = {}) {
+  const stepContracts = {};
 
-  if (observer.type === 'Dot' && other.type === 'Dot') {
-    const otherContracts = other.stepContract;
+  // Access existing step contracts...
+  const myRecords = observer.stepContracts.members;
+  const yourRecords = other.stepContracts.members;
 
-    // Check if observer has existing step contract with other...
-    const contract = (objectUtils.has(otherContracts, `members[${observer.id}]`))
-        ? Object.assign({}, otherContracts.members[observer.id])
+  // Determine negotiation, if we don't have a contract on record yet...
+  if (!objectUtils.has(myRecords, other.id)) {
+    // Check if other has existing step contract for us...
+    const existingContract = (objectUtils.has(yourRecords, observer.id))
+        ? Object.assign({}, yourRecords[observer.id])
         : null;
 
     // --------------------
     // Existing contract...
     // --------------------
-    if (contract) {
-      if (debug) console.log(`[interaction] "${observer.id}" has an existing step contract with "${other.id}" =>`, contract);
-      stepContract.members[observer.id] = {};
-      stepContract.members[other.id] = {};
+    if (existingContract) {
+      if (debug) console.log(`[interaction] "${observer.id}" has an existing step contract with "${other.id}" to record =>`, existingContract);
 
-      // Obtain contract from other, and mark as satisfied...
-      Object.assign(stepContract.members[observer.id], contract, { satisfied: true });  // save our agreement
-      Object.assign(stepContract.members[other.id], otherContracts.members[other.id], { satisfied: true }); // save copy of other's agreement
+      // Save contract into our records...
+      stepContracts.personal = existingContract;
+      stepContracts.members = {};
+      stepContracts.members[other.id] = other.stepContracts.personal;
 
     // ---------------
     // New contract...
     // ---------------
     } else {
       if (debug) console.log(`[interaction] "${observer.id}" is creating a step contract with "${other.id}"`);
-      stepContract.members[observer.id] = {};
-      stepContract.members[other.id] = {};
+      stepContracts.personal = {};
+      stepContracts.members = {};
+      stepContracts.members[other.id] = {};
 
       // Determine if a meetup is desired...
-      const meet = isWillingToInteract;
+      const meet = false;
       if (meet) {
         // Create a step contract to meetup...
-        Object.assign(stepContract.members[observer.id], { intent: 'meet', satisfied: false });
-        Object.assign(stepContract.members[other.id], { intent: 'meet', satisfied: false });
+        Object.assign(stepContracts.personal, { intent: 'meet', satisfied: false });
+        Object.assign(stepContracts.members[other.id], { intent: 'meet', satisfied: false });
         // TODO: negotiate place to meet
       } else {
         // Create a step contract to ignore attempts for interaction...
-        Object.assign(stepContract.members[observer.id], { intent: 'avoid', satisfied: false });
-        Object.assign(stepContract.members[other.id], { intent: 'avoid', satisfied: false });
+        Object.assign(stepContracts.personal, { intent: 'avoid' });
+        Object.assign(stepContracts.members[other.id], { intent: 'avoid' });
 
         // If a collision appears imminent, determine step to take...
         if (dotMovement.isDotApproachingHeadOn(observer, other)) {
@@ -226,18 +178,77 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}, isW
           }
 
           // TODO: If observer cannot step, see if other can step instead !!!
-
           if (debug) console.log(`[interaction] "${observer.id}" is stepping ${avoidStep}`);
 
           // Record directions...
-          const observerDirection = { nextDirection: avoidStep, resumeDirection: observer.currentDirection };
-          const otherDirection = { nextDirection: other.currentDirection, resumeDirection: other.currentDirection };
-          Object.assign(stepContract.members[observer.id], observerDirection);
-          Object.assign(stepContract.members[other.id], otherDirection);
+          const observerDirection = {
+            nextDirection: avoidStep,
+            resumeDirection: observer.currentDirection,
+            resumeX: observer.x1,
+            resumeY: observer.y1,
+          };
+          const otherDirection = { nextDirection: other.currentDirection };
+          Object.assign(stepContracts.personal, observerDirection, { satisfied: false });
+          Object.assign(stepContracts.members[other.id], otherDirection, { satisfied: true });
         } // end-if (dotMovement.isDotApproachingHeadOn)
       } // end-if-else (meet)
-    } // end-if-else (contract)
-  }
+    } // end-if-else (existingContract)
+  } else if (debug) {
+    console.log(`[interaction] "${observer.id}" has a step contract on record with "${other.id}"`);
+  } // end-if-elseif (!objectUtils.has(myRecords, other.id))
 
-  return stepContract;
+  return stepContracts;
+}
+
+// ----------------------------------------------------------------------
+// Purges step contracts that are no longer necessary...
+// ----------------------------------------------------------------------
+// Iterates through all existing member step contracts,
+// and removes:
+//
+// - any contracts that are not related to the provided "others".
+// ----------------------------------------------------------------------
+export function purgeMemberStepContracts(observer = {}, others = []) {
+  const memberContracts = {};
+
+  const existingMemberContracts = observer.stepContracts.members || {};
+  const memberContractIDs = Object.keys(existingMemberContracts);
+
+  if (memberContractIDs.length > 0) {
+    // Build array of other IDs...
+    const otherIDs = [];
+    others.forEach((other) => {
+      otherIDs.push(other.id);
+    });
+
+    // Iterate through member contracts, keeping only relevant ones...
+    memberContractIDs.forEach((otherID) => {
+      if (objectUtils.includes(otherIDs, otherID)) {
+        memberContracts[otherID] = existingMemberContracts[otherID];
+      } else if (debug && verbose) {
+        console.log(`[interaction] "${observer.id}" is purging old step contract with "${otherID}"`);
+      }
+    });
+  } // end-if (memberContractIDs.length > 0)
+
+  return memberContracts;
+}
+
+export function isWillingToInteractWithDot(/* observer = {}, other = {} */) {
+  const interact = false;
+  return interact;
+}
+
+// interaction: {
+//   initiatorEndState: {},
+//   recipientEndState: {},
+// }
+/* initiator = {}, recipient = {}, world = {} */
+export function performInteraction() {
+  const interaction = {
+    initiatorEndState: {},
+    recipientEndState: {},
+  };
+
+  return interaction;
 }

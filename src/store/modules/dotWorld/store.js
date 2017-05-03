@@ -68,19 +68,22 @@ const dotWorldData = {
       const { commit } = context;
 
       // Parse world configuration...
-      const name = objectUtils.get(worldData, 'name', null);
-      const width = objectUtils.get(worldData, 'width', 400);
-      const height = objectUtils.get(worldData, 'height', 200);
-      const dots = objectUtils.get(worldData, 'dots', []);
+      // const name = objectUtils.get(worldData, 'name', null);
+      // const width = objectUtils.get(worldData, 'width', 400);
+      // const height = objectUtils.get(worldData, 'height', 200);
+      const worldConfig = Object.assign({}, worldData);
+      if (worldConfig.dots) delete worldConfig.dots;
 
       // Create world...
-      const world = new World({
-        name,
-        width,
-        height,
-      });
+      const world = new World(worldConfig);
+      // const world = new World({
+      //   name,
+      //   width,
+      //   height,
+      // });
 
       // Populate with pioneers...
+      const dots = objectUtils.get(worldData, 'dots', []);
       dots.forEach((dotData) => {
         const dot = new Dot(dotData);
         world.addDot(dot);
