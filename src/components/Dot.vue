@@ -12,7 +12,7 @@
           {{ self.name }}
         </div>
         <div class="flyover-actions">
-          <a v-on:click="openDotDiag">D</a>
+          <a v-bind:class="dotDiagToggleClasses" v-on:click="toggleDotDiag">D</a>
         </div>
       </div>
     </div>
@@ -33,6 +33,7 @@ export default {
   data: () => {
     return {
       showFlyover: false,
+      isDiagOpen: false,
     };
   },
 
@@ -63,6 +64,12 @@ export default {
         ? `${base} show`
         : `${base}`;
     },
+    dotDiagToggleClasses() {
+      const base = 'dot-diag-toggle';
+      return (this.isDiagOpen)
+        ? `${base} active`
+        : `${base}`;
+    },
   },
 
   mounted() {
@@ -84,11 +91,21 @@ export default {
     hideFlyoverInfo() {
       if (this.$parent.isPaused) this.showFlyover = false;
     },
+    toggleDotDiag() {
+      if (!this.isDiagOpen) this.openDotDiag();
+      else this.closeDotDiag();
+    },
     openDotDiag() {
-      if (this.self) this.$store.dispatch('ADD_DOT_TO_INSPECT', this.self.id);
+      if (this.self) {
+        this.isDiagOpen = true;
+        this.$store.dispatch('ADD_DOT_TO_INSPECT', this.self.id);
+      }
     },
     closeDotDiag() {
-      if (this.self) this.$store.dispatch('REMOVE_DOT_TO_INSPECT', this.self.id);
+      if (this.self) {
+        this.isDiagOpen = false;
+        this.$store.dispatch('REMOVE_DOT_TO_INSPECT', this.self.id);
+      }
     },
     notify(moveInfo) {
       // Apply move info...
@@ -156,7 +173,7 @@ export default {
     margin: 0 0 6px -55px;
     padding: 2px 6px 4px 6px;
     border-radius: 6px;
-    background-color: #666666;
+    background-color: rgba(0, 0, 0, 0.35);
     color: #ffffff;
     text-align: center;
     visibility: hidden;
@@ -170,7 +187,8 @@ export default {
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: #666666 transparent transparent transparent;
+    border-color: #000000 transparent transparent transparent;
+    opacity: 0.35;
   }
   .dot-flyover.show {
     visibility: visible;
@@ -197,5 +215,10 @@ export default {
   .flyover-actions a {
     font-size: 12px;
     line-height: 12px;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+  .flyover-actions a.active {
+    background-color: rgba(0, 0, 0, 0.4);
   }
 </style>

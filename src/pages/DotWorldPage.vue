@@ -33,10 +33,12 @@
 
     <div class="dot-inspect-col col">
       <div class="dot-inspect-container">
-        <dot-diag v-for="dot in dotsToInspect"
-                  v-bind:ref="'dotDiags'"
-                  v-bind:key="'dot-diag-' + dot.id"
-                  v-bind:dot="dot"/>
+        <transition-group name="fade-fast">
+          <dot-diag v-for="dot in dotsToInspect"
+                    v-bind:ref="'dotDiags'"
+                    v-bind:key="'dot-diag-' + dot.id"
+                    v-bind:dot="dot"/>
+        </transition-group>
       </div>
     </div>
 
@@ -184,7 +186,9 @@ export default {
   .world-col {
     width: 510px;
   }
-  .dot-inspect-col {}
+  .dot-inspect-col {
+    margin-bottom: 20px;
+  }
 
   /* World */
   .world-container {
@@ -200,7 +204,7 @@ export default {
     margin: 20px 0 0 0;
   }
   .world-controls {
-    margin: 0 auto;
+    margin: 0 auto 15px auto;
   }
   .action.disabled {
     cursor: not-allowed;
@@ -210,5 +214,11 @@ export default {
   }
   .step-action {
     margin-left: 90px;
+  }
+
+  /* Dot Inspect / Diags */
+  .dot-inspect-container .dot-diag {
+    float: left;
+    margin-right: 8px;
   }
 </style>

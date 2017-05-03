@@ -75,6 +75,13 @@
     opacity: 0;
   }
 
+  .fade-fast-enter-active, .fade-fast-leave-active {
+    transition: opacity 0.5s;
+  }
+  .fade-fast-enter, .fade-fast-leave-to {
+    opacity: 0;
+  }
+
   .page-header {
     background-color: #ededed;
     padding: 7px 0;
