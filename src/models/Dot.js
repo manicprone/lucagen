@@ -147,6 +147,22 @@ export default class Dot {
     // - step       (intents: meet, follow, rest, avoid, hide)
     // -----------------------------------------------------------
     this.convictions = objectUtils.get(data, 'convictions', {});
+
+    // ----------------
+    // Emotional config
+    // ----------------
+    const ntConfig = {
+      x: -1, // 1_1
+      s: -1, // 1_2
+      y: -1, // 1_3
+      L: -1, // 2_1
+      d: -1, // 2_2
+      R: -1, // 2_3
+      o: -1, // 3_1
+      np: 1, // 3_2
+      g: -1, // 3_3
+    };
+    this.emotionalConfig = objectUtils.get(data, 'emotionalConfig', ntConfig);
   }
 
   sleep() {

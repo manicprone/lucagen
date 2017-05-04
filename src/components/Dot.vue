@@ -1,8 +1,7 @@
 <template>
-  <div ref="dotSpace"
-       v-bind:class="dotSpaceClasses"
-       v-bind:style="dotSpaceStyles"
+  <div ref="dotSpace" v-bind:class="dotSpaceClasses" v-bind:style="dotSpaceStyles"
        v-on:mouseover="showFlyoverInfo">
+
     <div ref="dot" v-bind:class="dotClasses">
       <div ref="dotFlyover" v-bind:class="dotFlyoverClasses">
         <div class="icon-close-flyover" v-on:click="hideFlyoverInfo">
@@ -15,13 +14,28 @@
           <a v-bind:class="dotDiagToggleClasses" v-on:click="toggleDotDiag">D</a>
         </div>
       </div>
+
+      <div class="emotional-quadrant q-1-1"></div>
+      <div class="emotional-quadrant q-1-2"></div>
+      <div class="emotional-quadrant q-1-3"></div>
+
+      <div class="emotional-quadrant q-2-1"></div>
+      <div class="emotional-quadrant q-2-2" v-bind:style="ntQuadrant2_2_Styles"></div>
+      <div class="emotional-quadrant q-2-3"></div>
+
+      <div class="emotional-quadrant q-3-1"></div>
+      <div class="emotional-quadrant q-3-2"></div>
+      <div class="emotional-quadrant q-3-3"></div>
     </div>
+
   </div>
 </template>
 
 <script>
 import Velocity from 'velocity-animate';
 import objectUtils from '../utils/object-utils';
+
+// <div class="emotional-quadrant q-3-2" v-bind:style="{ 'background-color': renderNTColor(1) }"></div>
 
 export default {
   name: 'Dot',
@@ -69,6 +83,14 @@ export default {
       return (this.isDiagOpen)
         ? `${base} active`
         : `${base}`;
+    },
+    ntQuadrant1_2_Styles() {
+      const nt = (this.self) ? this.self.emotionalConfig.d : -1;
+      return { 'background-color': `${this.renderNTColor(nt)}` };
+    },
+    ntQuadrant2_2_Styles() {
+      const nt = (this.self) ? this.self.emotionalConfig.s : -1;
+      return { 'background-color': `${this.renderNTColor(nt)}` };
     },
   },
 
@@ -138,6 +160,17 @@ export default {
         });
       }
     },
+    renderNTColor(nt) {
+      // console.log('nt =>', nt);
+      // const value = this.self.emotionalConfig[nt];
+      const value = nt;
+      switch (value) {
+        case 1: return '#9cc8f4';
+        case 2: return '#225fd9';
+        case 3: return '#05398c';
+        default: return 'transparent';
+      }
+    },
   },
 };
 </script>
@@ -147,20 +180,34 @@ export default {
     position: absolute;
     height: 9px;
     width: 9px;
+    cursor: pointer;
+  }
+  /*.dot-space {
+    position: absolute;
+    height: 9px;
+    width: 9px;
     border-radius: 3px;
     cursor: pointer;
   }
   .dot-space:hover {
     background-color: #f2f2f2;
-  }
+  }*/
 
-  .dot {
+  /* emotional realm */
+  .dot {}
+  /*.dot {
     margin: 0 auto;
     height: 1px;
     width: 1px;
     background-color: #e9e9e9;
     border: 1px solid #525252;
     border-radius: 1px;
+  }*/
+  .dot .emotional-quadrant {
+    height: 3px;
+    width: 3px;
+    float: left;
+    background-color: transparent;
   }
 
   /* Dot flyover */

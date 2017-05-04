@@ -117,6 +117,7 @@ export default {
       birthY: 262,
       speed: 200,
       memoryDepth: 5,
+      emotionalConfig: { s: 1 },
     };
     const world = {
       name: 'Lonely World',
@@ -161,6 +162,7 @@ export default {
           birthY: 1,
           speed: 200,
           memoryDepth: 5,
+          emotionalConfig: { s: 3 },
         };
         this.$store.dispatch('ADD_DOT_TO_WORLD', dot);
       }
