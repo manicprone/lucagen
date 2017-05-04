@@ -79,14 +79,14 @@ export default class Dot {
     // -----------------
     // Vision attributes
     // -----------------
-    this.visionDepth = objectUtils.get(data, 'visionDepth', 1);
+    this.visionDepth = objectUtils.get(data, 'visionDepth', 3);
 
     // -----------------------------------------------------------
     // Memory attributes
     // -----------------------------------------------------------
     // memoryDepth  => The max size of the moveShiftHistory array.
     // -----------------------------------------------------------
-    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 4);
+    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 5);
 
     // -----------------------------------------------------------
     // Location Management
@@ -159,7 +159,7 @@ export default class Dot {
       d: -1, // 2_2
       R: -1, // 2_3
       o: -1, // 3_1
-      np: 1, // 3_2
+      n: -1, // 3_2
       g: -1, // 3_3
     };
     this.emotionalConfig = objectUtils.get(data, 'emotionalConfig', ntConfig);

@@ -3,11 +3,7 @@
 
     <div class="world-management-col col">
       <div v-if="world" class="world-management-container">
-        <div>
-          <span v-bind:class="addDotActionClasses">
-            <a v-bind:class="addDotActionLinkClasses" v-on:click="addDotToWorld">{{ addDotLabel }}</a>
-          </span>
-        </div>
+        <dot-creator />
       </div>
     </div>
 
@@ -48,6 +44,7 @@
 <script>
 import Dot from '../components/Dot';
 import DotDiag from '../components/DotDiag';
+import DotCreator from '../components/DotCreator';
 
 export default {
   name: 'DotWorldPage',
@@ -94,19 +91,6 @@ export default {
         ? 'step-action-link action-link'
         : 'step-action-link action-link disabled';
     },
-    addDotLabel() {
-      return 'Add Dot';
-    },
-    addDotActionClasses() {
-      return (this.isPaused)
-        ? 'add-dot-action action'
-        : 'add-dot-action action disabled';
-    },
-    addDotActionLinkClasses() {
-      return (this.isPaused)
-        ? 'add-dot-action-link action-link'
-        : 'add-dot-action-link action-link disabled';
-    },
   },
 
   beforeMount() {
@@ -115,8 +99,6 @@ export default {
       name: 'Lonely',
       birthX: 1,
       birthY: 262,
-      speed: 200,
-      memoryDepth: 5,
       emotionalConfig: { s: 1 },
     };
     const world = {
@@ -153,25 +135,12 @@ export default {
         });
       }
     },
-    addDotToWorld() {
-      if (this.isPaused) {
-        const dot = {
-          id: 'friendly',
-          name: 'Friendly',
-          birthX: 1,
-          birthY: 1,
-          speed: 200,
-          memoryDepth: 5,
-          emotionalConfig: { s: 3 },
-        };
-        this.$store.dispatch('ADD_DOT_TO_WORLD', dot);
-      }
-    },
   },
 
   components: {
     Dot,
     DotDiag,
+    DotCreator,
   },
 };
 </script>
@@ -182,11 +151,12 @@ export default {
     margin: 30px;
   }
   .world-management-col {
-    width: 340px;
-    height: 50px;
+    width: 300px;
+    margin: 0 0 30px 30px;
   }
   .world-col {
     width: 510px;
+    margin-right: 20px;
   }
   .dot-inspect-col {
     margin-bottom: 20px;
@@ -197,22 +167,18 @@ export default {
     position: relative;
     width: 450px;
     height: 270px;
-    border: 1px solid #ff9977;
+    border: 1px solid #b9b9b9;
     margin: 0 auto;
+    background-color: #ffffff;
+    box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
   }
 
   /* World Controls */
   .world-controls-container {
-    margin: 20px 0 0 0;
+    margin: 20px 0 20px 0;
   }
   .world-controls {
-    margin: 0 auto 15px auto;
-  }
-  .action.disabled {
-    cursor: not-allowed;
-  }
-  .action-link.disabled {
-    color: #b9b9b9;
+    margin: 0 auto;
   }
   .step-action {
     margin-left: 90px;
