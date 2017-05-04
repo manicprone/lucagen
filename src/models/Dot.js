@@ -79,14 +79,14 @@ export default class Dot {
     // -----------------
     // Vision attributes
     // -----------------
-    this.visionDepth = objectUtils.get(data, 'visionDepth', 1);
+    this.visionDepth = objectUtils.get(data, 'visionDepth', 3);
 
     // -----------------------------------------------------------
     // Memory attributes
     // -----------------------------------------------------------
     // memoryDepth  => The max size of the moveShiftHistory array.
     // -----------------------------------------------------------
-    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 4);
+    this.memoryDepth = objectUtils.get(data, 'memoryDepth', 5);
 
     // -----------------------------------------------------------
     // Location Management
@@ -147,6 +147,22 @@ export default class Dot {
     // - step       (intents: meet, follow, rest, avoid, hide)
     // -----------------------------------------------------------
     this.convictions = objectUtils.get(data, 'convictions', {});
+
+    // ----------------
+    // Emotional config
+    // ----------------
+    const ntConfig = {
+      x: -1, // 1_1
+      s: -1, // 1_2
+      y: -1, // 1_3
+      L: -1, // 2_1
+      d: -1, // 2_2
+      R: -1, // 2_3
+      o: -1, // 3_1
+      n: -1, // 3_2
+      g: -1, // 3_3
+    };
+    this.emotionalConfig = objectUtils.get(data, 'emotionalConfig', ntConfig);
   }
 
   sleep() {
