@@ -13,9 +13,7 @@
 
 [TBC]
 
-#### Attributes
-
-##### Identification and Intrinsic Nature
+#### Identification and Intrinsic Nature
 
 | Attribute | Value | Description |
 | ----------|-------|-------------|
@@ -28,7 +26,7 @@
 | memoryDepth | (positive integer) | The number of past steps that can be recalled. |
 
 
-##### Location Management
+#### Location Management
 
 | Attribute | Value | Description |
 | ----------|-------|-------------|
@@ -42,7 +40,7 @@
 | fromY  | | |
 
 
-##### Movement Management
+#### Movement Management
 
 | Attribute | Value | Description |
 | ----------|-------|-------------|
@@ -52,7 +50,7 @@
 | steps | (positive integer) | The total steps taken since birth. |
 
 
-##### Interaction Management
+#### Interaction Management
 
 | Attribute | Value | Description |
 | ----------|-------|-------------|
@@ -63,7 +61,7 @@
 | stepContracts | | |
 
 
-##### Motivational Management
+#### Motivational Management
 
 [TBD]
 
@@ -72,7 +70,7 @@
 | convictions | | |
 
 
-##### Emotional Configuration
+#### Emotional Configuration
 
 [TBD]
 
