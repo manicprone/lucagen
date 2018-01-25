@@ -108,8 +108,8 @@
 
 | Attribute | Value     | Description |
 | ----------|-----------|-------------|
-| polarity  | 'U' | 'D' | The natural tendency for a Dot's vertical movement (up or down / N or S). |
-| chirality | 'L' | 'R' | The natural tendency for a Dot's horizontal movement (left or right / W or E) |
+| polarity  | 'U' or 'D' | The natural tendency for a Dot's vertical movement (up or down / N or S). |
+| chirality | 'L' or 'R' | The natural tendency for a Dot's horizontal movement (left or right / W or E) |
 
 
 ### The Life of a Dot
