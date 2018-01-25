@@ -19,7 +19,9 @@
 
       <div v-if="world" class="world-controls-container">
         <div class="world-controls">
-          <span><a v-on:click="toggleLife">{{ lifeToggleLabel }}</a></span>
+          <span>
+            <a v-on:click="toggleLife">{{ lifeToggleLabel }}</a>
+          </span>
           <span v-bind:class="stepActionClasses">
             <a v-bind:class="stepActionLinkClasses" v-on:click="step">{{ stepLabel }}</a>
           </span>
@@ -151,8 +153,8 @@ export default {
     margin: 30px;
   }
   .world-management-col {
-    width: 300px;
-    margin: 0 0 30px 30px;
+    width: 320px;
+    margin: 0 0 30px 20px;
   }
   .world-col {
     width: 510px;

@@ -21,7 +21,7 @@
                    class="input-number"
                    ref="dotBirthX"
                    name="dotBirthX"
-                   size="2"
+                   size="3"
                    maxlength="4"
                    placeholder="x"
                    v-model="newDotBirthX" />
@@ -33,7 +33,7 @@
                    class="input-number"
                    ref="dotBirthY"
                    name="dotBirthY"
-                   size="2"
+                   size="3"
                    maxlength="4"
                    placeholder="y"
                    v-model="newDotBirthY" />

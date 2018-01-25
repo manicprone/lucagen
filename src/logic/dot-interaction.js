@@ -4,6 +4,7 @@
 // Logic for Dot interactions.
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
+import Logger from '../services/DotLogger';
 import * as dotMovement from './dot-movement';
 
 const debug = true;
@@ -22,7 +23,7 @@ export function interactWithOthers(observer = {}, world = {}) {
   // Look for nearby dots...
   const nearbyDots = dotMovement.getNearbyDots(observer, others, 2);
   if (nearbyDots.length > 0) {
-    if (debug) console.log(`[interaction] "${observer.id}" is nearby ${nearbyDots.length} dot(s)`);
+    if (debug) Logger.sub('interaction.interactWithOthers', `"${observer.id}" is nearby ${nearbyDots.length} dot(s)`);
 
     // Iterate through all nearby, and try to negotiate a step contract...
     nearbyDots.forEach((other) => {
@@ -131,7 +132,7 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
     // Existing contract...
     // --------------------
     if (existingContract) {
-      if (debug) console.log(`[interaction] "${observer.id}" has an existing step contract with "${other.id}" to record =>`, existingContract);
+      if (debug) Logger.sub('interaction.negotiateStepContract', `"${observer.id}" has an existing step contract with "${other.id}" to record`, existingContract);
 
       // Save contract into our records...
       stepContracts.personal = existingContract;
@@ -142,7 +143,8 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
     // New contract...
     // ---------------
     } else {
-      if (debug) console.log(`[interaction] "${observer.id}" is creating a step contract with "${other.id}"`);
+      if (debug) Logger.sub('interaction.negotiateStepContract', `"${observer.id}" is creating a step contract with "${other.id}"`);
+
       stepContracts.personal = {};
       stepContracts.members = {};
       stepContracts.members[other.id] = {};
@@ -163,8 +165,8 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
         if (dotMovement.isDotApproachingHeadOn(observer, other)) {
           const steps = dotMovement.calculateAvailableSteps(observer, world);
           if (debug) {
-            console.log(`[interaction] "${observer.id}" is stepping to avoid "${other.id}"`);
-            if (verbose) console.log(`[interaction] "${observer.id}" has available steps =>`, steps);
+            Logger.sub('interaction.negotiateStepContract', `"${observer.id}" is stepping to avoid "${other.id}"`);
+            if (verbose) Logger.sub('interaction.negotiateStepContract', `"${observer.id}" has available steps`, steps);
           }
 
           // Determine possible lateral movements...
@@ -178,7 +180,7 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
           }
 
           // TODO: If observer cannot step, see if other can step instead !!!
-          if (debug) console.log(`[interaction] "${observer.id}" is stepping ${avoidStep}`);
+          if (debug) Logger.sub('interaction.negotiateStepContract', `"${observer.id}" is stepping ${avoidStep}`);
 
           // Record directions...
           const observerDirection = {
@@ -194,7 +196,7 @@ export function negotiateStepContract(observer = {}, other = {}, world = {}) {
       } // end-if-else (meet)
     } // end-if-else (existingContract)
   } else if (debug) {
-    console.log(`[interaction] "${observer.id}" has a step contract on record with "${other.id}"`);
+    Logger.sub('interaction.negotiateStepContract', `"${observer.id}" has a step contract on record with "${other.id}"`);
   } // end-if-elseif (!objectUtils.has(myRecords, other.id))
 
   return stepContracts;
@@ -226,7 +228,7 @@ export function purgeMemberStepContracts(observer = {}, others = []) {
       if (objectUtils.includes(otherIDs, otherID)) {
         memberContracts[otherID] = existingMemberContracts[otherID];
       } else if (debug && verbose) {
-        console.log(`[interaction] "${observer.id}" is purging old step contract with "${otherID}"`);
+        Logger.sub('interaction.purgeMemberStepContracts', `"${observer.id}" is purging old step contract with "${otherID}"`);
       }
     });
   } // end-if (memberContractIDs.length > 0)

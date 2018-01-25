@@ -1,4 +1,5 @@
 import objectUtils from '../utils/object-utils';
+import Logger from '../services/DotLogger';
 import * as dotInteraction from '../logic/dot-interaction';
 import * as dotMovement from '../logic/dot-movement';
 import * as dotMovementUI from '../logic/dot-movement-ui';
@@ -167,12 +168,16 @@ export default class Dot {
 
   sleep() {
     this.isAsleep = true;
-    if (debug) console.log(`"${this.id}" has been put to sleep`);
+    Logger.main('sleep');
+    Logger.sub(null, `"${this.id}" has been put to sleep`);
   }
 
   wake() {
     this.isAsleep = false;
-    if (debug) console.log(`"${this.id}" has awoken`);
+    if (debug) {
+      Logger.main('wake');
+      Logger.sub(null, `"${this.id}" has awoken`);
+    }
   }
 
   // ---------------------------------------------------------------
@@ -188,6 +193,8 @@ export default class Dot {
     const nextMove = {
       endState: {},
     };
+
+    if (debug) Logger.main('getNextMove');
 
     // Check for interactions...
     const interactions = dotInteraction.interactWithOthers(this, world);
@@ -221,7 +228,10 @@ export default class Dot {
       this[attr] = endState[attr];
     });
 
-    if (debug) console.log(`"${this.id}" state after apply =>`, this);
+    if (debug) {
+      Logger.main('applyMove');
+      Logger.sub(null, `"${this.id}"`, this);
+    }
   }
 
   // -----------------------------------------------
