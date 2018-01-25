@@ -1,25 +1,28 @@
-# lucagen
+# The Lucagen Project
 
 > Musings on the entropy of life.
 
 
-## Dot Emotional Config
+## DotWorld
 
-### Overview
 
-| Concept | Description |
-| --------|-------------|
+### Visual Representation of Emotional State
+
+#### Overview
+
+| Structure | Description |
+| ----------|-------------|
 | ![Dot Emotional Config (High-Level)](/static/dot-emotional-config-HL.png) | [TBC - Description on the high-level structuring of a Dot's emotional config] |
 
 
-### Social Quadrants
+#### Social Quadrants
 
-| Concept | Description |
-| --------|-------------|
+| Structure | Description |
+| ----------|-------------|
 | ![Dot Social Quandrants](/static/dot-emotional-config-quadrants.png) |[TBC - Description on the social quadrants and how they are calculated] |
 
 
-### Visual Representation
+#### Representation of Value
 
 The emotional quadrants fill out over time, from central pixel outwards (radially)... representing a flower-like bloom.
 
