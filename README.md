@@ -9,76 +9,6 @@
 
 [TBC]
 
-### A Dot
-
-[TBC]
-
-#### Identification and Intrinsic Nature
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| id | | |
-| name | | |
-| width | | |
-| height | | |
-| speed | | |
-| visionDepth | (positive integer) | The number of pixels in visual range. |
-| memoryDepth | (positive integer) | The number of past steps that can be recalled. |
-
-
-#### Location Management
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| birthLeft  | | |
-| birthTop  | | |
-| x1  | | |
-| x2  | | |
-| y1  | | |
-| y2  | | |
-| fromX  | | |
-| fromY  | | |
-
-
-#### Movement Management
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| isAsleep | boolean | |
-| currentDirection | | |
-| moveShiftHistory | | |
-| steps | (positive integer) | The total steps taken since birth. |
-
-
-#### Interaction Management
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| events | | The total count of events lapsed since birth (i.e. perceived time). |
-| totalInteractions | | |
-| totalInteractionsInitiated | | |
-| recipientInteractions | | |
-| stepContracts | | |
-
-
-#### Motivational Management
-
-[TBD]
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| convictions | | |
-
-
-#### Emotional Configuration
-
-[TBD]
-
-| Attribute | Value | Description |
-| ----------|-------|-------------|
-| | | |
-
-
 ### The World of a Dot
 
 [TBC]
@@ -154,6 +84,77 @@
 //     (c) Calculate level of pride
 // -----------------------------------------------------------------------------
 ```
+
+
+### Dot Attributes
+
+[TBC]
+
+#### Identification and Intrinsic Nature
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| id | | |
+| name | | |
+| width | | |
+| height | | |
+| speed | | |
+| visionDepth | (positive integer) | The number of pixels in visual range. |
+| memoryDepth | (positive integer) | The number of past steps that can be recalled. |
+
+
+#### Location Management
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| birthLeft  | | |
+| birthTop  | | |
+| x1  | | |
+| x2  | | |
+| y1  | | |
+| y2  | | |
+| fromX  | | Transformation from origin (x). |
+| fromY  | | Transformation from origin (y). |
+
+
+#### Movement Management
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| isAsleep | boolean | |
+| currentDirection | | |
+| moveShiftHistory | | |
+| steps | (positive integer) | The total steps taken since birth. |
+
+
+#### Interaction Management
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| events | | The total count of events lapsed since birth (i.e. perceived time). |
+| totalInteractions | | |
+| totalInteractionsInitiated | | |
+| recipientInteractions | | |
+| stepContracts | | |
+
+
+#### Motivational Management
+
+[TBD]
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| convictions | | |
+
+
+#### Emotional Configuration
+
+[TBD]
+
+| Attribute | Value | Description |
+| ----------|-------|-------------|
+| | | |
+
 
 ### Functional Flow
 
