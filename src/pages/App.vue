@@ -2,8 +2,12 @@
   <div id="app">
     <transition name="fade" appear>
       <div class="page-header">
-        <h1>lucagen</h1>
-        <div class="version">{{ webVersion }}</div>
+
+        <router-link to="/">
+          <h1>lucagen</h1>
+          <div class="version">{{ webVersion }}</div>
+        </router-link>
+
       </div>
     </transition>
 
@@ -50,6 +54,7 @@
   a {
     color: #676767;
     cursor: pointer;
+    text-decoration: none;
   }
   a:hover {
     color: #111111;
@@ -74,8 +79,15 @@
   }
 
   /* Transitions */
-  .fade-enter-active, .fade-leave-active {
+  .fade-slow-enter-active, .fade-slow-leave-active {
     transition: opacity 2s;
+  }
+  .fade-slow-enter, .fade-slow-leave-to {
+    opacity: 0;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 1s;
   }
   .fade-enter, .fade-leave-to {
     opacity: 0;
@@ -97,6 +109,9 @@
   .page-header h1 {
     font-size: 23px;
     line-height: 23px;
+  }
+  .page-header a:hover {
+    color: #676767;
   }
 
   /* Actions / Controls */

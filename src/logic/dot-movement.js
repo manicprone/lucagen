@@ -4,6 +4,7 @@
 // Logic for Dot movement (steps).
 // -------------------------------------------------------------
 import objectUtils from '../utils/object-utils';
+import Logger from '../services/DotLogger';
 import * as dotMotivation from './dot-motivation';
 
 const debugChooseNextStep = true;
@@ -27,7 +28,7 @@ export function chooseNextStep(dot = {}, world = {}) {
   // Honor agreements made with other Dots...
   // ----------------------------------------
   if (stepContract && !stepContract.satisfied) {
-    if (debugChooseNextStep) console.log(`[movement] [chooseNextStep] "${dot.id}" has an unsatisfied step contract:`, stepContract);
+    if (debugChooseNextStep) Logger.sub('movement.chooseNextStep', `"${dot.id}" has an unsatisfied step contract`, stepContract);
 
     // Accept agreed direction, satisfy contract...
     const nextDirection = stepContract.nextDirection;
@@ -35,7 +36,7 @@ export function chooseNextStep(dot = {}, world = {}) {
 
     // If planning to return to a direction, create a conviction...
     if (objectUtils.has(stepContract, 'resumeDirection')) {
-      if (debugChooseNextStep) console.log(`[movement] [chooseNextStep] "${dot.id}" wants to resume direction:`, stepContract.resumeDirection);
+      if (debugChooseNextStep) Logger.sub('movement.chooseNextStep', `"${dot.id}" wants to resume direction`, stepContract.resumeDirection);
       dotMotivation.addStepConviction(dot, stepContract);
     }
 
@@ -51,14 +52,14 @@ export function chooseNextStep(dot = {}, world = {}) {
     // Check for step conviction...
     const stepConviction = objectUtils.get(dot.convictions, 'step', null);
     if (stepConviction && !stepConviction.satisfied) {
-      if (debugChooseNextStep) console.log(`[movement] [chooseNextStep] "${dot.id}" has an unsatisfied step conviction:`, stepConviction);
+      if (debugChooseNextStep) Logger.sub('movement.chooseNextStep', `"${dot.id}" has an unsatisfied step conviction`, stepConviction);
 
       const convictionStep = performConvictionStep(dot, world, stepConviction);
       Object.assign(nextStep, convictionStep);
 
     // Otherwise, take a freedom step...
     } else {
-      if (debugChooseNextStep) console.log(`[movement] [chooseNextStep] "${dot.id}" is free to wander`);
+      if (debugChooseNextStep) Logger.sub('movement.chooseNextStep', `"${dot.id}" is free to wander`);
 
       const freedomStep = performFreedomStep(dot, world);
       Object.assign(nextStep, freedomStep);
@@ -94,7 +95,7 @@ export function performConvictionStep(dot = {}, world = {}, stepConviction = {})
 
   // Determine all available steps at this moment in the world...
   const steps = calculateAvailableSteps(dot, world);
-  if (debugConvictionStep && verboseConvictionStep) console.log(`[movement] [performConvictionStep] "${dot.id}" available steps =>`, steps);
+  if (debugConvictionStep && verboseConvictionStep) Logger.sub('movement.performConvictionStep', `"${dot.id}" available steps`, steps);
 
   if (steps.length > 0) {
     let nextDirection = null;
@@ -109,24 +110,24 @@ export function performConvictionStep(dot = {}, world = {}, stepConviction = {})
     if (isXResuming && dot.x1 !== resumeX1) {
       adjustmentDirection = (dot.x1 > resumeX1) ? 'w' : 'e';
       if (objectUtils.includes(steps, adjustmentDirection)) nextDirection = adjustmentDirection;
-      if (debugConvictionStep && verboseConvictionStep) console.log(`[movement] [performConvictionStep] "${dot.id}" trying to resume X position (${dot.x1} > ${resumeX1})?`);
+      if (debugConvictionStep && verboseConvictionStep) Logger.sub('movement.performConvictionStep', `"${dot.id}" trying to resume X position (${dot.x1} > ${resumeX1})?`);
 
     // If we want to resume e|w => try to get back to the "y" position...
     } else if (dot.y1 !== resumeY1) {
       adjustmentDirection = (dot.y1 > resumeY1) ? 'n' : 's';
       if (objectUtils.includes(steps, adjustmentDirection)) nextDirection = adjustmentDirection;
-      if (debugConvictionStep && verboseConvictionStep) console.log(`[movement] [performConvictionStep] "${dot.id}" trying to resume Y position (${dot.y1} > ${resumeY1})?`);
+      if (debugConvictionStep && verboseConvictionStep) Logger.sub('movement.performConvictionStep', `"${dot.id}" trying to resume Y position (${dot.y1} > ${resumeY1})?`);
     }
 
     // Try to head in the desired direction...
     if (!nextDirection && dot.currentDirection !== resumeDirection && objectUtils.includes(steps, resumeDirection)) {
       nextDirection = resumeDirection;
-      if (debugConvictionStep && verboseConvictionStep) console.log(`[movement] [performConvictionStep] "${dot.id}" trying to resume direction (${dot.currentDirection} !== ${resumeDirection})?`);
+      if (debugConvictionStep && verboseConvictionStep) Logger.sub('movement.performConvictionStep', `"${dot.id}" trying to resume direction (${dot.currentDirection} !== ${resumeDirection})?`);
     }
 
     // Otherwise, just wait...
     if (!nextDirection && debugConvictionStep && verboseConvictionStep) {
-      console.log(`[movement] [performConvictionStep] "${dot.id}" is waiting to resume course`);
+      Logger.sub('movement.performConvictionStep', `"${dot.id}" is waiting to resume course`);
     }
 
     // Check if conviction is now satisfied...
@@ -134,7 +135,7 @@ export function performConvictionStep(dot = {}, world = {}, stepConviction = {})
     const isXAdjusted = (nextDirection === resumeDirection && dot.x1 === resumeX1);
     const isYAdjusted = (nextDirection === resumeDirection && dot.y1 === resumeY1);
     if ((isXResuming && isXAdjusted) || (isYResuming && isYAdjusted)) {
-      if (debugConvictionStep && verboseConvictionStep) console.log(`[movement] [performConvictionStep] "${dot.id}" has satisifed the step conviction`);
+      if (debugConvictionStep && verboseConvictionStep) Logger.sub('movement.performConvictionStep', `"${dot.id}" has satisifed the step conviction`);
       Object.assign(dot.convictions.step, { satisfied: true });
     }
 
@@ -145,8 +146,8 @@ export function performConvictionStep(dot = {}, world = {}, stepConviction = {})
   } // end-if (steps.length > 0)
 
   if (debugConvictionStep) {
-    if (nextStep.direction) console.log(`[movement] [performConvictionStep] "${dot.id}" is stepping:`, nextStep.direction);
-    else console.log(`[movement] [performConvictionStep] "${dot.id}" is not stepping`);
+    if (nextStep.direction) Logger.sub('movement.performConvictionStep', `"${dot.id}" is stepping`, nextStep.direction);
+    else Logger.sub('movement.performConvictionStep', `"${dot.id}" is not stepping`);
   }
 
   return nextStep;
@@ -166,7 +167,7 @@ export function performFreedomStep(dot = {}, world = {}) {
 
   // Determine all available steps at this moment in the world...
   const steps = calculateAvailableSteps(dot, world);
-  if (debugFreedomStep && verboseFreedomStep) console.log(`[movement] [performFreedomStep] "${dot.id}" available steps =>`, steps);
+  if (debugFreedomStep && verboseFreedomStep) Logger.sub('movement.performFreedomStep', `"${dot.id}" available steps`, steps);
 
   // If steps are available, decide which to take...
   if (steps.length > 0) {
@@ -207,8 +208,8 @@ export function performFreedomStep(dot = {}, world = {}) {
   } // end-if (steps.length > 0)
 
   if (debugFreedomStep) {
-    if (nextStep.direction) console.log(`[movement] [performFreedomStep] "${dot.id}" is stepping:`, nextStep.direction);
-    else console.log(`[movement] [performFreedomStep] "${dot.id}" is not stepping`);
+    if (nextStep.direction) Logger.sub('movement.performFreedomStep', `"${dot.id}" is stepping`, nextStep.direction);
+    else Logger.sub('movement.performFreedomStep', `"${dot.id}" is not stepping`);
   }
 
   return nextStep;

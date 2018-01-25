@@ -99,6 +99,7 @@ export default {
   },
 
   updated() {
+    console.log('[Dot.js] updated !!!');
     if (!this.self.isAsleep && this.world.freedomMode) this.move();
   },
 
@@ -141,6 +142,8 @@ export default {
     },
     // -------------------------- Moves
     move() {
+      console.log('[Dot.js] move called !!!');
+
       // Obtain next move and current speed...
       const nextMove = this.self.getNextMove(this.world);
 
@@ -178,6 +181,7 @@ export default {
 <style scoped>
   .dot-space {
     position: absolute;
+    background-color: #f5f5f5;
     height: 9px;
     width: 9px;
     cursor: pointer;
