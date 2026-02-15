@@ -19,6 +19,9 @@ export function chooseNextStep(dot = {}, world = {}) {
     endState: {},
   };
 
+  console.log('[DEVING] stepContracts:', dot.stepContracts);
+  console.log('[DEVING] convictions:', dot.convictions);
+
   // Check for active step contract with others...
   const stepContract = (objectUtils.has(dot.stepContracts.personal, 'satisfied'))
       ? dot.stepContracts.personal

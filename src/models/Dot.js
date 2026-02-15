@@ -194,7 +194,8 @@ export default class Dot {
       endState: {},
     };
 
-    if (debug) Logger.main('getNextMove');
+    // if (debug) Logger.main('getNextMove');
+    console.log(`[DEVING] ${this.name} getNextMove`);
 
     // Check for interactions...
     const interactions = dotInteraction.interactWithOthers(this, world);

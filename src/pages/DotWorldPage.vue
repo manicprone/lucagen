@@ -177,6 +177,7 @@ export default {
 
   /* World Controls */
   .world-controls-container {
+    /* width: 450px; */
     margin: 20px 0 20px 0;
   }
   .world-controls {

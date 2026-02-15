@@ -15,7 +15,7 @@
         </div>
       </div>
 
-      <div class="emotional-quadrant q-1-1"></div>
+      <!-- <div class="emotional-quadrant q-1-1"></div>
       <div class="emotional-quadrant q-1-2"></div>
       <div class="emotional-quadrant q-1-3"></div>
 
@@ -25,7 +25,7 @@
 
       <div class="emotional-quadrant q-3-1"></div>
       <div class="emotional-quadrant q-3-2"></div>
-      <div class="emotional-quadrant q-3-3"></div>
+      <div class="emotional-quadrant q-3-3"></div> -->
     </div>
 
   </div>
@@ -99,7 +99,7 @@ export default {
   },
 
   updated() {
-    console.log('[Dot.js] updated !!!');
+    // console.log('[Dot.js] updated !!!');
     if (!this.self.isAsleep && this.world.freedomMode) this.move();
   },
 
@@ -142,7 +142,7 @@ export default {
     },
     // -------------------------- Moves
     move() {
-      console.log('[Dot.js] move called !!!');
+      // console.log('[Dot.js] move called !!!');
 
       // Obtain next move and current speed...
       const nextMove = this.self.getNextMove(this.world);
@@ -181,7 +181,8 @@ export default {
 <style scoped>
   .dot-space {
     position: absolute;
-    background-color: #f5f5f5;
+    /* background-color: #f5f5f5; */
+    background-color: #525252;
     height: 9px;
     width: 9px;
     cursor: pointer;

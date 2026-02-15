@@ -106,7 +106,10 @@ export default {
     addDotToWorld() {
       if (this.$parent.isPaused) {
         const dot = {};
-        if (this.newDotName) dot.name = this.newDotName;
+        if (this.newDotName) {
+          dot.id = this.newDotName;
+          dot.name = this.newDotName;
+        }
         if (this.newDotBirthX) dot.birthX = Number(this.newDotBirthX);
         if (this.newDotBirthY) dot.birthY = Number(this.newDotBirthY);
         if (this.newDotSpeed) dot.speed = Number(this.newDotSpeed);
