@@ -4,20 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Lucagen — "The chaotic art of life" — is a Vue 2 SPA simulating autonomous dot entities ("DotWorld") that move, interact, and exhibit emotional states within a shared world. Each dot is an independent agent with its own perception, emotions, motivations, and social dynamics. Status: WIP, not demonstration-ready.
+Lucagen — "The chaotic art of life" — simulates autonomous dot entities ("DotWorld") that move, interact, and exhibit emotional states within a shared world. Each dot is an independent agent with its own perception, emotions, motivations, and social dynamics.
+
+**v2** is a canvas-rendered rebuild targeting 1000+ dots at 60fps. The original Vue 2 prototype is preserved in `_v0_prototype/`. Status: Phase 1 (core engine) complete, Phase 2 (rendering) next.
 
 ## Commands
 
-- **Dev server**: `npm run dev` (port 11235, requires Node 16 via `nvm use`)
+- **Dev server**: `npm run dev` (port 11235, requires Node 22 via `nvm use`)
 - **Build**: `npm run build`
-- **Lint**: `npm run lint` (ESLint with airbnb-base on .js and .vue files)
-- **Unit tests**: `npm run unit` (Karma + Mocha + Chai, PhantomJS)
-- **E2E tests**: `npm run e2e` (Nightwatch + Selenium)
-- **Install**: `npm install --legacy-peer-deps` (required due to sinon peer dep conflict)
+- **Tests**: `npm run test` (Vitest)
+- **Tests (watch)**: `npm run test:watch`
+- **Install**: `npm install`
 
 ## Tech Stack
 
-Vue 2.2, Vue Router 2.3 (history mode), Vuex 2.2, Webpack 2.2, Velocity.js (animations), Lodash, Babel (env + stage-2). Node 16 pinned via `.nvmrc`.
+Vanilla JS (no framework), PixiJS v8 (WebGL rendering), Vite 6 (build), Vitest (tests). Node 22 pinned via `.nvmrc`.
 
 ---
 

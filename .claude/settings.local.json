@@ -5,7 +5,10 @@
       "Bash(npm --version)",
       "Bash(source:*)",
       "Bash(nvm ls:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm install:*)",
+      "Bash(nvm use:*)",
+      "Bash(timeout 8 npx vite:*)"
     ]
   }
 }

@@ -1,60 +1,47 @@
-import objectUtils from '../utils/object-utils';
+// World.js — The shared world in which Dots exist
+//
+// A World is shared amongst a set of Dots, each with their own
+// view of its state and their own view of others.
 
-const debug = false;
-const verbose = false;
+import {
+  WORLD_DEFAULT_WIDTH,
+  WORLD_DEFAULT_HEIGHT,
+  WORLD_DEFAULT_POLARITY,
+  WORLD_DEFAULT_CHIRALITY,
+} from '../config/defaults.js';
 
-export default class DotWorld {
+export default class World {
   constructor(data = {}) {
-    this.type = this.constructor.name;
+    this.type = 'DotWorld';
 
-    // --------------
-    // Identification
-    // --------------
-    const isNew = objectUtils.get(data, 'new', true);
-    this.name = objectUtils.get(data, 'name', `Lucagen-${new Date().getTime()}`);
+    // --- Identification ---
+    this.name = data.name ?? `Lucagen-${Date.now()}`;
 
-    if (debug && isNew) {
-      console.log(`World: "${this.name}" has been created.`);
-      if (verbose) console.log('with data =>', data);
-    }
+    // --- Dimensions ---
+    this.width = data.width ?? WORLD_DEFAULT_WIDTH;
+    this.height = data.height ?? WORLD_DEFAULT_HEIGHT;
 
-    // ----------
-    // Dimensions
-    // ----------
-    this.width = objectUtils.get(data, 'width', 450);
-    this.height = objectUtils.get(data, 'height', 270);
+    // --- World properties ---
+    // polarity:  U | D (up or down)
+    // chirality: L | R (left or right)
+    this.polarity = data.polarity ?? WORLD_DEFAULT_POLARITY;
+    this.chirality = data.chirality ?? WORLD_DEFAULT_CHIRALITY;
 
-    // -----------------------------------------------------------
-    // polarity   => U | D (up or down)
-    // chirality  => L | R (left or right)
-    // -----------------------------------------------------------
-    this.polarity = objectUtils.get(data, 'polarity', 'U');
-    this.chirality = objectUtils.get(data, 'chirality', 'R');
+    // --- Vertices (wall boundaries) ---
+    this.x1 = 0;
+    this.x2 = this.width + 1;
+    this.y1 = 0;
+    this.y2 = this.height + 1;
 
-    // --------
-    // Vertices
-    // --------
-    if (objectUtils.has(data, 'x1')) this.x1 = data.x1;
-    if (objectUtils.has(data, 'x2')) this.x2 = data.x2;
-    if (objectUtils.has(data, 'y1')) this.y1 = data.y1;
-    if (objectUtils.has(data, 'y2')) this.y2 = data.y2;
-    if (isNew) {
-      // Generate vertices...
-      this.x1 = 0;
-      this.x2 = this.width + 1;
-      this.y1 = 0;
-      this.y2 = this.height + 1;
-    }
-
-    // --------------
-    // Dot Management
-    // --------------
-    this.dots = objectUtils.get(data, 'dots', []);
-    this.dotRegistry = objectUtils.get(data, 'dotRegistry', {});
+    // --- Dot management ---
+    this.dots = []; // ordered dot IDs
+    this.dotRegistry = {}; // ID -> Dot instance
     this.freedomMode = true;
+
+    // --- Spatial grid reference (set by WorldSimulation) ---
+    this.spatialGrid = null;
   }
 
-  // ----------------------------------------------- Dot management
   addDot(dot) {
     const dotID = dot.id;
     if (dotID) {
@@ -63,27 +50,49 @@ export default class DotWorld {
     }
   }
 
-  pauseDots() {
-    this.dots.forEach((dotID) => {
+  removeDot(dotID) {
+    const idx = this.dots.indexOf(dotID);
+    if (idx !== -1) this.dots.splice(idx, 1);
+    delete this.dotRegistry[dotID];
+  }
+
+  getDot(dotID) {
+    return this.dotRegistry[dotID] ?? null;
+  }
+
+  getDotCount() {
+    return this.dots.length;
+  }
+
+  forEachDot(callback) {
+    for (const dotID of this.dots) {
       const dot = this.dotRegistry[dotID];
-      if (dot && !dot.isAsleep) dot.sleep();
+      if (dot) callback(dot);
+    }
+  }
+
+  pauseDots() {
+    this.forEachDot(dot => {
+      if (!dot.isAsleep) dot.sleep();
     });
   }
 
   resumeDots() {
-    this.dots.forEach((dotID) => {
-      const dot = this.dotRegistry[dotID];
-      if (dot && dot.isAsleep) dot.wake();
+    this.forEachDot(dot => {
+      if (dot.isAsleep) dot.wake();
     });
   }
 
   setFreedom(value) {
-    this.freedomMode = (value === true);
+    this.freedomMode = value === true;
   }
 
-  // ----------------------------------------------- Hydrate
-  static hydrate(worldData) {
-    worldData.new = false; // eslint-disable-line no-param-reassign
-    return new DotWorld(worldData);
+  // Size world to viewport dimensions
+  static fromViewport(options = {}) {
+    return new World({
+      ...options,
+      width: options.width ?? window.innerWidth,
+      height: options.height ?? window.innerHeight,
+    });
   }
 }

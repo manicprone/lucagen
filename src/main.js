@@ -1,28 +1,20 @@
-import Vue from 'vue';
-import { sync } from 'vuex-router-sync';
-import App from './pages/App';
-import router from './routers/view';
-import store from './store';
+// lucagen v2 — entry point
+// Phase 0: blank PixiJS canvas shell
+// Phase 1+: simulation wired here
 
-Vue.config.productionTip = false;
+import { Application } from 'pixi.js';
 
-// Sync the router with the vuex store...
-// (this registers `store.state.route`)
-sync(store, router);
+const app = new Application();
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
+async function init() {
+  await app.init({
+    resizeTo: window,
+    background: 0x0a0a0a,
+    antialias: true,
+  });
 
-  // Inject router for all components to utilize...
-  // Reference as: this.$router
-  router,
+  document.body.appendChild(app.canvas);
+  console.log('lucagen v2 — canvas ready');
+}
 
-  // Inject store for all components to utilize...
-  // Reference as: this.$store
-  store,
-
-  // Load app components (Pages and Components)...
-  template: '<App/>',
-  components: { App },
-});
+init();
