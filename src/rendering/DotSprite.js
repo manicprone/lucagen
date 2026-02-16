@@ -46,6 +46,11 @@ export default class DotSprite {
       this.container.addChild(gfx);
     }
 
+    // Enable click detection
+    this.container.eventMode = 'static';
+    this.container.cursor = 'pointer';
+    this.container.hitArea = { contains: (x, y) => x >= 0 && x <= DOT_SIZE && y >= 0 && y <= DOT_SIZE };
+
     // Set initial position
     this.container.position.set(dot.x1, dot.y1);
 

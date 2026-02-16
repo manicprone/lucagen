@@ -19,6 +19,10 @@ export default class PixiApp {
     });
 
     document.body.appendChild(this.app.canvas);
+
+    // Enable event system on stage so children can receive pointer events
+    this.app.stage.eventMode = 'static';
+
     this._initialized = true;
     return this;
   }

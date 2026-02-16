@@ -7,6 +7,8 @@ import Dot from './models/Dot.js';
 import WorldSimulation from './engine/WorldSimulation.js';
 import WorldRenderer from './rendering/WorldRenderer.js';
 import SimulationLoop from './engine/SimulationLoop.js';
+import ControlPanel from './ui/ControlPanel.js';
+import InspectorPanel from './ui/InspectorPanel.js';
 import { randomInt } from './utils/math-utils.js';
 
 const INITIAL_DOT_COUNT = 100;
@@ -29,27 +31,55 @@ async function init() {
   // --- Create renderer ---
   const renderer = new WorldRenderer(pixiApp.stage);
 
+  // --- Create inspector ---
+  const inspector = new InspectorPanel();
+
   // --- Spawn initial dots ---
   spawnDots(simulation, world, INITIAL_DOT_COUNT);
   renderer.sync(world);
+
+  // --- Wire click detection on sprites ---
+  setupClickDetection(renderer, world, inspector);
+
+  // --- Create control panel (before loop so onRender can reference it) ---
+  let controls;
 
   // --- Start game loop ---
   const loop = new SimulationLoop({
     onTick: () => {
       simulation.tick();
-      renderer.sync(world); // sync sprites after tick (in case dots added/removed)
+      renderer.sync(world);
     },
     onRender: (alpha) => {
       renderer.render(alpha);
+      inspector.update();
+      if (controls) {
+        controls.updateDotCount(world.getDotCount());
+        controls.updateTickCount(simulation.tickCount);
+      }
     },
   });
 
+  controls = new ControlPanel({
+    onPlay: () => loop.start(),
+    onPause: () => loop.stop(),
+    onStep: () => loop.stepOnce(),
+    onSpeedChange: (ticksPerSec) => loop.setTickRate(ticksPerSec),
+    onSpawn: (count) => {
+      spawnDots(simulation, world, count);
+      renderer.sync(world);
+      setupClickDetection(renderer, world, inspector);
+    },
+    onFullscreen: () => toggleFullscreen(),
+  });
+
   loop.start();
+  controls.updateDotCount(world.getDotCount());
 
   console.log(`lucagen v2 — ${world.getDotCount()} dots spawned, simulation running`);
 
-  // Expose for debugging in browser console
-  window.__lucagen = { pixiApp, world, simulation, renderer, loop };
+  // Expose for debugging
+  window.__lucagen = { pixiApp, world, simulation, renderer, loop, controls, inspector };
 }
 
 function spawnDots(simulation, world, count) {
@@ -61,10 +91,9 @@ function spawnDots(simulation, world, count) {
     const x = randomInt(1, Math.max(1, maxX));
     const y = randomInt(1, Math.max(1, maxY));
 
-    // Give each dot a random starting emotional config
+    // Random starting emotional config: 1-3 active dimensions
     const emotionalConfig = {};
     const keys = ['x', 's', 'y', 'L', 'd', 'R', 'o', 'n', 'g'];
-    // Randomly activate 1-3 emotional dimensions
     const activeCount = randomInt(1, 3);
     for (let j = 0; j < activeCount; j++) {
       const key = keys[randomInt(0, keys.length - 1)];
@@ -72,13 +101,34 @@ function spawnDots(simulation, world, count) {
     }
 
     const dot = new Dot({
-      name: `dot-${i + 1}`,
+      name: `dot-${world.getDotCount() + 1}`,
       birthX: x,
       birthY: y,
       emotionalConfig,
     });
 
     simulation.spawnDot(dot);
+  }
+}
+
+function setupClickDetection(renderer, world, inspector) {
+  for (const [dotId, sprite] of renderer.sprites) {
+    // Skip if already wired
+    if (sprite._clickWired) continue;
+
+    sprite.container.on('pointertap', () => {
+      const dot = world.getDot(dotId);
+      if (dot) inspector.inspect(dot);
+    });
+    sprite._clickWired = true;
+  }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
   }
 }
 
