@@ -4,7 +4,8 @@
       "Bash(node --version:*)",
       "Bash(npm --version)",
       "Bash(source:*)",
-      "Bash(nvm ls:*)"
+      "Bash(nvm ls:*)",
+      "WebSearch"
     ]
   }
 }
