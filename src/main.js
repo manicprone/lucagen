@@ -38,6 +38,9 @@ async function init() {
   spawnDots(simulation, world, INITIAL_DOT_COUNT);
   renderer.sync(world);
 
+  // --- Set viewport for frustum culling ---
+  renderer.setViewport(pixiApp.screen.width, pixiApp.screen.height);
+
   // --- Wire click detection on sprites ---
   setupClickDetection(renderer, world, inspector);
 

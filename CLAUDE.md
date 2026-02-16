@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Lucagen — "The chaotic art of life" — simulates autonomous dot entities ("DotWorld") that move, interact, and exhibit emotional states within a shared world. Each dot is an independent agent with its own perception, emotions, motivations, and social dynamics.
 
-**v2** is a canvas-rendered rebuild targeting 1000+ dots at 60fps. The original Vue 2 prototype is preserved in `_v0_prototype/`. Status: Phase 1 (core engine) complete, Phase 2 (rendering) next.
+**v2** is a canvas-rendered rebuild targeting 1000+ dots at 60fps. The original Vue 2 prototype is preserved in `_v0_prototype/`. Status: All 5 phases complete (engine, rendering, emotions, UI, polish).
 
 ## Commands
 
