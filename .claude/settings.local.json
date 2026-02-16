@@ -8,7 +8,9 @@
       "WebSearch",
       "Bash(npm install:*)",
       "Bash(nvm use:*)",
-      "Bash(timeout 8 npx vite:*)"
+      "Bash(timeout 8 npx vite:*)",
+      "WebFetch(domain:pixijs.com)",
+      "WebFetch(domain:pixijs.download)"
     ]
   }
 }
