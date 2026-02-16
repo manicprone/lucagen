@@ -118,15 +118,56 @@ describe('dot-interaction', () => {
     });
   });
 
-  describe('stubs', () => {
-    it('isWillingToInteractWithDot returns false', () => {
-      expect(dotInteraction.isWillingToInteractWithDot()).toBe(false);
+  describe('isWillingToInteractWithDot', () => {
+    it('returns false for dot with no emotional activation', () => {
+      const observer = new Dot({ id: 'obs' });
+      const other = new Dot({ id: 'other' });
+      expect(dotInteraction.isWillingToInteractWithDot(observer, other)).toBe(false);
     });
 
-    it('performInteraction returns empty end states', () => {
-      const result = dotInteraction.performInteraction();
+    it('returns true for dot with high connectedness and stimulation', () => {
+      const observer = new Dot({
+        id: 'obs',
+        emotionalConfig: { g: 2, s: 2, x: 2 },
+      });
+      const other = new Dot({ id: 'other' });
+      expect(dotInteraction.isWillingToInteractWithDot(observer, other)).toBe(true);
+    });
+
+    it('returns false for dot with low connectedness', () => {
+      const observer = new Dot({
+        id: 'obs',
+        emotionalConfig: { g: 0.5, s: 2, x: 2 },
+      });
+      const other = new Dot({ id: 'other' });
+      expect(dotInteraction.isWillingToInteractWithDot(observer, other)).toBe(false);
+    });
+  });
+
+  describe('performInteraction', () => {
+    it('returns empty end states when initiator has no dominant emotion', () => {
+      const initiator = new Dot({ id: 'init' });
+      const recipient = new Dot({ id: 'recv' });
+      const result = dotInteraction.performInteraction(initiator, recipient);
       expect(result.initiatorEndState).toEqual({});
       expect(result.recipientEndState).toEqual({});
+    });
+
+    it('transfers dominant emotion from initiator to recipient', () => {
+      const initiator = new Dot({
+        id: 'init',
+        emotionalConfig: { x: 3, o: 1 }, // x is dominant
+      });
+      const recipient = new Dot({
+        id: 'recv',
+        emotionalConfig: { x: 0 },
+      });
+      const result = dotInteraction.performInteraction(initiator, recipient);
+
+      expect(result.recipientEndState._emotionalTransfer).toBeDefined();
+      expect(result.recipientEndState._emotionalTransfer.x).toBeGreaterThan(0);
+      expect(result.initiatorEndState.totalInteractionsInitiated).toBe(1);
+      expect(result.recipientEndState.totalInteractions).toBe(1);
     });
   });
 });

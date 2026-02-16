@@ -10,6 +10,7 @@
 import SpatialGrid from './SpatialGrid.js';
 import * as dotInteraction from '../logic/dot-interaction.js';
 import * as dotMovement from '../logic/dot-movement.js';
+import * as dotEmotion from '../logic/dot-emotion.js';
 
 export default class WorldSimulation {
   constructor(world) {
@@ -57,8 +58,18 @@ export default class WorldSimulation {
       dot.applyMove(endState);
     }
 
-    // (5) Evaluate (Phase 3: emotional contagion + self-assessment)
-    // Will be wired in Phase 3
+    // (5) Emotional contagion + self-assessment
+    // Rebuild grid after moves so proximity is accurate
+    this.spatialGrid.rebuild(dots);
+
+    for (const dot of dots) {
+      // Contagion: nearby dots pull emotions toward their average
+      const nearbyDots = dotMovement.getNearbyDotsSpatial(dot, this.spatialGrid);
+      dotEmotion.applyContagion(dot, nearbyDots);
+
+      // Self-evaluation: assess all emotional dimensions
+      dotEmotion.evaluate(dot, world);
+    }
 
     this.tickCount++;
   }

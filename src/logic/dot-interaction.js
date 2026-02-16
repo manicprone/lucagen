@@ -157,15 +157,99 @@ export function purgeMemberStepContracts(observer, others = []) {
   return memberContracts;
 }
 
-// --- Interaction stubs (Phase 3) ---
+// --- Interaction willingness and execution ---
 
-export function isWillingToInteractWithDot(/* observer, other */) {
-  return false;
+import {
+  INTERACTION_CONNECTEDNESS_THRESHOLD,
+  INTERACTION_STIMULATION_THRESHOLD,
+  EMOTION_UNSET,
+  EMOTION_TRANSFER_RATIO,
+  EMOTION_MAX,
+} from '../config/defaults.js';
+import EmotionalConfig from '../models/EmotionalConfig.js';
+
+/**
+ * Determines if the observer is willing to interact with another dot.
+ * Gates on connectedness (g) and stimulation (s) levels.
+ * A dot that feels isolated or understimulated is less willing.
+ */
+export function isWillingToInteractWithDot(observer, other) {
+  const ec = observer.emotionalConfig;
+
+  // Must have some emotional activation
+  if (!ec.isActive()) return false;
+
+  // Connectedness check: need some baseline inclusion feeling
+  const g = ec.g;
+  if (g > EMOTION_UNSET && g < INTERACTION_CONNECTEDNESS_THRESHOLD) return false;
+
+  // Stimulation check: need some baseline energy
+  const s = ec.s;
+  if (s > EMOTION_UNSET && s < INTERACTION_STIMULATION_THRESHOLD) return false;
+
+  // Intrigue check: if agitated (low x), less willing
+  const x = ec.x;
+  if (x > EMOTION_UNSET && x < 0.5) return false;
+
+  return true;
 }
 
-export function performInteraction(/* initiator, recipient, world */) {
-  return {
+/**
+ * Perform an interaction between initiator and recipient.
+ * The initiator's dominant emotion transfers partially to the recipient.
+ * Both dots' connectedness increases.
+ */
+export function performInteraction(initiator, recipient /*, world */) {
+  const interaction = {
     initiatorEndState: {},
     recipientEndState: {},
   };
+
+  // Find the initiator's dominant corner emotion
+  const dominant = getDominantEmotion(initiator);
+  if (!dominant) return interaction;
+
+  // Transfer a fraction of the dominant emotion to the recipient
+  const recipientEc = recipient.emotionalConfig;
+  const currentVal = recipientEc[dominant.key];
+  const activated = currentVal <= EMOTION_UNSET ? 0 : currentVal;
+  const transferred = activated + (dominant.value * EMOTION_TRANSFER_RATIO);
+  const clamped = Math.max(0, Math.min(EMOTION_MAX, transferred));
+
+  // Build a new emotional config for the recipient with the transferred value
+  const recipientEmotionalUpdate = {};
+  recipientEmotionalUpdate[dominant.key] = clamped;
+
+  // Both dots gain connectedness from the interaction
+  interaction.initiatorEndState.totalInteractionsInitiated =
+    (initiator.totalInteractionsInitiated || 0) + 1;
+  interaction.initiatorEndState.totalInteractions =
+    (initiator.totalInteractions || 0) + 1;
+  interaction.recipientEndState.totalInteractions =
+    (recipient.totalInteractions || 0) + 1;
+
+  // Store the emotional transfer info for the recipient
+  interaction.recipientEndState._emotionalTransfer = recipientEmotionalUpdate;
+
+  return interaction;
+}
+
+/**
+ * Find the dominant (highest intensity) corner emotion of a dot.
+ * Returns { key, value } or null if no corners are active.
+ */
+function getDominantEmotion(dot) {
+  let maxKey = null;
+  let maxVal = EMOTION_UNSET;
+
+  for (const key of EmotionalConfig.CORNER_KEYS) {
+    const val = dot.emotionalConfig[key];
+    if (val > maxVal) {
+      maxVal = val;
+      maxKey = key;
+    }
+  }
+
+  if (maxKey === null || maxVal <= EMOTION_UNSET) return null;
+  return { key: maxKey, value: maxVal };
 }
