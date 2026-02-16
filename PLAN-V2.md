@@ -22,53 +22,57 @@ Inspiration: Conway's Game of Life, but showcasing how emotions spread like weat
 
 ## Project Structure
 
-New project as a sibling directory `lucagen-v2/` — the existing prototype stays as reference.
+The existing Vue 2 prototype moves into `_v0_prototype/` at the repo root for reference. The new implementation lives at the repo root.
 
 ```
-lucagen-v2/
-  index.html                       Fullscreen dark canvas shell
-  vite.config.js                   Dev server on port 11235
-  package.json                     Deps: pixi.js v8, vite, vitest
+_v0_prototype/                   Original Vue 2 app (preserved as-is)
   src/
-    main.js                        Entry: init PixiJS, create world, start loop
-    engine/
-      SimulationLoop.js            Fixed-timestep loop with render interpolation
-      SpatialGrid.js               Grid-based spatial hash for O(1) proximity
-      WorldSimulation.js           Tick orchestrator (replaces Vuex actions)
-    models/
-      Dot.js                       Ported from existing, adapted
-      World.js                     Ported from existing, adapted
-      EmotionalConfig.js           Extracted from Dot — standalone emotional grid
-    logic/
-      dot-movement.js              Ported from existing (~400 lines, 95% as-is)
-      dot-interaction.js           Ported from existing (~260 lines, stubs filled)
-      dot-motivation.js            Ported from existing (~24 lines)
-      dot-emotion.js               NEW: evaluate(), contagion, emotional math
-    rendering/
-      PixiApp.js                   PixiJS Application wrapper, resize handling
-      DotSprite.js                 30px dot with 3x3 quadrant flower rendering
-      WorldRenderer.js             Sprite lifecycle + batched per-frame updates
-    ui/
-      ControlPanel.js              Play/pause/step/speed/spawn (DOM overlay)
-      InspectorPanel.js            Click-to-inspect emotional state detail
-    utils/
-      object-utils.js              Native JS replacements for Lodash shim
-      math-utils.js                lerp, clamp, distance, randomInt
-      color-utils.js               Emotional value → color mapping
-    config/
-      defaults.js                  World/dot defaults, tuning constants
-      emotional-palette.js         Bipolar color scales per quadrant dimension
-    services/
-      DotLogger.js                 Ported from existing
-  tests/
-    engine/                        SimulationLoop, SpatialGrid, WorldSimulation
-    models/                        Dot, World, EmotionalConfig
-    logic/                         Movement, interaction, emotion
+  package.json
+  ...
+
+index.html                         Fullscreen dark canvas shell
+vite.config.js                     Dev server on port 11235
+package.json                       Deps: pixi.js v8, vite, vitest
+src/
+  main.js                          Entry: init PixiJS, create world, start loop
+  engine/
+    SimulationLoop.js              Fixed-timestep loop with render interpolation
+    SpatialGrid.js                 Grid-based spatial hash for O(1) proximity
+    WorldSimulation.js             Tick orchestrator (replaces Vuex actions)
+  models/
+    Dot.js                         Ported from existing, adapted
+    World.js                       Ported from existing, adapted
+    EmotionalConfig.js             Extracted from Dot — standalone emotional grid
+  logic/
+    dot-movement.js                Ported from existing (~400 lines, 95% as-is)
+    dot-interaction.js             Ported from existing (~260 lines, stubs filled)
+    dot-motivation.js              Ported from existing (~24 lines)
+    dot-emotion.js                 NEW: evaluate(), contagion, emotional math
+  rendering/
+    PixiApp.js                     PixiJS Application wrapper, resize handling
+    DotSprite.js                   30px dot with 3x3 quadrant flower rendering
+    WorldRenderer.js               Sprite lifecycle + batched per-frame updates
+  ui/
+    ControlPanel.js                Play/pause/step/speed/spawn (DOM overlay)
+    InspectorPanel.js              Click-to-inspect emotional state detail
+  utils/
+    object-utils.js                Native JS replacements for Lodash shim
+    math-utils.js                  lerp, clamp, distance, randomInt
+    color-utils.js                 Emotional value → color mapping
+  config/
+    defaults.js                    World/dot defaults, tuning constants
+    emotional-palette.js           Bipolar color scales per quadrant dimension
+  services/
+    DotLogger.js                   Ported from existing
+tests/
+  engine/                          SimulationLoop, SpatialGrid, WorldSimulation
+  models/                          Dot, World, EmotionalConfig
+  logic/                           Movement, interaction, emotion
 ```
 
 ## What Gets Ported vs Rewritten
 
-**Ported directly (70% of codebase):**
+**Ported from `_v0_prototype/` (70% of original codebase):**
 - `dot-movement.js` — Replace Lodash imports with native JS, add spatial-grid-aware `getNearbyDots`, restore commented-out polarity/chirality prioritization, set debug=false
 - `dot-interaction.js` — Same import changes, update `interactWithOthers()` to use spatial grid
 - `dot-motivation.js` — Minimal import changes
@@ -118,9 +122,11 @@ lucagen-v2/
 ## Phases
 
 ### Phase 0: Project Setup
-- Create `lucagen-v2/` with Vite + PixiJS v8
+- Move all existing files (src/, static/, build/, config/, test/, package.json, .nvmrc, .eslintrc.js, .babelrc, etc.) into `_v0_prototype/`
+- Initialize new project at root with Vite + PixiJS v8
 - `index.html`: fullscreen dark canvas, no framework
 - `npm run dev` serves blank PixiJS canvas on port 11235
+- Preserve CLAUDE.md, PLAN-V2.md, README.md, and .git at root
 - **No dependencies on later phases**
 
 ### Phase 1: Core Engine
@@ -208,19 +214,19 @@ world self others
 
 ## Porting Reference
 
-| Existing File | Action | Key Changes |
+| Original File (now in `_v0_prototype/`) | Action | Key Changes |
 |---|---|---|
-| `src/models/Dot.js` | Port | Remove getNextMove/hydrate, extract EmotionalConfig, 9→30px, add prevX1/prevY1 |
-| `src/models/World.js` | Port | Remove hydrate, add spatialGrid, dynamic viewport sizing |
-| `src/logic/dot-movement.js` | Port | Replace Lodash, add spatial getNearbyDots, restore polarity/chirality |
-| `src/logic/dot-interaction.js` | Port | Replace Lodash, wire to spatial grid, fill stubs in Phase 3 |
-| `src/logic/dot-motivation.js` | Port | Replace imports |
-| `src/logic/dot-movement-ui.js` | Delete | Replaced by PixiJS sprite positioning |
-| `src/utils/object-utils.js` | Port | Replace Lodash with native JS |
-| `src/services/DotLogger.js` | Port | Convert to ES module |
-| `src/components/*.vue` | Delete | Replaced by rendering/ layer |
-| `src/store/**` | Delete | Replaced by WorldSimulation |
-| `src/pages/*.vue` | Delete | Replaced by main.js + ui/ |
+| `src/models/Dot.js` | Port to `src/models/Dot.js` | Remove getNextMove/hydrate, extract EmotionalConfig, 9→30px, add prevX1/prevY1 |
+| `src/models/World.js` | Port to `src/models/World.js` | Remove hydrate, add spatialGrid, dynamic viewport sizing |
+| `src/logic/dot-movement.js` | Port to `src/logic/dot-movement.js` | Replace Lodash, add spatial getNearbyDots, restore polarity/chirality |
+| `src/logic/dot-interaction.js` | Port to `src/logic/dot-interaction.js` | Replace Lodash, wire to spatial grid, fill stubs in Phase 3 |
+| `src/logic/dot-motivation.js` | Port to `src/logic/dot-motivation.js` | Replace imports |
+| `src/logic/dot-movement-ui.js` | Drop | Replaced by PixiJS sprite positioning |
+| `src/utils/object-utils.js` | Port to `src/utils/object-utils.js` | Replace Lodash with native JS |
+| `src/services/DotLogger.js` | Port to `src/services/DotLogger.js` | Convert to ES module |
+| `src/components/*.vue` | Drop | Replaced by rendering/ layer |
+| `src/store/**` | Drop | Replaced by WorldSimulation |
+| `src/pages/*.vue` | Drop | Replaced by main.js + ui/ |
 
 ## Verification
 
