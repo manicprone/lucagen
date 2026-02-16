@@ -11,8 +11,6 @@ import ControlPanel from './ui/ControlPanel.js';
 import InspectorPanel from './ui/InspectorPanel.js';
 import { randomInt } from './utils/math-utils.js';
 
-const INITIAL_DOT_COUNT = 100;
-
 async function init() {
   // --- Init PixiJS ---
   const pixiApp = new PixiApp();
@@ -20,7 +18,7 @@ async function init() {
 
   // --- Create world sized to viewport ---
   const world = new World({
-    name: 'DotWorld v2',
+    name: 'Lonely World',
     width: Math.floor(pixiApp.screen.width),
     height: Math.floor(pixiApp.screen.height),
   });
@@ -34,8 +32,15 @@ async function init() {
   // --- Create inspector ---
   const inspector = new InspectorPanel();
 
-  // --- Spawn initial dots ---
-  spawnDots(simulation, world, INITIAL_DOT_COUNT);
+  // --- Spawn Lonely (the first dot, always) ---
+  const lonely = new Dot({
+    id: 'lonely',
+    name: 'Lonely',
+    birthX: 1,
+    birthY: Math.max(1, world.height - 38), // bottom-left area
+    emotionalConfig: { s: 1 },
+  });
+  simulation.spawnDot(lonely);
   renderer.sync(world);
 
   // --- Set viewport for frustum culling ---
@@ -73,7 +78,20 @@ async function init() {
       renderer.sync(world);
       setupClickDetection(renderer, world, inspector);
     },
+    onAddDot: ({ name, x, y }) => {
+      const dot = new Dot({
+        name,
+        birthX: x,
+        birthY: y,
+        emotionalConfig: { s: 1 },
+      });
+      simulation.spawnDot(dot);
+      renderer.sync(world);
+      setupClickDetection(renderer, world, inspector);
+    },
     onFullscreen: () => toggleFullscreen(),
+    worldWidth: world.width,
+    worldHeight: world.height,
   });
 
   loop.start();

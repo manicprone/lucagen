@@ -10,7 +10,8 @@
       "Bash(nvm use:*)",
       "Bash(timeout 8 npx vite:*)",
       "WebFetch(domain:pixijs.com)",
-      "WebFetch(domain:pixijs.download)"
+      "WebFetch(domain:pixijs.download)",
+      "Bash(npx vitest run:*)"
     ]
   }
 }
